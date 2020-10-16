@@ -4,6 +4,7 @@ class Booking{
     private $studentid;
     private $staffid;
     private $confirmed;
+    private $note;
     private $deleted;
 
     function getstudentid(){
@@ -24,6 +25,12 @@ class Booking{
     function setconfirmed($val){
         $this->confirmed = $val;
     }
+    function getnote(){
+        return $this->note;
+    }
+    function setnote($val){
+        $this->note = $val;
+    }
     function getdeleted(){
         return $this->deleted;
     }
@@ -42,16 +49,25 @@ class Booking{
     public function confirmBooking(){
 
     }
-
-    public function unconfirmBooking(){
+    //cancel the Booking
+    public function cancelBooking(){
 
     }
-    //add/edit note
+    //add to booking note
     public function addNote(){
 
     }
+    //edit booking note
     public function editNote(){
         
+    }
+    //upload photo to server and store location in db
+    public function uploadPhoto(){
+
+    }
+    //User inputted data from a from is passed to this function, which then updates or adds the data to the database
+    public function addedit(){
+
     }
 }
 

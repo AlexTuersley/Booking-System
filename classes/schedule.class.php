@@ -57,7 +57,6 @@ class Schedule {
     public function editSchedule(){
 
     }
-
     //make item a holiday(away)
     public function makeScheduleHoliday(){
 
@@ -65,6 +64,10 @@ class Schedule {
     //make item active(show on timetable)
     public function activateScheduleItem(){
         
+    }
+    //User inputted data from a from is passed to this function, which then updates or adds the data to the database
+    public function addedit(){
+
     }
 
 }

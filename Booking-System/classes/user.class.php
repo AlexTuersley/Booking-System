@@ -10,9 +10,7 @@ class User{
     //User Information
     private $name;
     private $bio;
-    private $department;
     private $photo;
-
     
     function getid(){
         return $this->id;
@@ -56,19 +54,18 @@ class User{
     function setbio($val){
         $this->bio = $val;
     }
-    function getdepartment(){
-        return $this->department;
-    }
-    function setdepartment($val){
-        $this->department = $val;
-    }
     function getphoto(){
         return $this->photo;
     }
     function setphoto($val){
         $this->photo = $val;
     }
-  
+    function getuserlevel(){
+        return $this->userlevel;
+    }
+    function setuserlevel($val){
+        $this->userlevel = $val;
+    }
     function getuserleveltype(){
         switch ($this->userlevel) {
             case 1:
@@ -95,33 +92,26 @@ class User{
     }
     //Update current User data on DB
     function save(){
+        $query = "";
 
     }
-
+    //create user
+    public function addUser(){
+        
+    }
     //login user
-    public function loginUser(){
-
+    public function loginUser($ID){
+        $query = "UPDATE users SET loginstatus = 1 WHERE id = $ID";
     }
     //logout user
-    public function logoutUser(){
-
+    public function logoutUser($ID){
+        $query = "UPDATE users SET loginstatus = 0 WHERE id = $ID";
     }
     //delete user
     public function deleteUser(){
         
     }
-    //User inputted data from a from is passed to this function, which then updates or adds the data to the database
-    public function addedit(){
-
-    }
-    //Sign up form
-    public function signUpForm(){
-
-    }
-    //Sign in form
-    public function signInForm(){
-
-    }
+    //edit user information
 }
 ?>
 
