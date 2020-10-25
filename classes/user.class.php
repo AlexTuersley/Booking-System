@@ -142,11 +142,11 @@ class User{
     }
 
     //delete user
-    public function deleteuser(){
+    static public function deleteuser(){
         
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
-    static public function addedit(){
+    static public function addedit($UID){
 
     }
     //Data from Sign Up form is passed to this function to use in a Query
@@ -167,6 +167,10 @@ class User{
     }
     static public function listusers(){
         $RQ = new ReadQuery("SELECT id FROM users WHERE deleted = 0", null);
+
+    }
+    static public function edituserform($UID){
+
     }
 }
 ?>

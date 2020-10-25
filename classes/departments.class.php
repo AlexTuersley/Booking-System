@@ -34,7 +34,7 @@ Class Departments{
 
     }
 
-    static public function addedit(){
+    static public function addedit($DID){
         
     }
     static public function listdepartmentsadmin(){
