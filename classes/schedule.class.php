@@ -2,6 +2,9 @@
 
 
 class Schedule {
+
+    //Class Variables
+    private $id;
     private $staffid;
     private $date;
     private $start_time;
@@ -9,45 +12,74 @@ class Schedule {
     private $active;
     private $away;
 
+    //getter and setter functions
+    function getid(){
+        return $this->id;
+    }
+    function setid($Val){
+        $this->id = $Val;
+    }
     function getstaffid(){
         return $this->staffid;
     }
-    function setstaffid($val){
-        $this->staffid = $val;
+    function setstaffid($Val){
+        $this->staffid = $Val;
     }
     function getdate(){
         return $this->date;
     }
-    function setdate($val){
-        $this->date = $val;
+    function setdate($Val){
+        $this->date = $Val;
     }
     function getstarttime(){
         return $this->start_time;
     }
-    function setstarttime($val){
-        $this->start_time = $val;
+    function setstarttime($Val){
+        $this->start_time = $Val;
     }
     function getendtime(){
         return $this->end_time;
     }
-    function setendtime($val){
-        $this->end_time = $val;
+    function setendtime($Val){
+        $this->end_time = $Val;
     }
     function getactive(){
         return $this->active;
     }
-    function setactive($val){
-        $this->active = $val;
+    function setactive($Val){
+        $this->active = $Val;
     }
     function getaway(){
         return $this->away;
     }
-    function setaway($val){
-        $this->away = $val;
+    function setaway($Val){
+        $this->away = $Val;
     }
 
     function __construct(){
-        
+        if($ID > 0){
+
+            $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE id = :staffscheduleid", array(
+                PDOConnection::sqlarray(":staffscheduleid",$ID,PDO::PARAM_INT)
+            ));
+            $row = $RQ->getresults()->fetch(PDO::FETCH_BOTH);
+            $this->id = $ID;
+            $this->staffid = $row["staffid"];
+            $this->date = $row["day"];
+            $this->startime = $row["start_time"];
+            $this->end_time = $row["end_time"];
+            $this->active = $row["active"];
+            $this->away = $row["away"];
+        }
+        else{
+            $this->setdeleted(false);
+        }
+    }
+    function save(){
+
+    }
+    function savenew(){
+
     }
     //add new schedule item
     public function addnewschedule(){

@@ -1,30 +1,45 @@
 <?php
 Class Departments{
+
+    //Class Variables
     private $id;
     private $name;
     private $deleted;
 
+    //getter and setter functions
     function getid(){
         return $this->id;
     }
-    function setid($val){
-        $this->id = $val;
+    function setid($Val){
+        $this->id = $Val;
     }
     function getname(){
         return $this->name;
     }
-    function setname($val){
-        $this->name = $val;
+    function setname($Val){
+        $this->name = $Val;
     }
     function getdeleted(){
         return $this->deleted;
     }
-    function setdeleted($val){
-        $this->deleted = $val;
+    function setdeleted($Val){
+        $this->deleted = $Val;
     }
 
     function __construct(){
+        if($ID > 0){
 
+            $RQ = new ReadQuery("SELECT * FROM departments WHERE id = :departmentid", array(
+                PDOConnection::sqlarray(":departmentid",$ID,PDO::PARAM_INT)
+            ));
+            $row = $RQ->getresults()->fetch(PDO::FETCH_BOTH);
+            $this->id = $ID;
+            $this->name = $row["name"];
+            $this->deleted = $row["deleted"];
+        }
+        else{
+            $this->setdeleted(false);
+        }
     }
     function savenew(){
 

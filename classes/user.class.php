@@ -1,6 +1,8 @@
 <?php
 
 class User{
+
+    //Class Variables
     //User Login Details
     private $id;
     private $username;
@@ -16,6 +18,7 @@ class User{
     private $bio;
     private $location;
     
+    //getter and setter functions
     function getid(){
         return $this->id;
     }
@@ -125,7 +128,8 @@ class User{
             $this->photo = $row["photo"];
             $this->department = $row["department"];
             $this->bio = $row["bio"];
-            $this->location = $row["location"];  
+            $this->location = $row["location"]; 
+            $this->deleted = $row["deleted"];
         }else{
             //Create New
             $this->setdeleted(false);

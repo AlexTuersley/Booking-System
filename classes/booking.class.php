@@ -1,52 +1,100 @@
 <?php
 class Booking{
 
+    //Class Variables
+    private $id;
+    private $name;
     private $studentid;
     private $staffid;
+    private $start_time;
+    private $end_time;
+    private $meetingtype;
     private $confirmed;
     private $note;
     private $deleted;
 
+    function getid(){
+        return $this->id;
+    }
+    function setid($Val){
+        $this->id = $Val;
+    }
+    function getname(){
+        return $this->name;
+    }
+    function setname($Val){
+        $this->name = $Val;
+    }
     function getstudentid(){
         return $this->studentid;
     }
-    function setstudentid($val){
-        $this->studentid = $val;
+    function setstudentid($Val){
+        $this->studentid = $Val;
     }
     function getstaffid(){
         return $this->staffid;
     }
-    function setstaffid($val){
-        $this->staffid = $val;
+    function setstaffid($Val){
+        $this->staffid = $Val;
+    }
+    function getstarttime(){
+        return $this->start_time;
+    }
+    function setstarttime($Val){
+        $this->start_time = $Val;
+    }
+    function getendtime(){
+        return $this->end_time;
+    }
+    function setendtime($Val){
+        $this->end_time = $Val;
     }
     function getconfirmed(){
         return $this->confirmed;
     }
-    function setconfirmed($val){
-        $this->confirmed = $val;
+    function setconfirmed($Val){
+        $this->confirmed = $Val;
     }
     function getnote(){
         return $this->note;
     }
-    function setnote($val){
-        $this->note = $val;
+    function setnote($Val){
+        $this->note = $Val;
     }
     function getdeleted(){
         return $this->deleted;
     }
-    function setdeleted($val){
-        $this->deleted = $val;
+    function setdeleted($Val){
+        $this->deleted = $Val;
     }
 
-    function __construct(){
+    function __construct($ID){
+        if($ID > 0){
+
+            $RQ = new ReadQuery("SELECT * FROM bookings WHERE id = :bookingid", array(
+                PDOConnection::sqlarray(":bookingid",$ID,PDO::PARAM_INT)
+            ));
+            $row = $RQ->getresults()->fetch(PDO::FETCH_BOTH);
+            $this->id = $ID;
+            $this->name = $row["name"];
+            $this->staffid = $row["staffid"];
+            $this->studentid= $row["studentid"];
+            $this->start_time = $row["start_time"];
+            $this->end_time = $row["end_time"];
+            $this->meetingtype = $row["meetingid"];
+            $this->confirmed = $row["confirmed"];
+            $this->note = $row["note"];
+            $this->deleted = $row["deleted"];
+        }
+        else{
+            $this->setdeleted(false);
+        }
         
     }
-    //add new booking
-    static public function addnewbooking(){
+    function save(){
 
     }
-    //confirm/unconfirm booking booking
-    static public function confirmbooking(){
+    function savenew(){
 
     }
     //cancel the Booking
