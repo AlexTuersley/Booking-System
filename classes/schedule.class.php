@@ -50,19 +50,19 @@ class Schedule {
         
     }
     //add new schedule item
-    public function addNewSchedule(){
+    public function addnewschedule(){
 
     }
     //edit schedule item
-    public function editSchedule(){
+    public function editschedule(){
 
     }
     //make item a holiday(away)
-    public function makeScheduleHoliday(){
+    public function makescheduleholiday(){
 
     }
     //make item active(show on timetable)
-    public function activateScheduleItem(){
+    public function activatescheduleitem(){
         
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database

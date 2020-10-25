@@ -42,31 +42,27 @@ class Booking{
         
     }
     //add new booking
-    public function addNewBooking(){
+    static public function addnewbooking(){
 
     }
     //confirm/unconfirm booking booking
-    public function confirmBooking(){
+    static public function confirmbooking(){
 
     }
     //cancel the Booking
-    public function cancelBooking(){
+    static public function cancelbooking(){
 
     }
     //add to booking note
-    public function addNote(){
+    static public function addnote(){
 
     }
     //edit booking note
-    public function editNote(){
+    static public function editnote(){
         
     }
-    //upload photo to server and store location in db
-    public function uploadPhoto(){
-
-    }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
-    public function addedit(){
+    static public function addedit(){
 
     }
 }
