@@ -34,7 +34,7 @@ Class Departments{
             ));
             $row = $RQ->getresults()->fetch(PDO::FETCH_BOTH);
             $this->id = $ID;
-            $this->name = $row["name"];
+            $this->name = $row["departmentname"];
             $this->deleted = $row["deleted"];
         }
         else{
@@ -50,7 +50,12 @@ Class Departments{
     }
 
     static public function addedit($DID){
-        
+        if($DID > 0){
+
+        }
+        else{
+            
+        }
     }
     static public function listdepartmentsadmin(){
         if(User::GetUserLevel() >= 3){

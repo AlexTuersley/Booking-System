@@ -215,7 +215,12 @@ class User{
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     static public function addedit($UID){
+        if($UID > 0){
 
+        }
+        else{
+
+        }
     }
     //Data from Sign Up form is passed to this function to use in a Query
     static public function signup(){
@@ -238,7 +243,12 @@ class User{
 
     }
     static public function edituserform($UID){
+        if($UID > 0){
 
+        }
+        else{
+            
+        }
     }
 }
 ?>

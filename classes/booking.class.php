@@ -145,8 +145,13 @@ class Booking{
         
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
-    static public function addedit(){
+    static public function addedit($BID){
+        if($BID > 0){
 
+        }
+        else{
+            
+        }
     }
 }
 

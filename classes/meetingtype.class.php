@@ -48,7 +48,7 @@ Class Meeting{
             ));
             $row = $RQ->getresults()->fetch(PDO::FETCH_BOTH);
             $this->id = $ID;
-            $this->name = $row["name"];
+            $this->name = $row["meetingname"];
             $this->staffid = $row["staffid"];
             $this->confirmed = $row["duration"];
             $this->deleted = $row["deleted"];
@@ -56,6 +56,34 @@ Class Meeting{
         else{
             $this->setdeleted(false);
         }
+    }
+    function savenew(){
+        $WQ = new WriteQuery("INSERT INTO meetings(meetingname,staffid,duration,deleted)
+                            VALUES(:meetingname,:staffid,:duration,0)",
+                            array(
+                                PDOConnection::sqlarray(":meetingname",$this->getname(),PARAM_STR),
+                                PDOConnection::sqlarray(":staffid",$this->getstaffid(),PARAM_INT),
+                                PDOConnection::sqlarray(":duration",$this->getduration(),PARAM_INT)
+                            ));
+    }
+    function save(){
+        $WQ = new WriteQuery("UPDATE meetings SET
+                              meetingname = :meetingname,
+                              staffid = :staffid,
+                              duration = :duration,
+                              deleted = :deleted
+                              WHERE id = :id",
+                            array(
+                                PDOConnection::sqlarray(":meetingname",$this->getname(),PARAM_STR),
+                                PDOConnection::sqlarray(":staffid",$this->getstaffid(),PARAM_INT),
+                                PDOConnection::sqlarray(":duration",$this->getduration(),PARAM_INT),
+                                PDOConnection::sqlarray(":deleted",$this->getdeleted(),PARAM_INT),
+                                PDOConnection::sqlarray(":id",$this->getid(),PARAM_INT)
+                            ));
+    }
+
+    static public function addedit($MID){
+        
     }
 }
 

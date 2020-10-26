@@ -82,6 +82,18 @@ class Schedule {
             $this->setdeleted(false);
         }
     }
+    function savenew(){
+        $WQ = new WriteQuery("INSERT INTO staffschedule(staffid,staffday,start_time,end_time,active,away,deleted)
+                            VALUES(:staffid,staffday,starttime,endtime,active,away,0)",
+                              array(
+                                PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
+                                PDOConnection::sqlarray(":staffday",$this->getday(),PDO::PARAM_INT),
+                                PDOConnection::sqlarray(":starttime",$this->getstarttime()->getdatabasedatetime(), PDO::PARAM_STR),
+                                PDOConnection::sqlarray(":endtime",$this->getendtime()->getdatabasedatetime(), PDO::PARAM_STR),
+                                PDOConnection::sqlarray(":active",$this->getactive(),PDO::PARAM_INT),
+                                PDOConnection::sqlarray(":away",$this->getnote(),PDO::PARAM_INT)
+        ));
+    }
     function save(){
         $WQ = new WriteQuery("UPDATE staffschedule SET
                               staffid = :staffid,
@@ -104,18 +116,6 @@ class Schedule {
         ));
                                
     }
-    function savenew(){
-        $WQ = new WriteQuery("INSERT INTO staffschedule(staffid,staffday,start_time,end_time,active,away,deleted)
-                            VALUES(:staffid,staffday,starttime,endtime,active,away,0)",
-                              array(
-                                PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
-                                PDOConnection::sqlarray(":staffday",$this->getday(),PDO::PARAM_INT),
-                                PDOConnection::sqlarray(":starttime",$this->getstarttime()->getdatabasedatetime(), PDO::PARAM_STR),
-                                PDOConnection::sqlarray(":endtime",$this->getendtime()->getdatabasedatetime(), PDO::PARAM_STR),
-                                PDOConnection::sqlarray(":active",$this->getactive(),PDO::PARAM_INT),
-                                PDOConnection::sqlarray(":away",$this->getnote(),PDO::PARAM_INT)
-        ));
-    }
     //add new schedule item
     public function addnewschedule(){
 
@@ -133,8 +133,13 @@ class Schedule {
         
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
-    public function addedit(){
+    public function addedit($SID){
+        if($SID > 0){
 
+        }
+        else{
+            
+        }
     }
 
 }
