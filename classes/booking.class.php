@@ -82,7 +82,6 @@ class Booking{
             ));
             $row = $RQ->getresults()->fetch(PDO::FETCH_BOTH);
             $this->id = $ID;
-            $this->name = $row["name"];
             $this->staffid = $row["staffid"];
             $this->studentid= $row["studentid"];
             $this->start_time = $row["start_time"];
@@ -99,12 +98,11 @@ class Booking{
     }
     function savenew(){
         $WQ = new WriteQuery("INSERT INTO bookings
-        (bookingname,staffid,studentid,start_time,end_time,meetingtype,confirmed,notes,deleted)
+        (bookingname,studentid,staffid,start_time,end_time,meetingtype,confirmed,notes,deleted)
         VALUES(:bookingname,:staffid,:studentid,:starttime,:endtime,:meetingid,:confirmed,:note,0)",
         array(
-            PDOConnection::sqlarray(":bookingname",$this->getname(), PDO::PARAM_STR),
-            PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
             PDOConnection::sqlarray(":studentid",$this->getstudentid(),PDO::PARAM_INT),
+            PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
             PDOConnection::sqlarray(":starttime",$this->getstarttime()->getdatabasedatetime(), PDO::PARAM_STR),
             PDOConnection::sqlarray(":endtime",$this->getendtime()->getdatabasedatetime(), PDO::PARAM_STR),
             PDOConnection::sqlarray(":meetingid",$this->getmeetingtype(), PDO::PARAM_INT),
@@ -114,9 +112,8 @@ class Booking{
     }
     function save(){
        $WQ = new WriteQuery("UPDATE bookings SET
-            bookingname = :bookingname,
-            staffid = :staffid,
             studentid = :studentid,
+            staffid = :staffid,
             start_time = :starttime,
             end_time = :endtime,
             meetingtype = :meetingid,
@@ -124,9 +121,8 @@ class Booking{
             notes = :note
             WHERE id = :id",
                 array(
-                PDOConnection::sqlarray(":bookingname",$this->getname(), PDO::PARAM_STR),
-                PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
                 PDOConnection::sqlarray(":studentid",$this->getstudentid(),PDO::PARAM_INT),
+                PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
                 PDOConnection::sqlarray(":starttime",$this->getstarttime()->getdatabasedatetime(), PDO::PARAM_STR),
                 PDOConnection::sqlarray(":endtime",$this->getendtime()->getdatabasedatetime(), PDO::PARAM_STR),
                 PDOConnection::sqlarray(":meetingid",$this->getmeetingtype(), PDO::PARAM_INT),
