@@ -49,6 +49,12 @@ class Booking{
     function setendtime($Val){
         $this->end_time = $Val;
     }
+    function getmeetingtype(){
+        return $this->meetingtype;
+    }
+    function setmeetingtype($Val){
+        $this->meetingtype = $Val;
+    }
     function getconfirmed(){
         return $this->confirmed;
     }
@@ -81,9 +87,9 @@ class Booking{
             $this->studentid= $row["studentid"];
             $this->start_time = $row["start_time"];
             $this->end_time = $row["end_time"];
-            $this->meetingtype = $row["meetingid"];
+            $this->meetingtype = $row["meetingtype"];
             $this->confirmed = $row["confirmed"];
-            $this->note = $row["note"];
+            $this->note = $row["notes"];
             $this->deleted = $row["deleted"];
         }
         else{
@@ -91,12 +97,45 @@ class Booking{
         }
         
     }
-    function save(){
-
-    }
     function savenew(){
-
+        $WQ = new WriteQuery("INSERT INTO bookings
+        (bookingname,staffid,studentid,start_time,end_time,meetingtype,confirmed,notes,deleted)
+        VALUES(:bookingname,:staffid,:studentid,:starttime,:endtime,:meetingid,:confirmed,:note,0)",
+        array(
+            PDOConnection::sqlarray(":bookingname",$this->getname(), PDO::PARAM_STR),
+            PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
+            PDOConnection::sqlarray(":studentid",$this->getstudentid(),PDO::PARAM_INT),
+            PDOConnection::sqlarray(":starttime",$this->getstarttime()->getdatabasedatetime(), PDO::PARAM_STR),
+            PDOConnection::sqlarray(":endtime",$this->getendtime()->getdatabasedatetime(), PDO::PARAM_STR),
+            PDOConnection::sqlarray(":meetingid",$this->getmeetingtype(), PDO::PARAM_INT),
+            PDOConnection::sqlarray(":confirmed",$this->getconfirmed(), PDO::PARAM_INT),
+            PDOConnection::sqlarray(":note",$this->getnote(),PDO::PARAM_STR)
+        ));
     }
+    function save(){
+       $WQ = new WriteQuery("UPDATE bookings SET
+            bookingname = :bookingname,
+            staffid = :staffid,
+            studentid = :studentid,
+            start_time = :starttime,
+            end_time = :endtime,
+            meetingtype = :meetingid,
+            confirmed = :confirmed,
+            notes = :note
+            WHERE id = :id",
+                array(
+                PDOConnection::sqlarray(":bookingname",$this->getname(), PDO::PARAM_STR),
+                PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
+                PDOConnection::sqlarray(":studentid",$this->getstudentid(),PDO::PARAM_INT),
+                PDOConnection::sqlarray(":starttime",$this->getstarttime()->getdatabasedatetime(), PDO::PARAM_STR),
+                PDOConnection::sqlarray(":endtime",$this->getendtime()->getdatabasedatetime(), PDO::PARAM_STR),
+                PDOConnection::sqlarray(":meetingid",$this->getmeetingtype(), PDO::PARAM_INT),
+                PDOConnection::sqlarray(":confirmed",$this->getconfirmed(), PDO::PARAM_INT),
+                PDOConnection::sqlarray(":note",$this->getnote(),PDO::PARAM_STR),
+                PDOConnection::sqlarray(":id",$this->getid(),PDO::PARAM_INT)
+        ));
+    }
+
     //cancel the Booking
     static public function cancelbooking(){
 

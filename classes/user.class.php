@@ -13,6 +13,7 @@ class User{
     private $deleted;
     //User Information
     private $name;
+    private $phone;
     private $photo;
     private $department;
     private $bio;
@@ -61,11 +62,17 @@ class User{
     function setdeleted($Val){
         $this->deleted = $Val;
     }
-    function getname(){
+    function getfullname(){
         return $this->name;
     }
-    function setname($val){
-        $this->name = $val;
+    function setfullname($Val){
+        $this->name = $Val;
+    }
+    function getphone(){
+        return $this->phone;
+    }
+    function setphone($Val){
+        $this->phone = $Val;
     }
     function getphoto(){
         return $this->photo;
@@ -120,15 +127,16 @@ class User{
             $row = $RQ->getresults()->fetch(PDO::FETCH_BOTH);
             $this->id = $ID;
             $this->username = $row["username"];
-            $this->password = $row["password"];
+            $this->password = $row["userpassword"];
             $this->userlevel = $row["userlevel"];
             $this->email = $row["email"];
             $this->loginstatus = $row["loginstatus"];
-            $this->name = $row["name"];
+            $this->name = $row["fullname"];
+            $this->phone = $row["phone"];
             $this->photo = $row["photo"];
             $this->department = $row["department"];
             $this->bio = $row["bio"];
-            $this->location = $row["location"]; 
+            $this->location = $row["userlocation"]; 
             $this->deleted = $row["deleted"];
         }else{
             //Create New
@@ -138,11 +146,67 @@ class User{
     }
     //Save new User data to DB
     function savenew(){
-
+        $WQ = new WriteQuery("INSERT INTO users
+            (email,username,userpassword,userlevel,loginstatus,deleted)
+            VALUES(:email,:username,:userpassword,:userlevel,:loginstatus,0)",
+            array(
+                PDOConnection::sqlarray(":email", $this->getemail(), PDO::PARAM_STR),
+                PDOConnection::sqlarray(":username",$this->getusername(),PDO::PARAM_STR),
+                PDOConnection::sqlarray(":userpassword", $this->getpassword(), PDO::PARAM_STR),
+                PDOConnection::sqlarray(":userlevel", $this->getuserlevel(), PDO::PARAM_INT),
+                PDOConnection::sqlarray(":loginstatus", $this->getlogin(), PDO::PARAM_INT)
+        ));
+        $WQ = new WriteQuery("INSERT INTO userinformation
+            (userid,fullname,phone,photo,department,bio,userlocation)
+            VALUES(:userid,:fullname,:phone,:photo,:department,:bio,:userlocation)",
+            array(
+                PDOConnection::sqlarray(":userid", $this->getid(),PDO::PARAM_INT),
+                PDOConnection::sqlarray(":fullname",$this->getfullname(),PDO::PARAM_STR),
+                PDOConnection::sqlarray(":phone",$this->getphone(),PDO::PARAM_INT),
+                PDOConnection::sqlarray(":photo", $this->getphoto(), PDO::PARAM_STR),
+                PDOConnection::sqlarray(":department", $this->getdepartment(), PDO::PARAM_STR),
+                PDOConnection::sqlarray(":bio", $this->getbio(), PDO::PARAM_STR),
+                PDOConnection::sqlarray(":userlocation", $this->getlocation(),PDO::PARAM_STR)
+        ));
     }
     //Update current User data on DB
     function save(){
-
+        $WQ = new WriteQuery("UPDATE users SET
+        email = :email,
+        username = :username,
+        userpassword = :userpassword,
+        userlevel = :userlevel,
+        loginstatus = :loginstatus,
+        deleted = :deleted
+        WHERE id = :id  
+        ",
+        array(
+            PDOConnection::sqlarray(":email", $this->getemail(), PDO::PARAM_STR),
+            PDOConnection::sqlarray(":username",$this->getusername(),PDO::PARAM_STR),
+            PDOConnection::sqlarray(":userpassword", $this->getpassword(), PDO::PARAM_STR),
+            PDOConnection::sqlarray(":userlevel", $this->getuserlevel(), PDO::PARAM_INT),
+            PDOConnection::sqlarray(":loginstatus", $this->getlogin(), PDO::PARAM_INT),
+            PDOConnection::sqlarray(":deleted", $this->getdeleted(), PDO::PARAM_INT),
+            PDOConnection::sqlarray(":id", $this->getid(),PDO::PARAM_INT)
+        ));
+        $WQ = new WriteQuery("UPDATE userinformation SET
+                fullname = :fullname,
+                phone = :phone,
+                photo = :photo,
+                department = :department,
+                bio = :bio,
+                userlocation = :userlocation,
+                WHERE userid = :id  
+                ",
+        array(
+            PDOConnection::sqlarray(":fullname",$this->getfullname(),PDO::PARAM_STR),
+            PDOConnection::sqlarray(":phone",$this->getphone(),PDO::PARAM_INT),
+            PDOConnection::sqlarray(":photo", $this->getphoto(), PDO::PARAM_STR),
+            PDOConnection::sqlarray(":department", $this->getdepartment(), PDO::PARAM_STR),
+            PDOConnection::sqlarray(":bio", $this->getbio(), PDO::PARAM_STR),
+            PDOConnection::sqlarray(":userlocation", $this->getlocation(),PDO::PARAM_STR),
+            PDOConnection::sqlarray(":id", $this->getid(),PDO::PARAM_INT)
+        ));
     }
 
     //delete user
