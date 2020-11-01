@@ -61,7 +61,6 @@
           $argv = func_get_args();
           switch( func_num_args() ) {
               case 1:
-                  //self::SQLIReadQuery($argv[0]);
                   print("This method of reading data is now deprecated.");
                   break;
               case 2:

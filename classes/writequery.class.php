@@ -54,7 +54,6 @@
           $argv = func_get_args();
           switch( func_num_args() ) {
               case 1:
-                  //self::SQLIWriteQuery($argv[0]);
                   print("This method of writing data is now deprecated.");
                   break;
               case 2:

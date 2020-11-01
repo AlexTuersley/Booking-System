@@ -83,7 +83,25 @@ Class Meeting{
     }
 
     static public function addedit($MID){
-        
+        $name = $_GET[""];
+        $staffid = $_GET[""];
+        $duration = $_GET[""];
+
+        if($MID > 0){
+            $MeetingType = new Meeting($MID);
+            $MeetingType->setname($name);
+            $MeetingType->setstaffid($staffid);
+            $MeetingType->setduration($duration);
+            $MeetingType->save();
+        }
+        else{
+            $MeetingType = new Meeting();
+            $MeetingType->setname($name);
+            $MeetingType->setstaffid($staffid);
+            $MeetingType->setduration($duration);
+            $MeetingType->savenew();
+
+        }
     }
 }
 
