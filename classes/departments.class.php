@@ -50,11 +50,17 @@ Class Departments{
     }
 
     static public function addedit($DID){
-        if($DID > 0){
 
+        if($DID > 0){
+            $Department = new Departments($DID);
+            $Department->setname($name);
+            $Department->save();    
         }
         else{
-            
+            $Department = new Departments();
+            $Department->setname($name);
+            $Department->setdeleted(0);
+            $Department->savenew();
         }
     }
     static public function listdepartmentsadmin(){
