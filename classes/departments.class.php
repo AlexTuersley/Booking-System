@@ -50,7 +50,7 @@ Class Departments{
     }
 
     static public function addedit($DID){
-
+        $name = $_GET["name"];
         if($DID > 0){
             $Department = new Departments($DID);
             $Department->setname($name);

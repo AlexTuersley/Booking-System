@@ -83,9 +83,9 @@ Class Meeting{
     }
 
     static public function addedit($MID){
-        $name = $_GET[""];
-        $staffid = $_GET[""];
-        $duration = $_GET[""];
+        $name = $_GET["meetingname"];
+        $staffid = $_GET["staffid"];
+        $duration = $_GET["duration"];
 
         if($MID > 0){
             $MeetingType = new Meeting($MID);
