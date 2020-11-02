@@ -134,11 +134,46 @@ class Schedule {
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     public function addedit($SID){
-        if($SID > 0){
+        $staffid = $_GET["staffid"];
+        $day = $_GET["day"];
+        $starttime = $_GET["starttime"];
+        $endtime = $_GET["endtime"];
+        $active = $_GET["active"];
+        $away = $_GET["away"];
 
+        if($SID > 0){
+            $Schedule = new Schedule($SID);
+            $Schedule->setday($day);
+            $Schedule->setstarttime($starttime);
+            $Schedule->setendtime($endtime);
+            $Schedule->setactive($active);
+            $Schedule->setaway($away);
+            $Schedule->save();
         }
         else{
-            
+            $Schedule = new Schedule();
+            $Schedule->setstaffid($staffid);
+            $Schedule->setday($day);
+            $Schedule->setstarttime($starttime);
+            $Schedule->setendtime($endtime);
+            $Schedule->setactive($active);
+            $Schedule->setaway($away);
+            $Schedule->setdeleted(0);
+            $Schedule->savenew();
+        }
+    }
+    static public function deleteschedule($SID){
+        $WQ = new WriteQuery("UPDATE staffschedule SET deleted = 1 WHERE id = :id",
+            array(PDOConnection::sqlarray(":id",$SID,PDO::PARAM_INT))
+        );
+    }
+    static public function listUserslots($STID){
+        $RQ = new ReadQuery("SELECT start_time, end_time, active, away FROM staffschedule WHERE staffid = :stid",
+                                array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
+                            ));
+        $timeslots = array();
+        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+
         }
     }
 

@@ -156,6 +156,7 @@ class User{
                 PDOConnection::sqlarray(":userlevel", $this->getuserlevel(), PDO::PARAM_INT),
                 PDOConnection::sqlarray(":loginstatus", $this->getlogin(), PDO::PARAM_INT)
         ));
+        $this->c_ID = $WQ->getinsertid();
         $WQ = new WriteQuery("INSERT INTO userinformation
             (userid,fullname,phone,photo,department,bio,userlocation)
             VALUES(:userid,:fullname,:phone,:photo,:department,:bio,:userlocation)",
@@ -215,11 +216,47 @@ class User{
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     static public function addedit($UID){
-        if($UID > 0){
-
-        }
-        else{
-
+        $username = $_GET["username"];
+        $fullname = $_GET["fullname"];
+        $email = $_GET["email"];
+        $userpassword = $_GET["password"];
+        $level = $_GET["userlevel"];
+        $phone = $_GET["phone"];
+        $photo = $_GET["photo"];
+        $department = $_GET["department"];
+        $bio = $_GET["bio"];
+        $location = $_GET["location"];
+        if(checkuserlevel($_SESSION["userid"]) > 2 || $_SESSION["userid"] == $UID){
+            if($UID > 0){ 
+                $User = new User($UID);
+                $User->setfullname($fullname);
+                $User->setusername($username);
+                $User->setemail($email);
+                $User->setpassword($password);
+                $User->setuserlevel($level);
+                $User->setphone($phone);
+                $User->setphoto($photo);
+                $User->setdepartment($department);
+                $User->setbio($bio);
+                $User->setlocation($location);
+                $User->save();
+            }
+            else{
+                $User = new User();
+                $User->setfullname($fullname);
+                $User->setusername($username);
+                $User->setemail($email);
+                $User->setpassword($password);
+                $User->setuserlevel($level);
+                $User->setphone($phone);
+                $User->setphoto($photo);
+                $User->setdepartment($department);
+                $User->setbio($bio);
+                $User->setlocation($location);
+                $User->setlogin(0);
+                $User->setdeleted(0);
+                $User->savenew();
+            }
         }
     }
     //Data from Sign Up form is passed to this function to use in a Query

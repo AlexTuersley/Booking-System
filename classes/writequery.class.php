@@ -33,6 +33,7 @@
         {
             return $this->c_query;
         }
+        //Gets the id of a new row after a query is ran
         function getinsertid()
         {
             return $this->c_insertid;

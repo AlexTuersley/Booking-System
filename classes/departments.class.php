@@ -42,11 +42,16 @@ Class Departments{
         }
     }
     function savenew(){
-
+        $WQ = new WriteQuery("INSERT INTO departments(departmentname,deleted)VALUES(:departmenrtname,0)",array(
+                                PDOConnection::sqlarray(":departmentname",PDO::PARAM_STR)
+                            ));
     }
 
     function save(){
-
+        $WQ = new WriteQuery("UPDATE departments SET departmentname = :departmentname WHERE id = :id",array(
+                PDOConnection::sqlarray(":departmentname",PDO::PARAM_STR),
+                PDOConnection::sqlarray(":id",PDO::PARAM_INT)
+    ));
     }
 
     static public function addedit($DID){
@@ -78,7 +83,7 @@ Class Departments{
             $ReturnArray = array();
             $Counter = 0;
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-                $ReturnArray[$Counter] = array($row[0],$row[1] . " " . $row[2]);
+                $ReturnArray[$Counter] = array($row[0],$row[1]);
                 $Counter ++;
             }
 
