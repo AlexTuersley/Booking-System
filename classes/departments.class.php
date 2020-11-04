@@ -122,8 +122,13 @@ Class Departments{
 
      
     }
-    static public function editdepartmentform($Name, $DID){
+    static public function editdepartmentform($DID,$name){
+        if($DID > 0){
 
+        }
+        else{
+            
+        }
     }
 
 }

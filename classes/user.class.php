@@ -259,6 +259,22 @@ class User{
             }
         }
     }
+
+    //When passed an id returns a username
+    static public function staticgetusername($UID){
+        $RQ = new ReadQuery("SELECT username, fullname FROM users WHERE id = :id",
+                array(
+                    PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
+                ));
+        if($row = $RQ->getresults() > 0){
+            $username = $row["username"]."(".$row["fullname"].")";
+        }
+        else{
+            $username = NULL;
+        }
+        return $username;
+    }
+
     //Data from Sign Up form is passed to this function to use in a Query
     static public function signup(){
 
@@ -279,7 +295,7 @@ class User{
         $RQ = new ReadQuery("SELECT id FROM users WHERE deleted = 0", null);
 
     }
-    static public function edituserform($UID){
+    static public function edituserform($UID,$fullname,$username,$email,$password,$level,$phone,$photo,$department,$bio,$location){
         if($UID > 0){
 
         }

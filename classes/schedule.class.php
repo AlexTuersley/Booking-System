@@ -11,6 +11,8 @@ class Schedule {
     private $end_time;
     private $active;
     private $away;
+    private $start_date;
+    private $end_date;
     private $deleted;
 
     //getter and setter functions
@@ -56,6 +58,18 @@ class Schedule {
     function setaway($Val){
         $this->away = $Val;
     }
+    function getstartdate(){
+        return $this->start_date;
+    }
+    function setstartdate($Val){
+        $this->start_date = $Val;
+    }
+    function getenddate(){
+        return $this->end_date;
+    }
+    function setenddate($Val){
+        $this->end_date = $Val;
+    }
     function getdeleted(){
         return $this->deleted;
     }
@@ -77,6 +91,9 @@ class Schedule {
             $this->end_time = $row["end_time"];
             $this->active = $row["active"];
             $this->away = $row["away"];
+            $this->start_date = $row["startdate"];
+            $this->end_date = $row["enddate"];
+            $this->deleted = $row["deleted"];
         }
         else{
             $this->setdeleted(false);
@@ -140,6 +157,8 @@ class Schedule {
         $endtime = $_GET["endtime"];
         $active = $_GET["active"];
         $away = $_GET["away"];
+        $startdate = $_GET["startdate"];
+        $enddate = $_GET["enddate"];
 
         if($SID > 0){
             $Schedule = new Schedule($SID);
@@ -148,6 +167,10 @@ class Schedule {
             $Schedule->setendtime($endtime);
             $Schedule->setactive($active);
             $Schedule->setaway($away);
+            if($away > 0){
+                $Schedule->setstartdate(NULL);
+                $Schedule->setenddate(NULL);
+            }
             $Schedule->save();
         }
         else{
@@ -158,6 +181,14 @@ class Schedule {
             $Schedule->setendtime($endtime);
             $Schedule->setactive($active);
             $Schedule->setaway($away);
+            if($away > 0){
+                $Schedule->setstartdate($startdate);
+                $Schedule->setenddate($enddate);
+            }
+            else{
+                $Schedule->setstartdate(NULL);
+                $Schedule->setenddate(NULL);
+            }
             $Schedule->setdeleted(0);
             $Schedule->savenew();
         }
@@ -167,16 +198,26 @@ class Schedule {
             array(PDOConnection::sqlarray(":id",$SID,PDO::PARAM_INT))
         );
     }
-    static public function listUserslots($STID){
-        $RQ = new ReadQuery("SELECT start_time, end_time, active, away FROM staffschedule WHERE staffid = :stid",
+    static public function listuserslots($STID){
+        $RQ = new ReadQuery("SELECT start_time, end_time, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                             ));
         $timeslots = array();
+        $holidays  = array();
+        $counter = 0;
+        $counter2 = 0;
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-
+            $timeslots[$counter] = array($row["start_time"],$row["end_time"],$row["active"]);
+            if($row["away"] > 0) {
+                $holidays[$counter2] = array($row["start_time"],$row["startdate"],$row["end_time"],$row["enddate"],$row["active"],$row["away"]);
+                $counter2++;
+            }
+            $counter++;
         }
+        $slots = array($timeslots,$holidays);
+        return $slots;
     }
-    static public function scheduleForm(){
+    static public function scheduleform($SID,$staff,$day,$starttime,$endtime,$active,$away,$startdate,$enddate){
         
     }
 

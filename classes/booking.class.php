@@ -189,17 +189,27 @@ class Booking{
             $Booking->savenew();
         }
     }
-    static public function showBookings($ID){
-        $RQ = new ReadQuery("SELECT * FROM bookings WHERE staffid = :id OR studentid = :id",
+    static public function showbookings($ID){
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND staffid = :id OR studentid = :id ORDER BY bookingname",
             array(
                 PDOConnection::sqlarray(":id",$UID,PDO::PARAM_STR)
             ));
         
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-            
+            $Row1 = array($row["bookingname"]);
+            $Row2 = array(User::getstaticusername($row["studentid"]));
+            $Row3 = array(User::getstaticusername($row["staffid"]));
+            $Row4 = array($row["starttime"]);
+            $Row5 = array($row["endtime"]);
+            $Row6 = array(Meeting::getmeetingname($row["meetingtype"]));
+            $Row7 = array($row["note"]);
+            $Row8 = array($row["confirmed"]);
         }
+        $Rows = array();
+        $Rows = array();
+        Tables::generatedynamictable("userbookings",$Cols,$Rows);
     }
-    static public function bookingsForm($bookingname,$studentid,$staffid,$starttime,$endtime,$meeting,$note,$confirmed){
+    static public function bookingsform($BID,$bookingname,$studentid,$staffid,$starttime,$endtime,$meeting,$note,$confirmed){
 
     }
 }
