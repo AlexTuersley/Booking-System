@@ -176,6 +176,9 @@ class Schedule {
 
         }
     }
+    static public function scheduleForm(){
+        
+    }
 
 }
 

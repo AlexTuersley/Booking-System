@@ -147,13 +147,13 @@ class Booking{
             array(PDOConnection::sqlarray(":id",$BID,PDO::PARAM_INT))
         );
     }
-    //add to booking note
-    static public function addnote(){
 
-    }
     //edit booking note
-    static public function editnote(){
-        
+    static public function editnote($BID,$note){
+        $WQ = new WriteQuery("UPDATE bookings SET note = :note WHERE id = :id",
+            array(PDOConnection::sqlarray(":note",$note,PDO::PARAM_STR)),
+            array(PDOConnection::sqlarray(":id",$BID,PDO::PARAM_INT))
+        );
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     static public function addedit($BID){
@@ -188,6 +188,19 @@ class Booking{
             $Booking->setconfirmed(0);
             $Booking->savenew();
         }
+    }
+    static public function showBookings($ID){
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE staffid = :id OR studentid = :id",
+            array(
+                PDOConnection::sqlarray(":id",$UID,PDO::PARAM_STR)
+            ));
+        
+        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            
+        }
+    }
+    static public function bookingsForm($bookingname,$studentid,$staffid,$starttime,$endtime,$meeting,$note,$confirmed){
+
     }
 }
 

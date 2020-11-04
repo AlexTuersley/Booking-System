@@ -68,12 +68,42 @@ Class Departments{
             $Department->savenew();
         }
     }
+    static public function listdepartments(){
+        if(User::GetUserLevel() >= 1){
+            $RQ = new ReadQuery("SELECT id FROM departments WHERE deleted = 0", null);
+            print("<p class='lead'>The list below shows all departments</p><p>Click on a department to see the staff inside and select a staff member for bookings</p>");
+            $Col1 = array("Department","department",1);
+            $Col2 = array("Staff","staff",1);
+            while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                $Department = new Departments($row["id"]);
+                $Row1 = array($Department->getname());
+                $Row2 = array(Departments::getuserdepartments($row["id"]));
+            }
+            $Cols = array($Col1,$Col2);
+            $Rows = array($Row1,$Row2);
+            Tables::generatedropdowntable("departmentstafftable",$Cols,$Rows);
+        }
+        else{
+            print("<p class='lead'>You do not have permission to view this page. Redirecting to home</p>");
+        }
+    }
     static public function listdepartmentsadmin(){
         if(User::GetUserLevel() >= 3){
             $RQ = new ReadQuery("SELECT id FROM departments WHERE deleted = 0", null);
+            print("<p class='lead'>The list below shows all departments</p><p>Click on the pencil to edit and the bin to delete departments</p>");
+            $Col1 = array("Department","department",1);
+            $Col2 = array("","operations",2);
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-
+                $Department = new Departments($row["id"]);
+                $Row1 = array($Department->getname());
+                $Row2 = array(Departments::getuserdepartments($row["id"]));
             }
+            $Cols = array($Col1,$Col2);
+            $Rows = array($Row1,$Row2);
+            Tables::generatedynamictable("admindepartmenttable",$Cols,$Rows);
+        }
+        else{
+            print("<p class='lead'>You do not have permission to view this page. Redirecting to home</p>");
         }
     }
     static public function getdepartmentsarray(){
