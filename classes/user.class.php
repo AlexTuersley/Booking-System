@@ -292,7 +292,7 @@ class User{
 
     }
     static public function listusers(){
-        $RQ = new ReadQuery("SELECT id, username, fullname FROM users WHERE deleted = 0", null);
+        $RQ = new ReadQuery("SELECT id FROM users WHERE deleted = 0", null);
 
     }
     static public function edituserform($UID,$fullname,$username,$email,$password,$level,$phone,$photo,$department,$bio,$location){
