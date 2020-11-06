@@ -81,7 +81,7 @@ Class Departments{
             }
             $Cols = array($Col1,$Col2);
             $Rows = array($Row1,$Row2);
-            Tables::generatedropdowntable("departmentstafftable",$Cols,$Rows);
+            Display::generatedropdowndisplay("departmentstafftable",$Cols,$Rows);
         }
         else{
             print("<p class='lead'>You do not have permission to view this page. Redirecting to home</p>");
@@ -100,7 +100,7 @@ Class Departments{
             }
             $Cols = array($Col1,$Col2);
             $Rows = array($Row1,$Row2);
-            Tables::generatedynamictable("admindepartmenttable",$Cols,$Rows);
+            Display::generatedynamiclistdisplay("admindepartmenttable",$Cols,$Rows);
         }
         else{
             print("<p class='lead'>You do not have permission to view this page. Redirecting to home</p>");
