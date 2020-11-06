@@ -8,7 +8,7 @@ Class Display{
         print("</div>");
     }
     static public function generatedynamiclistdisplay($ID,$Cols,$Rows,$Name = "",$SearchColumn = 0){
-        print("<input id='dynamictable' class='form-control' onkeyup='myFunction()' placeholder='Type Here to Filter ".$Name."' type='text' style='margin-top:10px;'/>");
+        print("<input id='dynamictable' class='form-control' onkeyup='searchFunction()' placeholder='Type Here to Filter ".$Name."' type='text' style='margin-top:10px;'/>");
         print("<table class=\"table table-hover sorted_table\" id=\"" . $ID . "\">\n");
         print("<thead>");
             print("<tr style='background-color:#ddd;'>\n");
@@ -50,13 +50,12 @@ Class Display{
         print("</table>\n");
 
         print("<script>
-                function myFunction() {
+                function searchFunction() {
                 if($('#dynamictable').val() != ''){
                         $('#clearSearch').show();
                 }else{
                         $('#clearSearch').hide();
                 }
-                // Declare variables
                     var input, filter, table, tr, td, i;
                     input = document.getElementById('dynamictable');
                     filter = input.value.toUpperCase();
@@ -80,7 +79,7 @@ Class Display{
                 <script>
                     $(document).ready(function()
                         {
-                            $(\"#".$ID."\").tablesorter({dateFormat: \"uk\"});
+                            $(\"#".$ID."\").tablesorter({dateFormat: 'uk'});
                         }
                     );
                     $('.sortable_col').click(function(){
@@ -103,7 +102,7 @@ Class Display{
             if(!empty($Rows)){
                 foreach($Rows as $Row)
                 {
-                                        if($Row == null){ continue; }
+                    if($Row == null){ continue; }
                     print("<tr " . $Row[0][2] . " onclick=" . $Row[5] . ">\n");
                     foreach($Row as $Item)
                     {
