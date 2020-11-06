@@ -207,10 +207,27 @@ class Booking{
         }
         $Rows = array();
         $Rows = array();
-        Tables::generatedynamictable("userbookings",$Cols,$Rows);
+        Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"bookings");
     }
     static public function bookingsform($BID,$bookingname,$studentid,$staffid,$starttime,$endtime,$meeting,$note,$confirmed){
 
+        $BookingField = array();
+        $StudentField = array();
+        $StaffField = array();
+        $StartField = array();
+        $EndField = array();
+        $MeetingField = array();
+        $NoteField = array();
+        if(User::checkuserlevel($_SESSION["userid"] >= 2)){
+            $ConfirmedField = array();
+        }
+        if($BID){
+            $Button = "Edit Booking";
+        }
+        else{
+            $Button = "Add Booking";
+        }
+        Forms::generateform("bookingform", "booking.php?bid=".$BID, "checkbookingform(true)", $Fields, $Button);
     }
 }
 
