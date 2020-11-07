@@ -1,7 +1,7 @@
 <?php
 include("config/config.php");
 $Level = User::checkuserlevel($_SESSION["userid"]);
-WebPage::generateheader("Home",CSS,$Level);
+WebPage::setheaderandnav($level);
 if($Level > 0){
    
    
