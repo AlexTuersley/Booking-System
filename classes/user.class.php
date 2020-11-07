@@ -274,6 +274,19 @@ class User{
         }
         return $username;
     }
+    //checks the level of the user id passed through
+    static public function checkuserlevel($UID){
+        if($UID > 0){
+            $RQ = new ReadQuery("SELECT userlevel FROM users WHERE :id",
+            array(
+                PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
+            ));
+            if($row = $RQ->getresults() > 0){
+                return $row["userlevel"];
+            }
+        }
+        return 0;
+    }
 
     //Data from Sign Up form is passed to this function to use in a Query
     static public function signup(){

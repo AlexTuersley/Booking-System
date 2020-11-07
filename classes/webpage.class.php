@@ -1,21 +1,31 @@
 <?php
 Class WebPage{
 
-    static public function setheaderandnav($level){
-        print("<nav class='navbar'>
+    static public function headerandnav($pageTitle,$level,$css =""){
+        print("<!DOCTYPE html>
+               <html lang='en'>
+               <head>
+               <meta charset='utf-8' />
+               <title>".$pageTitle."</title>
+               <link rel='stylesheet' href=".$css.">
+               <link rel='stylesheet' href='css/style.css'>
+               <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap'/>
+               <script src='https://kit.fontawesome.com/b774cd34b7.js' crossorigin='anonymous'></script>
+               </head>
+               <nav class='navbar'>
                <ul class='navbar-nav'>");
         switch($level){
             case 1:
-                $navList = array(array("index.php","home","fa-address-book-o"),array("bookings.php","bookings","fa-book"),array("schedule.php","staff","fa-building"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out"));
+                $navList = array(array("index.php","home","fa-book"),array("bookings.php","bookings","fa-book"),array("schedule.php","staff","fa-building"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
                 break;
             case 2:
-                $navList = array(array("index.php","home","fa-address-book-o"),array("bookings.php","bookings","fa-book"),array("schedule.php","schedule","fa-calendar"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out"));
+                $navList = array(array("index.php","home","fa-book"),array("bookings.php","bookings","fa-book"),array("schedule.php","schedule","fa-calendar"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
                 break;
             case 3:
-                $navList = array(array("index.php","home","fa-address-book-o"),array("bookings.php","bookings","fa-book"),array("schedule.php","schedule","fa-calendar"),array("department.php","department","fa-university"),array("user.php","users","fa-users"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out"));
+                $navList = array(array("index.php","home","fa-book"),array("bookings.php","bookings","fa-book"),array("schedule.php","schedule","fa-calendar"),array("department.php","department","fa-university"),array("user.php","users","fa-users"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
                 break;
             default:
-                $navList = array(array("index.php","home","fa-address-book-o"),array("signin.php","Sign In","fa-sign-in"),array("Sign Up","signup.php?signup","fa-user-plus"));
+                $navList = array(array("index.php","home","fa-book"),array("signin.php","Sign In","fa-sign-in-alt"),array("signup.php?signup","Sign Up","fa-user-plus"));
                 break;
         }
 
@@ -23,15 +33,8 @@ Class WebPage{
             if($Item[1] == "home"){
                 print("<li class='logo'>
                 <a href='".$Item[0]."' class='nav-link'>
-                <span class='link-text logo-text'><Home</span>
-                <svg
-                aria-hidden='true'
-                focusable='false'
-                data-prefix='fad'
-                role='img'
-                xmlns='http://www.w3.org/2000/svg'
-                viewBox='0 0 448 512'
-                class='svg-inline--fa ".$Item[2]." fa-w-14 fa-5x>
+                <span class='link-text logo-text'>Home</span>
+                <i class='fas ".$Item[2]."' aria-hidden='false'></i>
                 <g class='fa-group'>
                 <path fill='currentColor'
                     d='M224 273L88.37 409a23.78 23.78 0 0 1-33.8 0L32 386.36a23.94 23.94 0 0 1 0-33.89l96.13-96.37L32 159.73a23.94 23.94 0 0 1 0-33.89l22.44-22.79a23.78 23.78 0 0 1 33.8 0L223.88 239a23.94 23.94 0 0 1 .1 34z'
@@ -48,17 +51,10 @@ Class WebPage{
                 </li>");
             }
             else{
+        
                 print("<li class='nav-item'>
                 <a href='".$Item[0]."' class='nav-link'>
-                    <svg
-                    aria-hidden='true'
-                    focusable='false'
-                    data-prefix='fad'
-                    role='img'
-                    xmlns='http://www.w3.org/2000/svg'
-                    viewBox='0 0 512 512'
-                    class='svg-inline--fa ".$Item[2]." fa-w-16 fa-9x'
-                    >
+                    <i  class='fas ".$Item[2]."' aria-hidden='false'></i>
                     <g class='fa-group'>
                         <path
                         fill='currentColor'
@@ -78,12 +74,14 @@ Class WebPage{
             }
         }
         print("</ul>
-               </nav>");
+               </nav>
+               <main>");
 
     }
 
-    static public function setpageend(){
-        print("</body
+    static public function pageend(){
+        print("</main>
+               </body
                </html>");
     }
 
