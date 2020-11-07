@@ -103,6 +103,16 @@ Class Meeting{
 
         }
     }
+    static public function meetingform($MID,$name,$staffid,$duration){
+        if($MID > 0){
+
+        }
+        else{
+            
+        }
+        Forms::generateform();
+       
+    }
 }
 
 ?>
