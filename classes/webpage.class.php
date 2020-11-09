@@ -1,13 +1,23 @@
 <?php
 Class WebPage{
 
-    static public function headerandnav($pageTitle,$level,$css =""){
+    static public function headerandnav($pageTitle,$level,$css ="",$scripts=""){
         print("<!DOCTYPE html>
                <html lang='en'>
                <head>
                <meta charset='utf-8' />
-               <title>".$pageTitle."</title>
-               <link rel='stylesheet' href=".$css.">
+               <title>".$pageTitle."</title>");
+               if($css != ""){
+                 foreach($css as $style){
+                    print("<link rel='stylesheet' href=".$style.">"); 
+                 }
+               }
+               if($scripts != ""){
+                foreach($scripts as $script){
+                    print("<script src=".$script."></script>"); 
+                }
+              }
+               print("
                <link rel='stylesheet' href='css/style.css'>
                <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap'/>
                <script src='https://kit.fontawesome.com/b774cd34b7.js' crossorigin='anonymous'></script>

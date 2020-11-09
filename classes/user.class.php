@@ -278,9 +278,8 @@ class User{
         $Fullname = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
         $Email = htmlspecialchars(filter_var($_POST["email"], FILTER_VALIDATE_EMAIL));
         $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));
-        
-
         $Submit = $_POST["submit"];
+
     }
     //Sign up form
     static public function signupform(){
@@ -293,7 +292,16 @@ class User{
         $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));    
         $Submit = $_POST["submit"];
         if($Submit || isset($_SESSION["userid"])){
+            $UserID = User::checksignin();
+            if($UserID > 0){
+                $User = new Users($UserID);
+                $_SESSION["username"] = $User->getusername();
+                $_SESSION["password"] = md5(SALT.$Password);
+                $_SESSION["userid"] = $UserID;
+                $_SESSION["userlevel"] = $User->getuserlevel();
+                $_SESSION["loginstatus"] = 1;
 
+            }
         }
     }
     static public function signinform(){
@@ -304,16 +312,36 @@ class User{
         Forms::generateform("Sign In Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checkuserform(this)",$Fields,$Button);
 
     }
-    static public function check_logon($UID){
-        $RQ = new ReadQuery("SELECT loginstatus FROM users WHERE id = :id",array(
+    static public function checksignin($UID){
+        if($_SESSION["username"] && $_SESSION["password"]){
+            $Username = $_SESSION["username"];
+            $Password = $_SESSION["password"];
+            $UID = $_SESSION["userid"];
+            $Submit = true;
+        } else {
+            $Username = $_POST["username"];
+            $Password = $_POST["password"];
 
-        ));
-        if($row = $RQ->getresults() > 0){
-            if($row["loginstatus"] > 0){
-                return true;
+            //Add the SALT set in config.ini to the password
+            $Password = SALT.$password;
+            //encrypt the password
+            $Password = md5($Password);
+            $RQ = new ReadQuery("SELECT id, password FROM users WHERE username = :username",array(
+                PDOConnection::sqlarray(":username",$Username,PDO::PARAM_STR)
+            ));
+            if($RQ->getnumberofresults() > 0){
+                $row = $RQ->getresults()->fetch(PDO::FETCH_ASSOC);
+                $VerifyPass = password_verify($Password, $row["password"]);
+
+                    if(!$VerifyPass){
+                        return 0;
+                    }
+                    else{
+                        return $row["id"];
+                    }
             }
+            return 0;
         }
-        return false;
         
     }
     static public function logout($UID){
@@ -330,8 +358,8 @@ class User{
             $Row1 = array($row["username"]);
             $Row2 = array($row["fullname"]);
             $Row3 = array(User::getuserleveltype($row["userlevel"]));
-            $Row4 = array("<a href=\"?edit&uid=". $row["id"] ."\"><i class='fas fa-user-edit' aria-hidden='true' title='Edit ".$row["username"]."'></i></a>","button");
-            $Row5 = array("<a alt='Delete ".$row["username"]."' onclick=\"deletedropdowndialog('" . $row["username"] . "','" . $row["id"] . "');\"><i class='fas fa-trash-alt' title='Delete ".$row["username"]."'></i></a>","button");
+            $Row4 = array("<a href='?edit&uid=". $row["id"] ."'><i class='fas fa-user-edit' aria-hidden='true' title='Edit ".$row["username"]."'></i></a>","button");
+            $Row5 = array("<a alt='Delete ".$row["username"]."' onclick='deletedropdowndialog('" . $row["username"] . "','" . $row["id"] . "');'><i class='fas fa-trash-alt' title='Delete ".$row["username"]."'></i></a>","button");
         }
         $Rows = array($Row1,$Row2,$Row3,$Row4,$Row5);
         Display::generatedynamiclistdisplay("userstable",$Cols,$Rows,"Username",0);

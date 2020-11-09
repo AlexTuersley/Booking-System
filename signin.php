@@ -7,10 +7,10 @@ if($_SESSION["userlevel"] > 0){
     print("<p><span>Welcome</span>To use the booking system either sign up or sign in.</p>");
 }
 elseif($_GET["signup"]){
-    User::signupform();
+    User::signup();
 }
 else{
-    User::signinform();
+    User::signin();
 }
 WebPage::pageend();
 ?>
