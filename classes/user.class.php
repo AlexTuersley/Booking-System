@@ -98,24 +98,8 @@ class User{
     function setlocation($Val){
         $this->location = $location;
     }
-    //return the User type as a String value
-    function getuserleveltype(){
-        switch ($this->userlevel) {
-            case 1:
-                return "Student";
-                break;
-            case 2:
-                return "Staff";
-                break;
-            case 3:
-                return "Admin";
-                break;
-            default:
-                return "Not Registered";
-                break;
-        }
-    }
-    //This function runs when Class is iniated sets all user variables based on the User ID passed through to the Class
+   
+    //This function runs when Class is initiated sets all user variables based on the User ID passed through to the Class
     function __construct($ID){
         if($ID > 0){
             
@@ -290,7 +274,13 @@ class User{
 
     //Data from Sign Up form is passed to this function to use in a Query
     static public function signup(){
+        $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
+        $Fullname = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
+        $Email = htmlspecialchars(filter_var($_POST["email"], FILTER_VALIDATE_EMAIL));
+        $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));
+        
 
+        $Submit = $_POST["submit"];
     }
     //Sign up form
     static public function signupform(){
@@ -298,15 +288,70 @@ class User{
     }
     //Data form
     static public function signin(){
+        if($_SESSION["userid"] > 0){return true;}
+        $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
+        $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));    
+        $Submit = $_POST["submit"];
+        if($Submit || isset($_SESSION["userid"])){
 
+        }
     }
-    //Sign in form
     static public function signinform(){
+        $UsernameField = array("Username: ","Text","username",30,"","Enter Your Username");
+        $PasswordField = array("Password: ","Password","password",30,"","Enter Your Password");
+        $Fields = array($UsernameField,$PasswordField);
+        $Button = "Login";
+        Forms::generateform("Sign In Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checkuserform(this)",$Fields,$Button);
 
     }
-    static public function listusers(){
-        $RQ = new ReadQuery("SELECT id, username, fullname FROM users WHERE deleted = 0", null);
+    static public function check_logon($UID){
+        $RQ = new ReadQuery("SELECT loginstatus FROM users WHERE id = :id",array(
 
+        ));
+        if($row = $RQ->getresults() > 0){
+            if($row["loginstatus"] > 0){
+                return true;
+            }
+        }
+        return false;
+        
+    }
+    static public function logout($UID){
+        $WQ = new WriteQuery("UPDATE users SET loginstatus = 0 WHERE id = :id", array(
+            PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
+        ));
+        session_destroy();
+    }
+   
+    static public function listusers(){
+        $RQ = new ReadQuery("SELECT id, username, fullname, userlevel FROM users JOIN userinformation on users.id = userinformation.userid WHERE deleted = 0", null);
+        $Cols = array(array("Username","username",1),array("Fullname","fullname",1),array("User Level","userlevel",1),array("","",2));
+        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            $Row1 = array($row["username"]);
+            $Row2 = array($row["fullname"]);
+            $Row3 = array(User::getuserleveltype($row["userlevel"]));
+            $Row4 = array("<a href=\"?edit&uid=". $row["id"] ."\"><i class='fas fa-user-edit' aria-hidden='true' title='Edit ".$row["username"]."'></i></a>","button");
+            $Row5 = array("<a alt='Delete ".$row["username"]."' onclick=\"deletedropdowndialog('" . $row["username"] . "','" . $row["id"] . "');\"><i class='fas fa-trash-alt' title='Delete ".$row["username"]."'></i></a>","button");
+        }
+        $Rows = array($Row1,$Row2,$Row3,$Row4,$Row5);
+        Display::generatedynamiclistdisplay("userstable",$Cols,$Rows,"Username",0);
+    }
+     //return the User type as a String value
+     static public function getuserleveltype($userlevel){
+        switch ($userlevel) {
+            case 1:
+                return "Student";
+                break;
+            case 2:
+                return "Staff";
+                break;
+            case 3:
+                return "Admin";
+                break;
+            default:
+                return "Not Registered";
+                break;
+        }
     }
     static public function edituserform($UID,$fullname,$username,$email,$password,$level,$phone,$photo,$department,$bio,$location){
         if($UID > 0){

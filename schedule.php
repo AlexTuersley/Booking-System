@@ -1,8 +1,8 @@
 <?php
+session_start();
 include("config/config.php");
-$Level = User::checkuserlevel($_SESSION["userid"]);
-WebPage::headerandnav("Schedule",$level);
-if($Level > 0){
+WebPage::headerandnav("Schedule",$_SESSION["userlevel"]);
+if($_SESSION["userlevel"] > 0){
    
    
 }

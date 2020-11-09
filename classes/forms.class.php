@@ -1,7 +1,7 @@
 <?php
 Class Forms{
-    static public function generateform($FormName, $JavaScriptAction, $OnSubmit, $Fields, $Button){
-        print("<form class='form-horizontal form-group' role='form' name='" . $FormName . "' id='" . $FormName . "' method='post' action='" . $JavaScriptAction . "'" . $OnSubmit . ">");
+    static public function generateform($FormName, $Action, $OnSubmit, $Fields, $Button){
+        print("<form class='form-horizontal form-group' role='form' name='" . $FormName . "' id='" . $FormName . "' method='post' action='" . $Action . "'" . $OnSubmit . ">");
         foreach($Fields as $Field)
         {
             if($Field == null){
@@ -47,7 +47,7 @@ Class Forms{
         $Value = $Field[4];
         $Placeholder = $Field[5];
         $Array = $Field[6];
-        $JavaScriptAction = $Field[7];
+        $Action = $Field[7];
         $ReadOnly = $Field[8];
         $Class= $Field[9];
         $ToolTip = $Field[10];
@@ -56,7 +56,7 @@ Class Forms{
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\"" . $ReadOnly . "title = '" . $ToolTip . "' />");
         }
         elseif($Type == "TextDynamic"){
-            print("input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\" onchange='" . $JavaScriptAction . "' title = '" . $ToolTip . "'/><span id='" . $Name . "Image'></span>");
+            print("input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\" onchange='" . $Action . "' title = '" . $ToolTip . "'/><span id='" . $Name . "Image'></span>");
         }
         elseif($Type == "Password"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='password' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' title = '" . $ToolTip . "'/>");

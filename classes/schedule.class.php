@@ -217,6 +217,36 @@ class Schedule {
         $slots = array($timeslots,$holidays);
         return $slots;
     }
+    static public function listuserdepartments(){
+        if($_SESSION["userlevel"] == 1){
+            $RQ = new ReadQuery("SELECT id,departmentname FROM departments WHERE deleted = 0");
+            $UserDepartmentArray = array();
+            $UserDepartmentCounter = 0;
+            $DepartmentArray = array();
+            $DepartmentCounter = 0;
+            $UserArray = array();
+            $Counter = 0;
+            while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                $DepartmentArray[$Counter] = $row["departmentname"];
+                $RQ2 = new ReadQuery("SELECT id, fullname FROM users JOIN userinformation ON users.id = userinformation.userid WHERE userinformation.department = :department",array(
+                    PDOConnection::sqlarray(":department",$row["id"],PARAM_INT)
+                ));
+                while($row2 = $RQ2->getresults()->fetch(PDO::FETCH_BOTH)){
+                    $UserArray[$Counter] = array($row2["id"],$row2["fullname"]);
+                    $Counter++;
+                }
+                
+                $UserDepartmentArray[$UserDepartmentCounter] = array($DepartmentArray,$UserArray);
+                $DepartmentCounter++;
+                $UserDepartmentCounter++;
+            }
+            
+        }
+        else{
+            print("You are not a student. As such you do not have permission for this page, you will be redirected shortly.");
+            header("Location: http://".BASEPATH."/index.php");
+        }
+    }
     static public function scheduleform($SID,$staff,$day,$starttime,$endtime,$active,$away,$startdate,$enddate){
         
     }

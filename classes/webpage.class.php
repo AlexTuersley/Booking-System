@@ -25,7 +25,7 @@ Class WebPage{
                 $navList = array(array("index.php","home","fa-book"),array("bookings.php","bookings","fa-book"),array("schedule.php","schedule","fa-calendar"),array("department.php","department","fa-university"),array("user.php","users","fa-users"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
                 break;
             default:
-                $navList = array(array("index.php","home","fa-book"),array("signin.php","Sign In","fa-sign-in-alt"),array("signup.php?signup","Sign Up","fa-user-plus"));
+                $navList = array(array("index.php","home","fa-book"),array("signin.php","Sign In","fa-sign-in-alt"),array("signin.php?signup","Sign Up","fa-user-plus"));
                 break;
         }
 

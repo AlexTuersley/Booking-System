@@ -11,6 +11,7 @@ define('DBUSER', $ini['config']['database']['dbuser']);
 define('DBPASS', $ini['config']['database']['dbpass']);
 define('SALT', $ini['config']['database']['salt']);
 define("CSS",$ini["config"]["css"]["style"]);
+define("BASEPATH",$ini["config"]["paths"]);
 
 /**
 * This file handles errors and sets the paths to different files and routes based on .ini files
