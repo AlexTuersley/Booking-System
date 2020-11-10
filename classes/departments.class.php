@@ -42,7 +42,7 @@ Class Departments{
         }
     }
     function savenew(){
-        $WQ = new WriteQuery("INSERT INTO departments(departmentname,deleted)VALUES(:departmenrtname,0)",array(
+        $WQ = new WriteQuery("INSERT INTO departments(departmentname,deleted)VALUES(:departmentname,0)",array(
                                 PDOConnection::sqlarray(":departmentname",PDO::PARAM_STR)
                             ));
     }
@@ -107,8 +107,8 @@ Class Departments{
         }
     }
     static public function getdepartmentsarray(){
-        if(User::GetUserLevel() >= 2){
-            $RQ = new ReadQuery("SELECT id, name FROM departments WHERE deleted = 0", null);
+       
+            $RQ = new ReadQuery("SELECT id, departmentname FROM departments WHERE deleted = 0", null);
 
             $ReturnArray = array();
             $Counter = 0;
@@ -117,10 +117,7 @@ Class Departments{
                 $Counter ++;
             }
 
-            return $ReturnArray;
-        }
-
-     
+            return $ReturnArray;     
     }
     static public function editdepartmentform($DID,$name){
         if($DID > 0){

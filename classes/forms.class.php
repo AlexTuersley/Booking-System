@@ -23,17 +23,16 @@ Class Forms{
             }
         }
         if($Button){
-            echo($ButtonPage);
             print("<div class='form-group'>");
-
                         $Buttons = explode( ',', $Button );
                         $i = 0;
                         foreach ($Buttons as $key => $btn) {
                             $SubmitType = $i == 0 ? "submit" : "save";
-                            $ButtonColour = $i == 0 ? "primary" : "warning";
+                            $ButtonColour = $i == 0 ? "dark" : "warning";
                             print("<button type='submit' class='btn btn-outline-".$ButtonColour."' id='".$SubmitType."' name='".$SubmitType."' value='" . $btn . "' title=' Click this button to " . $btn ."'>". $btn ."</button> ");
                             $i++;
                         }
+                        print("<a style='color:black' href='" . htmlspecialchars(filter_var($_SERVER['PHP_SELF'], FILTER_SANITIZE_STRING , 'UTF-8'), ENT_QUOTES, 'UTF-8') . "' class='btn btn-outline-secondary' id='cancel' title='Click this button to cancel this form and return to the previous page'>Cancel</a>");
                     print("</div>");
                 }
             print("</form>");
@@ -54,6 +53,9 @@ Class Forms{
 
         if($Type == "Text"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\"" . $ReadOnly . "title = '" . $ToolTip . "' />");
+        }
+        elseif($Type == "Email"){
+            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='email' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\"" . $ReadOnly . "title = '" . $ToolTip . "' />");
         }
         elseif($Type == "TextDynamic"){
             print("input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\" onchange='" . $Action . "' title = '" . $ToolTip . "'/><span id='" . $Name . "Image'></span>");

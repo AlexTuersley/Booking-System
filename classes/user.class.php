@@ -278,12 +278,61 @@ class User{
         $Fullname = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
         $Email = htmlspecialchars(filter_var($_POST["email"], FILTER_VALIDATE_EMAIL));
         $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));
+        $Department = htmlspecialchars(filter_var($_POST["department"], FILTER_SANITIZE_STRING));
         $Submit = $_POST["submit"];
+        if($Submit && str_pos($Email,EMAILCHECK)){
+            $User = new User();
+            $User->setusername($Username);
+            $User->setfullname($Fullname);
+            $User->setemail($Email);
+            $User->setfullname($Fullname);
+            $User->setuserlevel($Level);
+            $User->setpassword(md5(SALT.$Password));
+            $User->savenew();
+        }
+        else{
+            User::signupform();
+        }
 
     }
     //Sign up form
     static public function signupform(){
+        $Departments = array();
+        $Departments = Departments::getdepartmentsarray();
+        $EmailField = array("Email:","Email","email",30,"Enter Your Email");
+        $UsernameField = array("Username: ","Text","username",30,"","Enter Your Username");
+        $PasswordField = array("Password: ","Password","password",30,"","Enter Your Password");
+        $FullnameField = array("Fullname: ","Text","fullname",30,"Enter Your Fullname");
+        $UsercheckboxField = array("Staff:","Checkbox","usercheckbox",0,"Select if you're a member of staff");
+        $DepartmentField = array("Department: ","Select","department",30,"Select Your Department","",$Departments);
+        $Fields = array($EmailField,$UsernameField,$PasswordField,$FullnameField,$UsercheckboxField,$DepartmentField);
+        $Button = "Login";
+        Forms::generateform("Sign Up Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checksignupform(this)",$Fields,$Button);
 
+        ?>
+
+		<script>
+			var checkbox = $("#usercheckbox");
+			
+			$(function(){
+				CheckCheckbox();
+			});
+
+			checkbox.click(function(){
+				CheckCheckbox();
+			})
+
+			function CheckCheckbox(){
+				var checked = checkbox.is(':checked');
+				if(!checked){
+					$('#department').parent().hide();
+				}else{
+					$('#department').parent().show();
+				}
+			}
+		</script>
+
+		<?
     }
     //Data form
     static public function signin(){
@@ -316,7 +365,7 @@ class User{
         $PasswordField = array("Password: ","Password","password",30,"","Enter Your Password");
         $Fields = array($UsernameField,$PasswordField);
         $Button = "Login";
-        Forms::generateform("Sign In Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checkuserform(this)",$Fields,$Button);
+        Forms::generateform("Sign In Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checksigninform(this)",$Fields,$Button);
 
     }
     static public function checksignin($UID){

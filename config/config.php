@@ -1,5 +1,5 @@
 <?php
-
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 /**
  * Looks in the config.ini file to get database information which will direct to
  * the server that is storing the booking system database
@@ -9,9 +9,10 @@ define('DBSERVER', $ini['config']['database']['dbserver']);
 define('DBNAME', $ini['config']['database']['dbname']);
 define('DBUSER', $ini['config']['database']['dbuser']);
 define('DBPASS', $ini['config']['database']['dbpass']);
-define('SALT', $ini['config']['database']['salt']);
 define("CSS",$ini["config"]["css"]["style"]);
 define("BASEPATH",$ini["config"]["paths"]);
+define("EMAILCHECK",$ini["config"]["security"]["email"]);
+define('SALT', $ini['config']['security']['salt']);
 
 /**
 * This file handles errors and sets the paths to different files and routes based on .ini files
@@ -35,15 +36,15 @@ function exceptionHandler($e) {
   */
   function errorHandler($errno, $errstr, $errfile, $errline) {
 	if ($errno != 2 && $errno != 8) {
-	  throw new Exception("Fatal Error Detected: [$errno] Internal Server Error", 1);
+	  throw new Exception("Fatal Error Detected: [$errno] $errstr line: $errline", 1);
 	  logError("Fatal Error Detected: [$errno] $errstr line: $errline");
 	}
 	else{
 	  logError("Fatal Error Detected: [$errno] $errstr line: $errline");
 	}
   }
-  set_error_handler('errorHandler');
-  set_exception_handler('exceptionHandler');
+  //set_error_handler('errorHandler');
+ // set_exception_handler('exceptionHandler');
   
   /**
    * Loops through the classes folder and includes all php files in the page

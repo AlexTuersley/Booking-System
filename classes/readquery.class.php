@@ -71,7 +71,6 @@
            }
         }
 
-        //Read Query Constructor
         function SQLIReadQuery($Query)
         {
             $this->c_connection = new Connection();
@@ -84,7 +83,6 @@
             $this->runpdoquery($Query,$Params,$Debug);
         }
 
-        //Run Query
         function runquery($query)
         {
             $this->c_query = $query;
@@ -93,7 +91,7 @@
                 $this->c_number_of_results=$this->c_results->num_rows;
             }
         }
-        //Run Query with parameters
+
         function runpdoquery($query,$params,$debug)
         {
             $this->c_query = $query;

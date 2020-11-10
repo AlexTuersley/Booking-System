@@ -18,13 +18,14 @@ Class WebPage{
                 }
               }
                print("
-               <link rel='stylesheet' href='css/style.css'>
-               <link rel='stylesheet' href='css/bootstrap.min.css'>
+               <link rel='stylesheet' href='/Booking-System/css/style2.css'>
+               <link rel='stylesheet' href='/Booking-System/css/bootstrap.min.css'>
                <link rel='stylesheet' href='css/bootstrap-grid.min.css'>
                <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap'/>
-               <script type='text/javascript' src='js/jquery-3.5.1.min.js'></script>
+               <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
                <script type='text/javascript' src='js/bootstrap.min.js'></script>
                <script type='text/javascript' src='js/bootstrap.bundle.min.js'></script>
+
                <script src='https://kit.fontawesome.com/b774cd34b7.js' crossorigin='anonymous'></script>
                </head>
                <nav class='navbar navbar-expand-lg'>
@@ -40,7 +41,7 @@ Class WebPage{
                 $navList = array(array("index.php","home","fa-book"),array("bookings.php","bookings","fa-book"),array("schedule.php","schedule","fa-calendar"),array("department.php","department","fa-university"),array("user.php","users","fa-users"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
                 break;
             default:
-                $navList = array(array("index.php","home","fa-book"),array("signin.php","Sign In","fa-sign-in-alt"),array("signin.php?signup","Sign Up","fa-user-plus"));
+                $navList = array(array("index.php","home","fa-book"),array("signin.php","Sign In","fa-sign-in-alt"),array("signin.php?signup=true","Sign Up","fa-user-plus"));
                 break;
         }
         

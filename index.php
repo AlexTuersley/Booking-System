@@ -1,16 +1,36 @@
 <?php
 session_start();
 include("config/config.php");
-//$Level = User::checkuserlevel($_SESSION["userid"]);
-WebPage::headerandnav("Home",$_SESSION["userlevel"]);
-if($_GET["signout"] || $_SESSION["logged-in"] > 0){
+if($_SESSION["userlevel"]){
+    $Level = $_SESSION["userlevel"];
+}
+else{
+    $Level = 0;
+}
+WebPage::headerandnav("Home",$Level);
+if($_GET["signout"]){
     User::signout();
 }
 elseif($_SESSION["userlevel"] > 0){
-    print("<p><span>Welcome.</span> To use the booking system either sign up or sign in.</p>"); 
+    print("<p class='welcome'><span>Welcome ".$_SESSION["username"].".</span> To use the booking system either sign up or sign in.</p>");    
 }
 else{
-    print("<p><span>Welcome ".$_SESSION["username"].".</span> To use the booking system either sign up or sign in.</p>");
+
+    print("<p class='welcome'>Welcome. To use the booking system either sign up or sign in.</p>"); 
+}
+
+
+
+function PDOConnection()
+{      
+  try{      
+    $conn = new PDO("mysql:host=".DBSERVER.";dbname=".DBNAME, DBUSER,DBPASS);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);       
+  }
+  catch(PDOException $e){
+    echo "PDO Error: " . $e->getMessage();
+  }
+        
 }
 WebPage::pageend();
 ?>
