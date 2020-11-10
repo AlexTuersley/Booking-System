@@ -294,7 +294,7 @@ class User{
         if($Submit || isset($_SESSION["userid"])){
             $UserID = User::checksignin();
             if($UserID > 0){
-                $User = new Users($UserID);
+                $User = new User($UserID);
                 $_SESSION["username"] = $User->getusername();
                 $_SESSION["password"] = md5(SALT.$Password);
                 $_SESSION["userid"] = $UserID;
@@ -302,7 +302,14 @@ class User{
                 $_SESSION["loginstatus"] = 1;
 
             }
+            else{
+                User::signinform();
+            }
         }
+        else{
+            User::signinform();
+        }
+
     }
     static public function signinform(){
         $UsernameField = array("Username: ","Text","username",30,"","Enter Your Username");
