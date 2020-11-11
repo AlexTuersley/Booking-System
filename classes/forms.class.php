@@ -52,13 +52,19 @@ Class Forms{
         $ToolTip = $Field[10];
 
         if($Type == "Text"){
-            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\"" . $ReadOnly . "title = '" . $ToolTip . "' />");
+            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "'" . $ReadOnly . "title = '" . $ToolTip . "' />");
         }
-        elseif($Type == "Email"){
-            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='email' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\"" . $ReadOnly . "title = '" . $ToolTip . "' />");
+        elseif($Type == "TextArea"){
+            print("<div class='form-group purple-border'>
+            <label for='".$Name."'>".$Name."</label>
+                <textarea class='form-control' id='".$Name."' placeholder = '" . $Placeholder ."' rows='" . $FieldSize . "' value='" . $Value . "'" . $ReadOnly . "title = '" . $ToolTip . "'></textarea>
+            </div>");
         }
         elseif($Type == "TextDynamic"){
             print("input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\" onchange='" . $Action . "' title = '" . $ToolTip . "'/><span id='" . $Name . "Image'></span>");
+        }
+        elseif($Type == "Email"){
+            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='email' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\"" . $ReadOnly . "title = '" . $ToolTip . "' />");
         }
         elseif($Type == "Password"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='password' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' title = '" . $ToolTip . "'/>");

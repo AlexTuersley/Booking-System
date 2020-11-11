@@ -275,10 +275,12 @@ class User{
     //Data from Sign Up form is passed to this function to use in a Query
     static public function signup(){
         $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
-        $Fullname = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
+        $Fullname = htmlspecialchars(filter_var($_POST["fullname"], FILTER_SANITIZE_STRING));
         $Email = htmlspecialchars(filter_var($_POST["email"], FILTER_VALIDATE_EMAIL));
         $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));
         $Department = htmlspecialchars(filter_var($_POST["department"], FILTER_SANITIZE_STRING));
+        $Location = htmlspecialchars(filter_var($_POST["location"], FILTER_SANITIZE_STRING));
+        $Bio = htmlspecialchars(filter_var($_POST["bio"], FILTER_SANITIZE_STRING));
         $Submit = $_POST["submit"];
         if($Submit && str_pos($Email,EMAILCHECK)){
             $User = new User();
@@ -288,6 +290,15 @@ class User{
             $User->setfullname($Fullname);
             $User->setuserlevel($Level);
             $User->setpassword(md5(SALT.$Password));
+            if($Department > 0){
+                $User->setuserlevel(2);
+            }
+            else{
+                $User->setuserlevel(1);
+                $User->setdepartment(0);
+            }
+            $User->setbio($Bio);
+            $User->setlocation($Location);
             $User->savenew();
         }
         else{
@@ -299,13 +310,15 @@ class User{
     static public function signupform(){
         $Departments = array();
         $Departments = Departments::getdepartmentsarray();
-        $EmailField = array("Email:","Email","email",30,"Enter Your Email");
-        $UsernameField = array("Username: ","Text","username",30,"","Enter Your Username");
-        $PasswordField = array("Password: ","Password","password",30,"","Enter Your Password");
-        $FullnameField = array("Fullname: ","Text","fullname",30,"Enter Your Fullname");
-        $UsercheckboxField = array("Staff:","Checkbox","usercheckbox",0,"Select if you're a member of staff");
-        $DepartmentField = array("Department: ","Select","department",30,"Select Your Department","",$Departments);
-        $Fields = array($EmailField,$UsernameField,$PasswordField,$FullnameField,$UsercheckboxField,$DepartmentField);
+        $EmailField = array("Email:","Email","email",30,"Enter your Email");
+        $UsernameField = array("Username: ","Text","username",30,"","Enter your Username");
+        $PasswordField = array("Password: ","Password","password",30,"","Enter your Password");
+        $FullnameField = array("Fullname: ","Text","fullname",30,"Enter your Fullname");
+        $UsercheckboxField = array("Staff:","Checkbox","usercheckbox",0,"Select if you're a member of staff","");
+        $DepartmentField = array("Department: ","Select","department",30,"Select your Department",0,$Departments);
+        $LocationField = array("Location: ","Text","location",30,"Enter your location at University");
+        $BioField = array("Bio: ","Text","bio",4,"Enter some information about yourself and your area of study");
+        $Fields = array($EmailField,$UsernameField,$PasswordField,$FullnameField,$BioField,$UsercheckboxField,$DepartmentField,$LocationField);
         $Button = "Login";
         Forms::generateform("Sign Up Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checksignupform(this)",$Fields,$Button);
 
@@ -315,19 +328,21 @@ class User{
 			var checkbox = $("#usercheckbox");
 			
 			$(function(){
-				CheckCheckbox();
+				StaffCheckbox();
 			});
 
 			checkbox.click(function(){
-				CheckCheckbox();
+				StaffCheckbox();
 			})
 
-			function CheckCheckbox(){
+			function StaffCheckbox(){
 				var checked = checkbox.is(':checked');
 				if(!checked){
 					$('#department').parent().hide();
+                    $('#location').parent().hide();
 				}else{
 					$('#department').parent().show();
+                    $('#location').parent().hide();
 				}
 			}
 		</script>
