@@ -56,7 +56,6 @@ Class Forms{
         }
         elseif($Type == "TextArea"){
             print("<div class='form-group purple-border'>
-            <label for='".$Name."'>".$Name."</label>
                 <textarea class='form-control' id='".$Name."' placeholder = '" . $Placeholder ."' rows='" . $FieldSize . "' value='" . $Value . "'" . $ReadOnly . "title = '" . $ToolTip . "'></textarea>
             </div>");
         }
@@ -89,7 +88,7 @@ Class Forms{
 
         //}
         elseif($Type == "Checkbox"){
-            print("<div class='checkboxblock'><input placeholder = '" . $Placeholder ."' class='checkbox' type='checkbox' name='" . $Name . "' value='" . $Array . "' checked='checked " . $OnChange . "' style='display: inline; ".$RowHeaders."' title = '" . $ToolTip ."' id='" . $Name . "'> ".$Placeholder.$Class."</div>");
+            print("<div class='checkboxblock'><input placeholder = '" .$Placeholder."' class='checkbox' type='checkbox' name='" . $Name . "' value='" . $Value . "' " . $OnChange . "' style='display: inline; ".$RowHeaders."' title = '" . $ToolTip ."' id='" . $Name . "'> ".$Placeholder.$Class."</div>");
         }
         elseif($Type == "DateTime") {
             print('<div class="input-group date" id="dtp-'. $Name .'" data-target-input="nearest">
