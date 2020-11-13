@@ -120,7 +120,7 @@ CREATE TABLE `users` (
   `username` varchar(255) NOT NULL,
   `userpassword` varchar(255) NOT NULL,
   `userlevel` int(1) NOT NULL,
-  `loginstatus` int(1) NOT NULL,
+  `activated` int(1) NOT NULL,
   `deleted` int(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
