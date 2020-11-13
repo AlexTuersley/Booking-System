@@ -100,7 +100,7 @@ class User{
     }
    
     //This function runs when Class is initiated sets all user variables based on the User ID passed through to the Class
-    function __construct($ID = 0){
+    function __construct($ID){
         if($ID > 0){
             
             $RQ = new ReadQuery("SELECT * FROM users 
@@ -139,12 +139,12 @@ class User{
                 PDOConnection::sqlarray(":userpassword", $this->getpassword(), PDO::PARAM_STR),
                 PDOConnection::sqlarray(":userlevel", $this->getuserlevel(), PDO::PARAM_INT)
         ));
-        $this->id = $WQ->getinsertid();
-        $WQ2 = new WriteQuery("INSERT INTO userinformation
+        $this->c_ID = $WQ->getinsertid();
+        $WQ = new WriteQuery("INSERT INTO userinformation
             (userid,fullname,phone,photo,department,bio,userlocation)
             VALUES(:userid,:fullname,:phone,:photo,:department,:bio,:userlocation)",
             array(
-                PDOConnection::sqlarray(":userid", $this->id,PDO::PARAM_INT),
+                PDOConnection::sqlarray(":userid", $this->getid(),PDO::PARAM_INT),
                 PDOConnection::sqlarray(":fullname",$this->getfullname(),PDO::PARAM_STR),
                 PDOConnection::sqlarray(":phone",$this->getphone(),PDO::PARAM_INT),
                 PDOConnection::sqlarray(":photo", $this->getphoto(), PDO::PARAM_STR),
@@ -171,7 +171,7 @@ class User{
             PDOConnection::sqlarray(":deleted", $this->getdeleted(), PDO::PARAM_INT),
             PDOConnection::sqlarray(":id", $this->getid(),PDO::PARAM_INT)
         ));
-        $WQ2 = new WriteQuery("UPDATE userinformation SET
+        $WQ = new WriteQuery("UPDATE userinformation SET
                 fullname = :fullname,
                 phone = :phone,
                 photo = :photo,
@@ -278,16 +278,6 @@ class User{
         print("<p>User already activated</p>");
         return false;
     }
-    static public function checkusernameandemail($Username, $Email){
-        $RQ = new ReadQuery("SELECT * FROM users WHERE users.username =:username OR users.email = :email",array(
-            PDOConnection::sqlarray(":username",$Username,PDO::PARAM_STR),
-            PDOConnection::sqlarray(":email",$Email,PDO::PARAM_STR)
-        ));
-        if($row = $RQ->getnumberofresults() > 0){
-            return false;
-        }
-        return true;
-    }
 
     //Data from Sign Up form is passed to this function to use in a Query
     static public function signup(){
@@ -325,11 +315,10 @@ class User{
                 $User->setlocation($Location);
                 $User->savenew();
                 $Link = "user.php?activate=".$User->getid();
-                $headers = "From: noreply@bookingsystem.com\n
-                            ";
+                $headers = "From: noreply@bookingsystem.com\r\n
+                            Content-type: text/html\r\n";
                 $email_subject = "New User Registration";
-                $email_message = "Content-type: text/html\n
-                                  A user has signed up to the booking system with this email".$Email." to confirm your registration click this link".$Link.".\n
+                $email_message = "A user has signed up to the booking system with this email".$Email." to confirm your registration click this link".$Link.".\n
                                   If this was not you, your emai may have been hacked, changing your password is recommended.";
                 $sendmail = mail($Email, $email_subject, $email_message, $headers);
                 if($sendmail){
@@ -358,7 +347,7 @@ class User{
         $PhoneField = array("Phone: ","Text","phone",30,$Phone,"Enter your phone number(optional)");
         $BioField = array("Bio: ","TextArea","bio",4,$Bio,"Enter some information about yourself and your area of study(optional)");
         $UsercheckboxField = array("Staff:","Checkbox","usercheckbox",0,$Check,"Select if you are a member of staff","");
-        $DepartmentField = array("Department: ","Select","department",30,$Department,"Select your Department",$Departments);
+        $DepartmentField = array("Department: ","Select","department",30,$Department,"Select your Department",0,$Departments);
         $LocationField = array("Location: ","Text","location",30,$Location,"Enter your location at University(optional)");
 
         $Fields = array($EmailField,$UsernameField,$PasswordField,$FullnameField,$PhoneField,$BioField,$UsercheckboxField,$DepartmentField,$LocationField);
@@ -426,7 +415,7 @@ class User{
         Forms::generateform("Sign In Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checksigninform(this)",$Fields,$Button);
 
     }
-    static public function checksignin($UID = 0){
+    static public function checksignin($UID){
         if($_SESSION["username"] && $_SESSION["password"]){
             $Username = $_SESSION["username"];
             $Password = $_SESSION["password"];
@@ -440,7 +429,7 @@ class User{
             $Password = SALT.$password;
             //encrypt the password
             $Password = md5($Password);
-            $RQ = new ReadQuery("SELECT id, userpassword, activated FROM users WHERE username = :username",array(
+            $RQ = new ReadQuery("SELECT id, password, activated FROM users WHERE username = :username",array(
                 PDOConnection::sqlarray(":username",$Username,PDO::PARAM_STR)
             ));
             if($RQ->getnumberofresults() > 0){
