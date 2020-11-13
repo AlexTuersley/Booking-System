@@ -23,32 +23,32 @@ class User{
     function getid(){
         return $this->id;
     }
-    function setid($val){
-        $this->id = $val;
+    function setid($Val){
+        $this->id = $Val;
     }
     function getusername(){
         return $this->username;
     }
-    function setusername($val){
-        $this->username = $val;
+    function setusername($Val){
+        $this->username = $Val;
     }
     function getpassword(){
         return $this->password;
     }
-    function setpassword($val){
-        $this->password = $val;
+    function setpassword($Val){
+        $this->password = $Val;
     }
     function getuserlevel(){
         return $this->userlevel;
     }
-    function setuserlevel($val){
-        $this->userlevel = $val;
+    function setuserlevel($Val){
+        $this->userlevel = $Val;
     }
     function getemail(){
         return $this->email;
     }
-    function setemail($val){
-        $this->email = $val;
+    function setemail($Val){
+        $this->email = $Val;
     }
     function getlogin(){
         return $this->activated;
@@ -77,26 +77,26 @@ class User{
     function getphoto(){
         return $this->photo;
     }
-    function setphoto($val){
-        $this->photo = $val;
+    function setphoto($Val){
+        $this->photo = $Val;
     }
     function getdepartment(){
         return $this->department;
     }
-    function setdepartment($val){
-        $this->department = $val;
+    function setdepartment($Val){
+        $this->department = $Val;
     }
     function getbio(){
         return $this->bio;
     }
-    function setbio($val){
-        $this->bio = $val;
+    function setbio($Val){
+        $this->bio = $Val;
     }
     function getlocation(){
         return $this->location;
     }
     function setlocation($Val){
-        $this->location = $location;
+        $this->location = $Val;
     }
    
     //This function runs when Class is initiated sets all user variables based on the User ID passed through to the Class
@@ -269,7 +269,7 @@ class User{
         return 0;
     }
     static public function activateuser($UID){
-        $WQ = new WriteQuery("UPDATE users SET activated = 1 WHERE id = :id",array(
+        $WQ = new WriteQuery("UPDATE users SET activated = 1 WHERE id = :id AND activated != 1",array(
             PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
         ));
         if($row = $RQ->getresults() > 0){
@@ -296,7 +296,7 @@ class User{
         $Email = htmlspecialchars(filter_var($_POST["email"], FILTER_VALIDATE_EMAIL));
         $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));
         $Bio = htmlspecialchars(filter_var($_POST["bio"], FILTER_SANITIZE_STRING));
-        $PhoneField = htmlspecialchars(filter_var($_POST["phone"], FILTER_SANITIZE_NUMBER_INT));
+        $Phone = htmlspecialchars(filter_var($_POST["phone"], FILTER_SANITIZE_NUMBER_INT));
         $Department = htmlspecialchars(filter_var($_POST["department"], FILTER_SANITIZE_STRING));
         $Location = htmlspecialchars(filter_var($_POST["location"], FILTER_SANITIZE_STRING));
 
@@ -368,7 +368,7 @@ class User{
         ?>
 
 		<script>
-			var checkbox = $("#usercheckbox");
+			let checkbox = $("#usercheckbox");
 			
 			$(function(){
 				StaffCheckbox();
@@ -379,7 +379,7 @@ class User{
 			})
 
 			function StaffCheckbox(){
-				var checked = checkbox.is(':checked');
+				let checked = checkbox.is(':checked');
 				if(!checked){
 					$('#department').parent().hide();
                     $('#location').parent().hide();
@@ -437,7 +437,7 @@ class User{
             $Password = $_POST["password"];
 
             //Add the SALT set in config.ini to the password
-            $Password = SALT.$password;
+            $Password = SALT.$Password;
             //encrypt the password
             $Password = md5($Password);
             $RQ = new ReadQuery("SELECT id, userpassword, activated FROM users WHERE username = :username",array(
