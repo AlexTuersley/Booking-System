@@ -213,7 +213,7 @@ class User{
                 $User->setfullname($fullname);
                 $User->setusername($username);
                 $User->setemail($email);
-                $User->setpassword($password);
+                $User->setpassword($userpassword);
                 $User->setuserlevel($level);
                 $User->setphone($phone);
                 $User->setphoto($photo);
@@ -227,7 +227,7 @@ class User{
                 $User->setfullname($fullname);
                 $User->setusername($username);
                 $User->setemail($email);
-                $User->setpassword($password);
+                $User->setpassword($userpassword);
                 $User->setuserlevel($level);
                 $User->setphone($phone);
                 $User->setphoto($photo);
@@ -272,7 +272,7 @@ class User{
         $WQ = new WriteQuery("UPDATE users SET activated = 1 WHERE id = :id AND activated != 1",array(
             PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
         ));
-        if($row = $RQ->getresults() > 0){
+        if($row = $WQ->getresults() > 0){
             return true;
         }
         print("<p>User already activated</p>");
@@ -382,7 +382,7 @@ class User{
 
 			checkbox.click(function(){
 				StaffCheckbox();
-			})
+			});
 
 			function StaffCheckbox(){
 				let checked = checkbox.is(':checked');
@@ -400,7 +400,9 @@ class User{
     }
     //Data form
     static public function signin(){
-        if($_SESSION["userid"] > 0){return true;}
+        if($_SESSION["userid"] > 0){
+            return true;
+        }
         $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
         $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));    
         $Submit = $_POST["submit"];
@@ -422,6 +424,7 @@ class User{
         else{
             User::signinform();
         }
+        return false;
 
     }
     static public function signinform(){
@@ -460,9 +463,9 @@ class User{
                         return $row["id"];
                     }
             }
-            return 0;
+
         }
-        
+        return 0;
     }
     static public function logout($UID){
         session_destroy();
