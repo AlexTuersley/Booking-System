@@ -7,12 +7,14 @@ if($_SESSION["userlevel"]){
 else{
     $Level = 0;
 }
+WebPage::headerandnav("Home",$Level);
 if($Level > 0){
    
    
 }
 else{
-    print("<p><span>Welcome</span>To use the booking system either sign up or sign in.</p>");
+    print("<p class='welcome'>You do not have permission to access this page. Redirecting shortly</p>");
+    header("refresh:10;url=http://".BASEPATH."/index.php");
 }
 WebPage::pageend();
 ?>

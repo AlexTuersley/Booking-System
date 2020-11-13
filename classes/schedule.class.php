@@ -243,8 +243,8 @@ class Schedule {
             
         }
         else{
-            print("You are not a student. As such you do not have permission for this page, you will be redirected shortly.");
-            header("Location: http://".BASEPATH."/index.php");
+            print("<p class='banner-warning'>You are not a student. As such you do not have permission for this page, you will be redirected shortly.</p>");
+            header("refresh:10;url=http://".BASEPATH."/index.php");
         }
     }
     static public function scheduleform($SID,$staff,$day,$starttime,$endtime,$active,$away,$startdate,$enddate){

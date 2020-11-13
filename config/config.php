@@ -10,9 +10,10 @@ define('DBNAME', $ini['config']['database']['dbname']);
 define('DBUSER', $ini['config']['database']['dbuser']);
 define('DBPASS', $ini['config']['database']['dbpass']);
 define("CSS",$ini["config"]["css"]["style"]);
-define("BASEPATH",$ini["config"]["paths"]);
+define("BASEPATH",$ini["config"]["paths"]['basepath']);
 define("EMAILCHECK",$ini["config"]["security"]["email"]);
 define('SALT', $ini['config']['security']['salt']);
+define('ADMIN', $ini['config']['security']['admin']);
 
 /**
 * This file handles errors and sets the paths to different files and routes based on .ini files

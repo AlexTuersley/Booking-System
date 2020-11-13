@@ -9,7 +9,8 @@ else{
 }
 WebPage::headerandnav("Home",$Level);
 if($Level > 0){
-    print("<p><span>Welcome</span>To use the booking system either sign up or sign in.</p>");
+    print("<p class='welcome'>You have already signed in. You will be redirected shortly");
+    header("Location: refresh:5;http://".BASEPATH."/index.php");
 }
 elseif($_GET["signup"]=="true"){
     print("<div class='container' style='padding-top:2em;'>");

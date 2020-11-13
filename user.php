@@ -1,16 +1,18 @@
 <?php
 include("config/config.php");
 session_start();
+$activate = $_GET["activate"];
 WebPage::headerandnav("User",$_SESSION["userlevel"]);
 if($_SESSION["userlevel"] > 0){
    
    
 }
-elseif($_GET["activate"]){
+elseif($activate > 0){
     User::activateuser($_GET["activate"]);
 }
 else{
-    print("<p><span>Welcome</span>To use the booking system either sign up or sign in.</p>");
+    print("<p class='welcome'>You do not have permission to access this page. Redirecting shortly</p>");
+    header("refresh:10;url=http://".BASEPATH."/index.php");
 }
 WebPage::pageend();
 ?>

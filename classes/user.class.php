@@ -324,21 +324,27 @@ class User{
                 $User->setbio($Bio);
                 $User->setlocation($Location);
                 $User->savenew();
-                $Link = "user.php?activate=".$User->getid();
-                $headers = "From: noreply@bookingsystem.com\n
-                            ";
-                $email_subject = "New User Registration";
-                $email_message = "Content-type: text/html\n
-                                  A user has signed up to the booking system with this email".$Email." to confirm your registration click this link".$Link.".\n
-                                  If this was not you, your emai may have been hacked, changing your password is recommended.";
-                $sendmail = mail($Email, $email_subject, $email_message, $headers);
-                if($sendmail){
-                    print("<p>A message has been sent to your email, to activate your account please click the link send with the message</p>");
+              
+                if(function_exists("mail")){
+                    $Link = "user.php?activate=".$User->getid();
+                    $headers = "From: noreply@bookingsystem.com\n";
+                    $email_subject = "New User Registration";
+                    $email_message = "Content-type: text/html\n
+                                      A user has signed up to the booking system with this email".$Email." to confirm your registration click this link".$Link.".\n
+                                      If this was not you, your emai may have been hacked, changing your password is recommended.";
+                    $sendmail = mail($Email, $email_subject, $email_message, $headers);
+                    if($sendmail){
+                        print("<p>A message has been sent to your email, to activate your account please click the link send with the message</p>");
+                    }
+                    else{
+                        print("<p class='warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
+                        User::signupform($Email,$Username,$_POST["password"],$Fullname,$Phone,$Bio,$Check,$Department,$Location);
+                    }
                 }
                 else{
-                    print("<p class='warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
-                    User::signupform($Email,$Username,$_POST["password"],$Fullname,$Phone,$Bio,$Check,$Department,$Location);
+                    print("Email has not been enabled for this server. Please conaact the administrator ".ADMIN." to activate your account.");
                 }
+         
             }
                        
         }
