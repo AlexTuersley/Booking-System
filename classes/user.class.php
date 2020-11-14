@@ -205,6 +205,7 @@ class User{
         $bio = $_POST["bio"];
         $location = $_POST["location"];
         $Submit = $_POST["submit"];
+        echo $bio;
         if($Submit){
                 if($UID > 0){ 
                     $User = new User($UID);
@@ -217,6 +218,7 @@ class User{
                     $User->setdepartment($department);
                     $User->setbio($bio);
                     $User->setlocation($location);
+                    echo $User->getbio();
                     $User->save();
                 }
                 else{
@@ -521,8 +523,8 @@ class User{
         $EmailField = array("Email:","Email","email",30,$email,"Enter your Email");
         $UsernameField = array("Username: ","Text","username",30,$username,"Enter your Username");
         $FullnameField = array("Fullname: ","Text","fullname",30,$fullname,"Enter your Fullname");
-        $PhoneField = array("Phone: ","Text","phone",30,$Phone,"Enter your phone number(optional)");
-        $BioField = array("Bio: ","TextArea","bio",4,$Bio,"Enter some information about yourself and your area of study(optional)");
+        $PhoneField = array("Phone: ","NumberText","phone",30,$phone,"Enter your phone number(optional)");
+        $BioField = array("Bio: ","TextArea","bio",4,$bio,"Enter some information about yourself and your area of study(optional)");
         $DepartmentArray = Departments::getdepartmentsarray();
         $UserlevelArray = User::getuserlevelarray();
         if($_SESSION["userlevel"] > 2){

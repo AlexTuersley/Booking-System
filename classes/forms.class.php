@@ -56,9 +56,12 @@ Class Forms{
         if($Type == "Text"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "'" . $ReadOnly . " title = '" . $ToolTip . "' />");
         }
+        if($Type == "NumberText"){
+            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='number' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "'" . $ReadOnly . " title = '" . $ToolTip . "' />");
+        }
         elseif($Type == "TextArea"){
             print("<div class='form-group purple-border'>
-                <textarea class='form-control' id='".$Name."' placeholder = '" . $Placeholder ."' rows='" . $FieldSize . "' value='" . $Value . "'" . $ReadOnly . "title = '" . $ToolTip . "'></textarea>
+                <textarea class='form-control' id='".$Name."' name='".$Name."' placeholder = '" . $Placeholder ."' rows='" . $FieldSize . "' value='" . $Value . "'" . $ReadOnly . "title = '" . $ToolTip . "'></textarea>
             </div>");
         }
         elseif($Type == "TextDynamic"){
@@ -75,15 +78,25 @@ Class Forms{
         }
         elseif($Type == "Select"){
             print("<select class='form-control' name='" . $Name . "' id='" . $Name . "' ". $ReadOnly ." title = '" . $ToolTip ."'>");
-
-                  foreach($Array as $Item)
-                  {
-                      if($Item[0] == $Value){
-                          print("<option value='" . $Item[0] . "' selected=selected>" . $Item[1] . "</option>");
-                      } else {
-                          print("<option value='" . $Item[0] . "'>" . $Item[1] . "</option>");
-                      }
-                  }
+                if($ReadOnly){
+                    foreach($Array as $Item)
+                    {
+                        if($Item[0] == $Value){
+                            print("<option value='" . $Item[0] . "' selected=selected>" . $Item[1] . "</option>");
+                        }
+                    }
+                }
+                else{
+                    foreach($Array as $Item)
+                    {
+                        if($Item[0] == $Value){
+                            print("<option value='" . $Item[0] . "' selected=selected>" . $Item[1] . "</option>");
+                        } else {
+                            print("<option value='" . $Item[0] . "'>" . $Item[1] . "</option>");
+                        }
+                    }
+                }
+               
               print("</select>");
         }
         elseif($Type == "Checkbox"){
