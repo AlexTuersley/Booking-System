@@ -1,4 +1,4 @@
-function checkloginform(form){
+function checksigninform(form){
     var usererr = document.getElementById("usernameerror");
     var passerr = document.getElementById("passworderror");
     if(form.username != "" && form.password != ""){
