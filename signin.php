@@ -14,14 +14,11 @@ if($Level > 0){
     header("Location: refresh:5;http://".BASEPATH."/index.php");
 }
 elseif($_GET["signup"]=="true"){
-    print("<div class='container' style='padding-top:2em;'>");
     User::signup();
-    print("</div");
+
 }
 else{
-    print("<div class='container' style='padding-top:2em;'>");
     User::signin();
-    print("</div");
 }
 WebPage::pageend();
 ?>

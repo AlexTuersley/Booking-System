@@ -1,5 +1,6 @@
 <?php
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
 /**
  * Looks in the config.ini file to get database information which will direct to
  * the server that is storing the booking system database

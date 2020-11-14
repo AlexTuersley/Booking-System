@@ -4,8 +4,7 @@ session_start();
 $activate = $_GET["activate"];
 WebPage::headerandnav("User",$_SESSION["userlevel"]);
 if($_SESSION["userlevel"] > 0){
-   
-   
+    User::addedit($_SESSION["userid"]);  
 }
 elseif($activate > 0){
     User::activateuser($_GET["activate"]);

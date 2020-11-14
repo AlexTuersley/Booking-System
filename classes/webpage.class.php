@@ -31,16 +31,16 @@ Class WebPage{
                <div class='container'>");
         switch($level){
             case 1:
-                $navList = array(array("index.php","home","fa-book"),array("bookings.php","bookings","fa-book"),array("schedule.php","staff","fa-building"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
+                $navList = array(array("index.php","Home","fa-book"),array("bookings.php","Bookings","fa-book"),array("schedule.php","Staff","fa-building"),array("user.php","User","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
                 break;
             case 2:
-                $navList = array(array("index.php","home","fa-book"),array("bookings.php","bookings","fa-book"),array("schedule.php","schedule","fa-calendar"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
+                $navList = array(array("index.php","Home","fa-book"),array("bookings.php","Bookings","fa-book"),array("schedule.php","Schedule","fa-calendar"),array("user.php","User","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
                 break;
             case 3:
-                $navList = array(array("index.php","home","fa-book"),array("bookings.php","bookings","fa-book"),array("schedule.php","schedule","fa-calendar"),array("department.php","department","fa-university"),array("user.php","users","fa-users"),array("user.php","user","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
+                $navList = array(array("index.php","Home","fa-book"),array("bookings.php","Bookings","fa-book"),array("schedule.php","Schedule","fa-calendar"),array("department.php","Department","fa-university"),array("user.php","Users","fa-users"),array("user.php","User","fa-user"),array("index.php?signout","Sign out","fa-sign-out-alt"));
                 break;
             default:
-                $navList = array(array("index.php","home","fa-book"),array("signin.php","Sign In","fa-sign-in-alt"),array("signin.php?signup=true","Sign Up","fa-user-plus"));
+                $navList = array(array("index.php","Home","fa-book"),array("signin.php","Sign In","fa-sign-in-alt"),array("signin.php?signup=true","Sign Up","fa-user-plus"));
                 break;
         }
         

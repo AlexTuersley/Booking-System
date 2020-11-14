@@ -161,8 +161,7 @@ class User{
         userpassword = :userpassword,
         userlevel = :userlevel,
         deleted = :deleted
-        WHERE id = :id  
-        ",
+        WHERE id = :id",
         array(
             PDOConnection::sqlarray(":email", $this->getemail(), PDO::PARAM_STR),
             PDOConnection::sqlarray(":username",$this->getusername(),PDO::PARAM_STR),
@@ -177,9 +176,8 @@ class User{
                 photo = :photo,
                 department = :department,
                 bio = :bio,
-                userlocation = :userlocation,
-                WHERE userid = :id  
-                ",
+                userlocation = :userlocation
+                WHERE userid = :id",
         array(
             PDOConnection::sqlarray(":fullname",$this->getfullname(),PDO::PARAM_STR),
             PDOConnection::sqlarray(":phone",$this->getphone(),PDO::PARAM_INT),
@@ -197,48 +195,55 @@ class User{
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     static public function addedit($UID){
-        $username = $_GET["username"];
-        $fullname = $_GET["fullname"];
-        $email = $_GET["email"];
-        $userpassword = $_GET["password"];
-        $level = $_GET["userlevel"];
-        $phone = $_GET["phone"];
-        $photo = $_GET["photo"];
-        $department = $_GET["department"];
-        $bio = $_GET["bio"];
-        $location = $_GET["location"];
-        if(checkuserlevel($_SESSION["userid"]) > 2 || $_SESSION["userid"] == $UID){
-            if($UID > 0){ 
-                $User = new User($UID);
-                $User->setfullname($fullname);
-                $User->setusername($username);
-                $User->setemail($email);
-                $User->setpassword($userpassword);
-                $User->setuserlevel($level);
-                $User->setphone($phone);
-                $User->setphoto($photo);
-                $User->setdepartment($department);
-                $User->setbio($bio);
-                $User->setlocation($location);
-                $User->save();
-            }
-            else{
-                $User = new User();
-                $User->setfullname($fullname);
-                $User->setusername($username);
-                $User->setemail($email);
-                $User->setpassword($userpassword);
-                $User->setuserlevel($level);
-                $User->setphone($phone);
-                $User->setphoto($photo);
-                $User->setdepartment($department);
-                $User->setbio($bio);
-                $User->setlocation($location);
-                $User->setlogin(0);
-                $User->setdeleted(0);
-                $User->savenew();
-            }
+        $username = $_POST["username"];
+        $fullname = $_POST["fullname"];
+        $email = $_POST["email"];
+        $level = $_POST["userlevel"];
+        $phone = $_POST["phone"];
+        $photo = $_POST["photo"];
+        $department = $_POST["department"];
+        $bio = $_POST["bio"];
+        $location = $_POST["location"];
+        $Submit = $_POST["submit"];
+        if($Submit){
+                if($UID > 0){ 
+                    $User = new User($UID);
+                    $User->setfullname($fullname);
+                    $User->setusername($username);
+                    $User->setemail($email);
+                    $User->setuserlevel($level);
+                    $User->setphone($phone);
+                    $User->setphoto($photo);
+                    $User->setdepartment($department);
+                    $User->setbio($bio);
+                    $User->setlocation($location);
+                    $User->save();
+                }
+                else{
+                    $User = new User();
+                    $User->setfullname($fullname);
+                    $User->setusername($username);
+                    $User->setemail($email);
+                    $User->setuserlevel($level);
+                    $User->setphone($phone);
+                    $User->setphoto($photo);
+                    $User->setdepartment($department);
+                    $User->setbio($bio);
+                    $User->setlocation($location);
+                    $User->setlogin(0);
+                    $User->setdeleted(0);
+                    $User->savenew();
+                }
         }
+
+        if($UID > 0){
+            $User = new User($UID);
+            User::edituserform($UID,$User->getfullname(),$User->getusername(),$User->getemail(),$User->getuserlevel(),$User->getphone(),$User->getphoto(),$User->getdepartment(),$User->getbio(),$User->getlocation());
+        }
+        else{
+            User::edituserform($UID,$fullname,$username,$email,$level,$phone,$photo,$department,$bio,$location);
+        }
+        
     }
 
     //When passed an id returns a username
@@ -289,6 +294,7 @@ class User{
         return true;
     }
 
+
     //Data from Sign Up form is passed to this function to use in a Query
     static public function signup(){
         $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
@@ -325,7 +331,7 @@ class User{
                 $User->setlocation($Location);
                 $User->savenew();
               
-                if(function_exists("mail")){
+                /*if(function_exists("mail")){
                     $Link = "user.php?activate=".$User->getid();
                     $headers = "From: noreply@bookingsystem.com\n";
                     $email_subject = "New User Registration";
@@ -343,8 +349,12 @@ class User{
                 }
                 else{
                     print("Email has not been enabled for this server. Please conaact the administrator ".ADMIN." to activate your account.");
-                }
-         
+                }*/
+                print("Email has not been enabled for this server. Please conaact the administrator ".ADMIN." to activate your account.");
+             
+            }
+            else{
+                User::signupform();     
             }
                        
         }
@@ -408,6 +418,7 @@ class User{
         $Submit = $_POST["submit"];
         if($Submit || isset($_SESSION["userid"])){
             $UserID = User::checksignin();
+            echo $UserID;
             if($UserID > 0){
                 $User = new User($UserID);
                 $_SESSION["username"] = $User->getusername();
@@ -415,21 +426,22 @@ class User{
                 $_SESSION["userid"] = $UserID;
                 $_SESSION["userlevel"] = $User->getuserlevel();
                 $_SESSION["loginstatus"] = 1;
-
+                print("<p class='welcome'>Login Successful. You will be redirected to the main page shortly</p>");
+                header("refresh:10;url=http://".BASEPATH."/index.php");
             }
             else{
-                User::signinform();
+                User::signinform($Username, $Password);
             }
         }
         else{
-            User::signinform();
+            User::signinform($Username, $Password);
         }
         return false;
 
     }
-    static public function signinform(){
-        $UsernameField = array("Username: ","Text","username",30,"","Enter Your Username");
-        $PasswordField = array("Password: ","Password","password",30,"","Enter Your Password");
+    static public function signinform($Username = "", $Password=""){
+        $UsernameField = array("Username: ","Text","username",30,$Username,"Enter Your Username");
+        $PasswordField = array("Password: ","Password","password",30,$Password,"Enter Your Password");
         $Fields = array($UsernameField,$PasswordField);
         $Button = "Login";
         Forms::generateform("Sign In Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checksigninform(this)",$Fields,$Button);
@@ -442,26 +454,24 @@ class User{
             $UID = $_SESSION["userid"];
             $Submit = true;
         } else {
-            $Username = $_POST["username"];
-            $Password = $_POST["password"];
+            $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
+            $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));
 
-            //Add the SALT set in config.ini to the password
-            $Password = SALT.$Password;
-            //encrypt the password
-            $Password = md5($Password);
+            //Add the SALT set in config.ini to the password and encrypt the password
+
+            $Password = md5(SALT.$Password);
             $RQ = new ReadQuery("SELECT id, userpassword, activated FROM users WHERE username = :username",array(
                 PDOConnection::sqlarray(":username",$Username,PDO::PARAM_STR)
             ));
             if($RQ->getnumberofresults() > 0){
                 $row = $RQ->getresults()->fetch(PDO::FETCH_ASSOC);
-                $VerifyPass = password_verify($Password, $row["password"]);
-
-                    if(!$VerifyPass || $row["activated"] == 0){
-                        return 0;
-                    }
-                    else{
-                        return $row["id"];
-                    }
+                if($row["password"] == $Password || $row["activated"] == 0){
+                    
+                    return 0;
+                }
+                else{
+                    return $row["id"];
+                }
             }
 
         }
@@ -501,13 +511,41 @@ class User{
                 break;
         }
     }
-    static public function edituserform($UID,$fullname,$username,$email,$password,$level,$phone,$photo,$department,$bio,$location){
-        if($UID > 0){
-
+    static public function getuserlevelarray(){
+        $UserlevelArray[0] = array(1,"Student");
+        $UserlevelArray[1] = array(2,"Staff");
+        $UserlevelArray[3] = array(3,"Admin");
+        return $UserlevelArray;
+    }
+    static public function edituserform($UID,$fullname,$username,$email,$level,$phone,$photo,$department,$bio,$location){
+        $EmailField = array("Email:","Email","email",30,$email,"Enter your Email");
+        $UsernameField = array("Username: ","Text","username",30,$username,"Enter your Username");
+        $FullnameField = array("Fullname: ","Text","fullname",30,$fullname,"Enter your Fullname");
+        $PhoneField = array("Phone: ","Text","phone",30,$Phone,"Enter your phone number(optional)");
+        $BioField = array("Bio: ","TextArea","bio",4,$Bio,"Enter some information about yourself and your area of study(optional)");
+        $DepartmentArray = Departments::getdepartmentsarray();
+        $UserlevelArray = User::getuserlevelarray();
+        if($_SESSION["userlevel"] > 2){
+           
+            $DepartmentField = array("Department: ","Select","department",30,$department,"Select a Department",$DepartmentArray);
+            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"Select the User Level",$UserlevelArray);
         }
         else{
+            if($level == 2){
+                $DepartmentField = array("Department: ","Select","department",30,$department,"The User's Department",$DepartmentArray,"","readonly");
+            }
+            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"User Level",$UserlevelArray,"","readonly");
             
         }
+        if($UID > 0){
+            $Button = "Edit User";
+        }
+        else{
+            $Button = "Add User";
+        }
+        $Fields = array($EmailField,$UsernameField,$FullnameField,$UserlevelField,$DepartmentField,$PhoneField,$BioField,$LocationField);
+        Forms::generateform("User Form","user.php?edit=".$UID,"checkuserform(this)",$Fields,$Button);
+
     }
 }
 ?>

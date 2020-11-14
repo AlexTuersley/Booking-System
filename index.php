@@ -12,7 +12,7 @@ if($_GET["signout"]){
     User::signout();
 }
 elseif($_SESSION["userlevel"] > 0){
-    print("<p class='welcome'><span>Welcome ".$_SESSION["username"].".</span> To use the booking system either sign up or sign in.</p>");    
+    print("<p class='welcome'><span>Welcome ".$_SESSION["username"].".</span> To use the booking system select an option in the menu.</p>");    
 }
 else{
 

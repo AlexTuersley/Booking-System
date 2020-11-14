@@ -1,6 +1,7 @@
 <?php
 Class Forms{
     static public function generateform($FormName, $Action, $OnSubmit, $Fields, $Button){
+        print("<div class='container' style='padding-top:2em;'>");
         print("<form class='form-horizontal form-group' role='form' name='" . $FormName . "' id='" . $FormName . "' method='post' action='" . $Action . "'" . $OnSubmit . ">");
         foreach($Fields as $Field)
         {
@@ -36,6 +37,7 @@ Class Forms{
                     print("</div>");
                 }
             print("</form>");
+            print("</div>");
           
     }
     static public function generatefield($Field){
@@ -52,7 +54,7 @@ Class Forms{
         $ToolTip = $Field[10];
 
         if($Type == "Text"){
-            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "'" . $ReadOnly . "title = '" . $ToolTip . "' />");
+            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "'" . $ReadOnly . " title = '" . $ToolTip . "' />");
         }
         elseif($Type == "TextArea"){
             print("<div class='form-group purple-border'>
@@ -72,7 +74,7 @@ Class Forms{
             print("<input type='file' class='form-control' placeholder = '" . $Placeholder ."' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "'/>");
         }
         elseif($Type == "Select"){
-            print("<select class='form-control' name='" . $Name . "' id='" . $Name . "' title = '" . $ToolTip ."'>");
+            print("<select class='form-control' name='" . $Name . "' id='" . $Name . "' ". $ReadOnly ." title = '" . $ToolTip ."'>");
 
                   foreach($Array as $Item)
                   {
@@ -84,9 +86,6 @@ Class Forms{
                   }
               print("</select>");
         }
-        //elseif($Type == "MultiSelect"){
-
-        //}
         elseif($Type == "Checkbox"){
             print("<div class='checkboxblock'><input placeholder = '" .$Placeholder."' class='checkbox' type='checkbox' name='" . $Name . "' value='" . $Value . "' " . $OnChange . "' style='display: inline; ".$RowHeaders."' title = '" . $ToolTip ."' id='" . $Name . "'> ".$Placeholder.$Class."</div>");
         }
