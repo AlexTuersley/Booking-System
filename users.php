@@ -13,13 +13,13 @@ if($_SESSION["userlevel"] > 0){
     }
     else{
         print("<p class='welcome'>You do not have permission to access this page. Redirecting shortly</p>");
-        header("refresh:10;url=http://".BASEPATH."/index.php");        
+        header("refresh:5;url=http://".BASEPATH."/index.php");        
     }
 }
 
 else{
     print("<p class='welcome'>You do not have permission to access this page. Redirecting shortly</p>");
-    header("refresh:10;url=http://".BASEPATH."/index.php");
+    header("refresh:5;url=http://".BASEPATH."/index.php");
 }
 WebPage::pageend();
 ?>

@@ -420,7 +420,6 @@ class User{
         $Submit = $_POST["submit"];
         if($Submit || isset($_SESSION["userid"])){
             $UserID = User::checksignin();
-            echo $UserID;
             if($UserID > 0){
                 $User = new User($UserID);
                 $_SESSION["username"] = $User->getusername();
@@ -428,8 +427,8 @@ class User{
                 $_SESSION["userid"] = $UserID;
                 $_SESSION["userlevel"] = $User->getuserlevel();
                 $_SESSION["loginstatus"] = 1;
-                print("<p class='welcome'>Login Successful. You will be redirected to the main page shortly</p>");
-                header("refresh:10;url=http://".BASEPATH."/index.php");
+                //print("<p class='welcome'>Login Successful. You will be redirected to the main page shortly</p>");
+                header("Location: http://".BASEPATH."/index.php");
             }
             else{
                 User::signinform($Username, $Password);

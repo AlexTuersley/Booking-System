@@ -10,8 +10,7 @@ else{
 WebPage::headerandnav("Home",$Level);
 if($_GET["signout"] && $Level > 0){
     User::signout();
-    print("<p class='welcome'>You have been logged out. Redirecting shortly</p>");
-    header("refresh:10;url=http://".BASEPATH."/index.php"); 
+    header("Location: http://".BASEPATH."/index.php"); 
 
 }
 elseif($_SESSION["userlevel"] > 0){
