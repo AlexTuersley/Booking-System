@@ -18,13 +18,12 @@ Class WebPage{
                 }
               }
                print("
-               <link rel='stylesheet' href='/Booking-System/css/style2.css'>
+               <link rel='stylesheet' href='/Booking-System/css/style.css'>
                <link rel='stylesheet' href='/Booking-System/css/bootstrap.min.css'>
                <link rel='stylesheet' href='css/bootstrap-grid.min.css'>
                <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
                <script type='text/javascript' src='js/bootstrap.min.js'></script>
                <script type='text/javascript' src='js/bootstrap.bundle.min.js'></script>
-
                <script src='https://kit.fontawesome.com/b774cd34b7.js' crossorigin='anonymous'></script>
                </head>
                <nav class='navbar navbar-expand-lg'>
