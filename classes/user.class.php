@@ -479,7 +479,7 @@ class User{
         }
         return 0;
     }
-    static public function logout($UID){
+    static public function signout(){
         session_destroy();
     }
    
@@ -528,16 +528,16 @@ class User{
         $DepartmentArray = Departments::getdepartmentsarray();
         $UserlevelArray = User::getuserlevelarray();
         if($_SESSION["userlevel"] > 2){
-           
             $DepartmentField = array("Department: ","Select","department",30,$department,"Select a Department",$DepartmentArray);
             $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"Select the User Level",$UserlevelArray);
+            $LocationField = array("Location: ","Text","location",30,$location,"User location on campus");
         }
         else{
             if($level == 2){
-                $DepartmentField = array("Department: ","Select","department",30,$department,"The User's Department",$DepartmentArray,"","readonly");
+                $DepartmentField = array("Department: ","Select","department",30,$department,"Department that the user is in",$DepartmentArray,"","readonly");
+                $LocationField = array("Location: ","Text","location",30,$location,"User location on campus");
             }
-            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"User Level",$UserlevelArray,"","readonly");
-            
+            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"User Level",$UserlevelArray,"","readonly");            
         }
         if($UID > 0){
             $Button = "Edit User";
