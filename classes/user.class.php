@@ -284,14 +284,17 @@ class User{
         return false;
     }
     static public function checkusernameandemail($Username, $Email){
-        $RQ = new ReadQuery("SELECT * FROM users WHERE users.username =:username OR users.email = :email",array(
-            PDOConnection::sqlarray(":username",$Username,PDO::PARAM_STR),
-            PDOConnection::sqlarray(":email",$Email,PDO::PARAM_STR)
-        ));
-        if($row = $RQ->getnumberofresults() > 0){
-            return false;
+        if($Username != "" && $Email != ""){
+            $RQ = new ReadQuery("SELECT * FROM users WHERE users.username =:username OR users.email = :email",array(
+                PDOConnection::sqlarray(":username",$Username,PDO::PARAM_STR),
+                PDOConnection::sqlarray(":email",$Email,PDO::PARAM_STR)
+            ));
+            if($row = $RQ->getnumberofresults() > 0){
+                return false;
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
 
@@ -303,14 +306,22 @@ class User{
         $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));
         $Bio = htmlspecialchars(filter_var($_POST["bio"], FILTER_SANITIZE_STRING));
         $Phone = htmlspecialchars(filter_var($_POST["phone"], FILTER_SANITIZE_NUMBER_INT));
-        $Department = htmlspecialchars(filter_var($_POST["department"], FILTER_SANITIZE_STRING));
+        $Department = htmlspecialchars(filter_var($_POST["department"], FILTER_SANITIZE_NUMBER_INT));
         $Location = htmlspecialchars(filter_var($_POST["location"], FILTER_SANITIZE_STRING));
 
+        $UsernameError = array("usernameerror","Please enter a valid username");
+        $FullnameError = array("fullnameerror","Please enter your fullname");
+        $EmailError = array("emailerror","Please enter a valid email address");
+        $PasswordError = array("passworderror", "Please enter a password longer than 7 characters");
+        $DepartmentError = array("departmenterror", "Please select a department from the list");
+        
+
         $Submit = $_POST["submit"];
+
         //add this back in to check the email of the user 
         //&& str_pos($Email,EMAILCHECK)
         if($Submit){
-            if(User::checkusernameandemail($Username,$Email)){
+            if(User::checkusernameandemail($Username,$Email) && $Username != "" && $Fullname != "" && strlen($Password) > 7 &&  $Email){
                 $User = new User();
                 $User->setusername($Username);
                 $User->setfullname($Fullname);
@@ -350,10 +361,12 @@ class User{
                 else{
                     print("Email has not been enabled for this server. Please conaact the administrator ".ADMIN." to activate your account.");
                 }*/
-                print("Email has not been enabled for this server. Please conaact the administrator ".ADMIN." to activate your account.");
+                print("<p class='welcome'>Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.</p>");
              
             }
             else{
+                $Errors = array($UsernameError,$PasswordError,$FullnameError,$EmailError,$DepartmentError);
+                Forms::generateerrors("Please correct the following errors before continuing.",$Errors,true);
                 User::signupform();     
             }
                        
@@ -379,7 +392,7 @@ class User{
 
         $Fields = array($EmailField,$UsernameField,$PasswordField,$FullnameField,$PhoneField,$BioField,$UsercheckboxField,$DepartmentField,$LocationField);
         $Button = "Sign Up";
-        Forms::generateform("Sign Up Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checksignupform(this)",$Fields,$Button);
+        Forms::generateform("Sign Up Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1)," return checksignupform(this)",$Fields,$Button);
 
         ?>
 
@@ -429,10 +442,28 @@ class User{
                 header("Location: http://".BASEPATH."/index.php");
             }
             else{
+                $LoginError = array("defaulterror","Your username or password is incorrect.");
+        	    $UsernameError = array("usernameerror","Please enter a username");
+                $PasswordError = array("passworderror","Please enter a password");
+                if($Username != "" && $Password != ""){
+                    $Errors = array($LoginError);
+                }
+                else if($Username != ""){
+                    $Errors = array($PasswordError,$LoginError);
+                }
+                else if($Password != ""){
+                    $Errors = array($UsernameError,$LoginError);
+                }
+                else{
+                    $Errors = array($Username,$PasswordError,$LoginError);
+                }
+               
+                Forms::generateerrors("The following errors must be corrected before you can sign in",$Errors,false);
                 User::signinform($Username, $Password);
             }
         }
         else{
+            echo "here";
             User::signinform($Username, $Password);
         }
         return false;
@@ -443,7 +474,7 @@ class User{
         $PasswordField = array("Password: ","Password","password",30,$Password,"Enter Your Password");
         $Fields = array($UsernameField,$PasswordField);
         $Button = "Login";
-        Forms::generateform("Sign In Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"checksigninform(this)",$Fields,$Button);
+        Forms::generateform("signinform",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"return checksigninform(this)",$Fields,$Button);
 
     }
     static public function checksignin($UID = 0){

@@ -1,6 +1,7 @@
 <?php
 Class Forms{
     static public function generateform($FormName, $Action, $OnSubmit, $Fields, $Button){
+        if($OnSubmit){$OnSubmit = " onsubmit='" . $OnSubmit . "'";}
         print("<div class='container' style='padding-top:2em;'>");
         print("<form class='form-horizontal form-group' role='form' name='" . $FormName . "' id='" . $FormName . "' method='post' action='" . $Action . "'" . $OnSubmit . ">");
         foreach($Fields as $Field)
@@ -162,6 +163,24 @@ Class Forms{
                    </script>');
         }
     }
+    static public function generateerrors($ErrorTitle,$Errors,$ShowDefault)
+        {
+            if($ShowDefault)
+            {
+                print("<div id='errorsshow' class='alert alert-danger'>");
+            } else {
+                print("<div id='errors' class='alert alert-danger'>");
+            }
+
+                print("<p class='title'>$ErrorTitle</p>");
+                print("<ul>");
+                foreach($Errors as $Error)
+                {
+                    print("<li id='" . $Error[0] . "'>" . $Error[1] . "</li>");
+                }
+                print("</ul>");
+            print("</div>");
+        }
 }
 
 ?>

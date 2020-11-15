@@ -1,8 +1,10 @@
 <?php
 include("config/config.php");
 session_start();
+$script[0] = "js/ValidationScript.js";
+$script[1] = "js/UserScript.js";
 $activate = $_GET["activate"];
-WebPage::headerandnav("User",$_SESSION["userlevel"]);
+WebPage::headerandnav("User",$_SESSION["userlevel"],"",$script);
 if($_SESSION["userlevel"] > 0){
     User::addedit($_SESSION["userid"]);  
 }

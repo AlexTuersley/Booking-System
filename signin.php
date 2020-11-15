@@ -1,7 +1,10 @@
 <?php
 include("config/config.php");
 session_start();
-$script[0] = "js/UserScript.js";
+
+$script[0] = "js/ValidationScript.js";
+$script[1] = "js/UserScript.js";
+
 if($_SESSION["userlevel"]){
     $Level = $_SESSION["userlevel"];
 }
