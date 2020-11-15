@@ -217,7 +217,6 @@ class User{
                     $User->setdepartment($department);
                     $User->setbio($bio);
                     $User->setlocation($location);
-                    echo $User->getbio();
                     $User->save();
                 }
                 else{
@@ -523,18 +522,15 @@ class User{
         $FullnameField = array("Fullname: ","Text","fullname",30,$fullname,"Enter your Fullname");
         $PhoneField = array("Phone: ","NumberText","phone",30,$phone,"Enter your phone number(optional)");
         $BioField = array("Bio: ","TextArea","bio",4,$bio,"Enter some information about yourself and your area of study(optional)");
+        $LocationField = array("Location: ","Text","location",30,$location,"User location on campus");
         $DepartmentArray = Departments::getdepartmentsarray();
         $UserlevelArray = User::getuserlevelarray();
         if($_SESSION["userlevel"] > 2){
             $DepartmentField = array("Department: ","Select","department",30,$department,"Select a Department",$DepartmentArray);
-            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"Select the User Level",$UserlevelArray);
-            $LocationField = array("Location: ","Text","location",30,$location,"User location on campus");
+            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"Select the User Level",$UserlevelArray);         
         }
         else{
-            if($level == 2){
-                $DepartmentField = array("Department: ","Select","department",30,$department,"Department that the user is in",$DepartmentArray,"","readonly");
-                $LocationField = array("Location: ","Text","location",30,$location,"User location on campus");
-            }
+            $DepartmentField = array("Department: ","Select","department",30,$department,"Department that the user is in",$DepartmentArray,"","readonly");
             $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"User Level",$UserlevelArray,"","readonly");            
         }
         if($UID > 0){
