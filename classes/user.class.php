@@ -195,17 +195,16 @@ class User{
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     static public function addedit($UID){
-        $username = $_POST["username"];
-        $fullname = $_POST["fullname"];
-        $email = $_POST["email"];
-        $level = $_POST["userlevel"];
-        $phone = $_POST["phone"];
-        $photo = $_POST["photo"];
-        $department = $_POST["department"];
-        $bio = $_POST["bio"];
-        $location = $_POST["location"];
+        $username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
+        $fullname = htmlspecialchars(filter_var($_POST["fullname"], FILTER_SANITIZE_STRING));
+        $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
+        $level = filter_var($_POST["userlevel"], FILTER_SANITIZE_NUMBER_INT);
+        $phone = filter_var($_POST["phone"], FILTER_SANITIZE_NUMBER_INT);
+        $photo = filter_var($_POST["photo"], FILTER_SANITIZE_URL);
+        $department = filter_var($_POST["department"], FILTER_SANITIZE_NUMBER_INT);
+        $bio = htmlspecialchars(filter_var($_POST["bio"], FILTER_SANITIZE_STRING));
+        $location = htmlspecialchars(filter_var($_POST["location"], FILTER_SANITIZE_STRING));
         $Submit = $_POST["submit"];
-        echo $bio;
         if($Submit){
                 if($UID > 0){ 
                     $User = new User($UID);
@@ -546,6 +545,40 @@ class User{
         }
         $Fields = array($EmailField,$UsernameField,$FullnameField,$UserlevelField,$DepartmentField,$PhoneField,$BioField,$LocationField);
         Forms::generateform("User Form","user.php?edit=".$UID,"checkuserform(this)",$Fields,$Button);
+
+        ?>
+
+		<script>
+			let level = $("#userlevel");			
+			$(function(){
+                if(level.value == 2){
+                  ShowFields();
+                }
+                else{
+                  HideFields();
+                }
+			});
+
+			$("#userlevel").change(function{
+                if(level.value == 2){
+                  ShowFields();
+                }
+                else{
+                  HideFields();
+                }
+            });
+
+			function ShowFields(){
+                $('#department').parent().show();
+                $('#location').parent().show();
+			}
+            function HideFields(){
+                $('#department').parent().hide();
+                $('#location').parent().hide();
+            }
+		</script>
+
+		<?
 
     }
 }

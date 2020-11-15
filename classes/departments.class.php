@@ -111,7 +111,9 @@ Class Departments{
             $RQ = new ReadQuery("SELECT id, departmentname FROM departments WHERE deleted = 0", null);
 
             $ReturnArray = array();
-            $Counter = 0;
+            $ReturnArray[0] = array(0,"No Department");
+            $Counter = 1;
+
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                 $ReturnArray[$Counter] = array($row[0],$row[1]);
                 $Counter ++;
