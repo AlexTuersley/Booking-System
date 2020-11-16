@@ -190,11 +190,11 @@ class Booking{
         }
     }
     static public function showbookings($ID){
-        $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND staffid = :id OR studentid = :id ORDER BY bookingname",
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND staffuserid = :id OR studentuserid = :id ORDER BY id",
             array(
                 PDOConnection::sqlarray(":id",$UID,PDO::PARAM_STR)
             ));
-        $Cols = array(array("Booking Name", "bookingname",1),array("Student", "Staff Member",1),array("Start", "start",1),array("End","end",1),array("Meeting Type","meetingtype",1), array("",2));
+        $Cols = array(array("Booking Name", "bookingname",1),array("Student", "student",1),array("Staff Member","staff",1),array("Start", "start",1),array("End","end",1),array("Meeting Type","meetingtype",1), array("","functions",2));
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
             if($row["confirmed"] == 1){
                 $status = "<i class='fas fa-check-circle' aria-hidden='true' title='booking confirmed'></i>";
@@ -203,17 +203,17 @@ class Booking{
                 $status = "<i class='fas fa-times-circle' aria-hidden='true' title='booking not confirmed'></i>";
             }
             $Row1 = array($row["bookingname"].$status);
-            $Row2 = array(User::getstaticusername($row["studentid"]));
-            $Row3 = array(User::getstaticusername($row["staffid"]));
-            $Row4 = array($row["starttime"]);
-            $Row5 = array($row["endtime"]);
+            $Row2 = array(User::getstaticusername($row["studentuserid"]));
+            $Row3 = array(User::getstaticusername($row["staffuserid"]));
+            $Row4 = array($row["start_time"]);
+            $Row5 = array($row["end_time"]);
             $Row6 = array(Meeting::getmeetingname($row["meetingtype"]));
-            $Row7 = array("<a href='?edit&bid=". $row["id"] ."'><i class='fas fa-user-edit' aria-hidden='true' title='Edit ".$row["bookingname"]."'></i></a>","button");
-            $Row8 = array("<a alt='Delete ".$row["bookingname"]."' onclick='deletebookingdialog('" . $row["bookingname"] . "','" . $row["id"] . "');'><i class='fas fa-trash-alt' title='Delete ".$row["bookingname"]."'></i></a>","button");
+            $Row7 = array("<a href='?edit&bid=". $row["id"] ."'><i class='fas fa-user-edit' aria-hidden='true' title='Edit Booking'></i></a>","button");
+            $Row8 = array("<a alt='Delete ".$row["bookingname"]."' onclick='deletebookingdialog('Booking','" . $row["id"] . "');'><i class='fas fa-trash-alt' title='Delete Booking'></i></a>","button");
         
         }
         $Rows = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
-        Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"bookings");
+        Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Bookings");
     }
     static public function bookingsform($BID,$bookingname,$studentid,$staffid,$starttime,$endtime,$meeting,$note,$confirmed){
 

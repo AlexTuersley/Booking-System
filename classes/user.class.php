@@ -434,7 +434,6 @@ class User{
             if($UserID > 0){
                 $User = new User($UserID);
                 $_SESSION["username"] = $User->getusername();
-                $_SESSION["password"] = md5(SALT.$Password);
                 $_SESSION["userid"] = $UserID;
                 $_SESSION["userlevel"] = $User->getuserlevel();
                 $_SESSION["loginstatus"] = 1;
@@ -463,7 +462,6 @@ class User{
             }
         }
         else{
-            echo "here";
             User::signinform($Username, $Password);
         }
         return false;
@@ -477,7 +475,11 @@ class User{
         Forms::generateform("signinform",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"return checksigninform(this)",$Fields,$Button);
 
     }
-    static public function checksignin($UID = 0){
+    /**
+     * function checks the username and password passed from the sign in form to verify if
+     * @return int User ID
+     */
+    static public function checksignin(){
         if($_SESSION["username"] && $_SESSION["password"]){
             $Username = $_SESSION["username"];
             $Password = $_SESSION["password"];
@@ -487,16 +489,15 @@ class User{
             $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
             $Password = htmlspecialchars(filter_var($_POST["password"], FILTER_SANITIZE_STRING));
 
-            //Add the SALT set in config.ini to the password and encrypt the password
-
+            //Add the SALT set in config.ini to the password for verification
             $Password = md5(SALT.$Password);
             $RQ = new ReadQuery("SELECT id, userpassword, activated FROM users WHERE username = :username",array(
                 PDOConnection::sqlarray(":username",$Username,PDO::PARAM_STR)
             ));
             if($RQ->getnumberofresults() > 0){
                 $row = $RQ->getresults()->fetch(PDO::FETCH_ASSOC);
-                if($row["password"] == $Password || $row["activated"] == 0){
-                    
+                
+                if($row["userpassword"] !== $Password || $row["activated"] === 0){    
                     return 0;
                 }
                 else{
@@ -571,14 +572,13 @@ class User{
             $Button = "Add User";
         }
         $Fields = array($EmailField,$UsernameField,$FullnameField,$UserlevelField,$DepartmentField,$PhoneField,$BioField,$LocationField);
-        Forms::generateform("User Form","user.php?edit=".$UID,"checkuserform(this)",$Fields,$Button);
+        Forms::generateform("User Form","user.php?edit=".$UID," return checkuserform(this)",$Fields,$Button);
 
         ?>
 
-		<script>
-			let level = $("#userlevel");			
+		<script>	
 			$(function(){
-                if(level.value == 2){
+                if($("#userlevel option:selected").val() == 2){
                   ShowFields();
                 }
                 else{
@@ -586,8 +586,8 @@ class User{
                 }
 			});
 
-			$("#userlevel").change(function{
-                if(level.value == 2){
+			$("#userlevel").change(function(){
+                if($("#userlevel option:selected").val() == 2){
                   ShowFields();
                 }
                 else{

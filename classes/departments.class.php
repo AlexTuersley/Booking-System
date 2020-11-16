@@ -73,7 +73,7 @@ Class Departments{
             $RQ = new ReadQuery("SELECT id FROM departments WHERE deleted = 0", null);
             print("<p class='lead'>The list below shows all departments</p><p>Click on a department to see the staff inside and select a staff member for bookings</p>");
             $Col1 = array("Department","department",1);
-            $Col2 = array("Staff","staff",1);
+            $Col2 = array("","functions",2);
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                 $Department = new Departments($row["id"]);
                 $Row1 = array($Department->getname());
