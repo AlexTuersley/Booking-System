@@ -519,7 +519,7 @@ class User{
             $Row2 = array($row["fullname"]);
             $Row3 = array(User::getuserleveltype($row["userlevel"]));
             $Row4 = array("<a href='?edit&uid=". $row["id"] ."'><i class='fas fa-user-edit' aria-hidden='true' title='Edit ".$row["username"]."'></i></a>","button");
-            $Row5 = array("<a alt='Delete ".$row["username"]."' onclick='deletedropdowndialog('" . $row["username"] . "','" . $row["id"] . "');'><i class='fas fa-trash-alt' title='Delete ".$row["username"]."'></i></a>","button");
+            $Row5 = array("<a alt='Delete ".$row["username"]."' onclick='deleteuserdialog('" . $row["username"] . "','" . $row["id"] . "');'><i class='fas fa-trash-alt' title='Delete ".$row["username"]."'></i></a>","button");
         }
         $Rows = array($Row1,$Row2,$Row3,$Row4,$Row5);
         Display::generatedynamiclistdisplay("userstable",$Cols,$Rows,"Username",0);

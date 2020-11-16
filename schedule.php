@@ -9,7 +9,12 @@ else{
 }
 WebPage::headerandnav("Home",$Level);
 if($Level > 0){
-   
+    if($Level >= 2){
+        //shows staff schedule and lets staff member edit their schedule
+    }
+    else{
+        //list of staff for students
+    }
    
 }
 else{

@@ -9,8 +9,14 @@ else{
 }
 WebPage::headerandnav("Booking",$Level);
 if($Level > 0){
-   
-   
+   //show all bookings for user
+    if($_GET["edit"]){
+        //addedit($_GET["edit"]);
+    }
+    else{
+        Booking::showbookings($_SESSION["userid"]);
+    }
+
 }
 else{
     print("<p class='welcome'>You do not have permission to access this page. Redirecting shortly</p>");

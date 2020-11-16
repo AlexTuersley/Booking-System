@@ -194,19 +194,25 @@ class Booking{
             array(
                 PDOConnection::sqlarray(":id",$UID,PDO::PARAM_STR)
             ));
-        
+        $Cols = array(array("Booking Name", "bookingname",1),array("Student", "Staff Member",1),array("Start", "start",1),array("End","end",1),array("Meeting Type","meetingtype",1), array("",2));
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-            $Row1 = array($row["bookingname"]);
+            if($row["confirmed"] == 1){
+                $status = "<i class='fas fa-check-circle' aria-hidden='true' title='booking confirmed'></i>";
+            }
+            else{
+                $status = "<i class='fas fa-times-circle' aria-hidden='true' title='booking not confirmed'></i>";
+            }
+            $Row1 = array($row["bookingname"].$status);
             $Row2 = array(User::getstaticusername($row["studentid"]));
             $Row3 = array(User::getstaticusername($row["staffid"]));
             $Row4 = array($row["starttime"]);
             $Row5 = array($row["endtime"]);
             $Row6 = array(Meeting::getmeetingname($row["meetingtype"]));
-            $Row7 = array($row["note"]);
-            $Row8 = array($row["confirmed"]);
+            $Row7 = array("<a href='?edit&bid=". $row["id"] ."'><i class='fas fa-user-edit' aria-hidden='true' title='Edit ".$row["bookingname"]."'></i></a>","button");
+            $Row8 = array("<a alt='Delete ".$row["bookingname"]."' onclick='deletebookingdialog('" . $row["bookingname"] . "','" . $row["id"] . "');'><i class='fas fa-trash-alt' title='Delete ".$row["bookingname"]."'></i></a>","button");
+        
         }
-        $Rows = array();
-        $Rows = array();
+        $Rows = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
         Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"bookings");
     }
     static public function bookingsform($BID,$bookingname,$studentid,$staffid,$starttime,$endtime,$meeting,$note,$confirmed){
