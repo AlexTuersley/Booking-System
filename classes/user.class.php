@@ -380,15 +380,15 @@ class User{
     static public function signupform($Email = "",$Username = "",$Password = "", $Fullname = "",$Phone = "", $Bio = "", $Check = 0,$Department = 0, $Location = ""){
         $Departments = array();
         $Departments = Departments::getdepartmentsarray();
-        $EmailField = array("Email:","Email","email",30,$Email,"Enter your Email");
-        $UsernameField = array("Username: ","Text","username",30,$Username,"Enter your Username");
-        $PasswordField = array("Password: ","Password","password",30,$Password,"Enter your Password");
-        $FullnameField = array("Fullname: ","Text","fullname",30,$Fullname,"Enter your Fullname");
-        $PhoneField = array("Phone: ","Text","phone",30,$Phone,"Enter your phone number(optional)");
-        $BioField = array("Bio: ","TextArea","bio",4,$Bio,"Enter some information about yourself and your area of study(optional)");
-        $UsercheckboxField = array("Staff:","Checkbox","usercheckbox",0,$Check,"Select if you are a member of staff","");
-        $DepartmentField = array("Department: ","Select","department",30,$Department,"Select your Department",$Departments);
-        $LocationField = array("Location: ","Text","location",30,$Location,"Enter your location at University(optional)");
+        $EmailField = array("Email:","Email","email",30,$Email,"Enter your Email","","","","User Email e.g. john.example.com");
+        $UsernameField = array("Username: ","Text","username",30,$Username,"Enter your Username","","","","Username used to login to the system e.g. User1");
+        $PasswordField = array("Password: ","Password","password",30,$Password,"Enter your Password","","","","Password you will use to login to the System, must be at least 8 characters long");
+        $FullnameField = array("Fullname: ","Text","fullname",30,$Fullname,"Enter your Fullname","","","","Fullname of the User e.g. John Smith");
+        $PhoneField = array("Phone: ","Text","phone",30,$Phone,"Enter your phone number(optional)","","","","Phone Number of the User");
+        $BioField = array("Bio: ","TextArea","bio",4,$Bio,"Enter some information about yourself and your area of study(optional)","","","","Information about the User e.g. Field of Study");
+        $UsercheckboxField = array("Staff:","Checkbox","usercheckbox",0,$Check,"Select if you are a member of staff","","","","Tickbox for members of staff");
+        $DepartmentField = array("Department: ","Select","department",30,$Department,"Select your Department",$Departments,"","","The Department the User is in at University e.g. Computer Science");
+        $LocationField = array("Location: ","Text","location",30,$Location,"Enter your location at University(optional)","","","","Where the User is on the University Campus e.g. Building 1");
 
         $Fields = array($EmailField,$UsernameField,$PasswordField,$FullnameField,$PhoneField,$BioField,$UsercheckboxField,$DepartmentField,$LocationField);
         $Button = "Sign Up";
@@ -468,8 +468,8 @@ class User{
 
     }
     static public function signinform($Username = "", $Password=""){
-        $UsernameField = array("Username: ","Text","username",30,$Username,"Enter Your Username");
-        $PasswordField = array("Password: ","Password","password",30,$Password,"Enter Your Password");
+        $UsernameField = array("Username: ","Text","username",30,$Username,"Enter Your Username","","","","Username e.g. User1");
+        $PasswordField = array("Password: ","Password","password",30,$Password,"Enter Your Password","","","","Password used when signing up to the System");
         $Fields = array($UsernameField,$PasswordField);
         $Button = "Login";
         Forms::generateform("signinform",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"return checksigninform(this)",$Fields,$Button);
@@ -549,21 +549,21 @@ class User{
         return $UserlevelArray;
     }
     static public function edituserform($UID,$fullname,$username,$email,$level,$phone,$photo,$department,$bio,$location){
-        $EmailField = array("Email:","Email","email",30,$email,"Enter your Email");
-        $UsernameField = array("Username: ","Text","username",30,$username,"Enter your Username");
-        $FullnameField = array("Fullname: ","Text","fullname",30,$fullname,"Enter your Fullname");
-        $PhoneField = array("Phone: ","NumberText","phone",30,$phone,"Enter your phone number(optional)");
-        $BioField = array("Bio: ","TextArea","bio",4,$bio,"Enter some information about yourself and your area of study(optional)");
-        $LocationField = array("Location: ","Text","location",30,$location,"User location on campus");
+        $EmailField = array("Email:","Email","email",30,$email,"Enter your Email","","","","User Email e.g. john.example.com");
+        $UsernameField = array("Username: ","Text","username",30,$username,"Enter your Username","","","","Username used to login to the system e.g. User1");
+        $FullnameField = array("Fullname: ","Text","fullname",30,$fullname,"Enter your Fullname","","","","Fullname of the User e.g. John Smith");
+        $PhoneField = array("Phone: ","NumberText","phone",30,$phone,"Enter your phone number(optional)","","","","Phone Number of the User");
+        $BioField = array("Bio: ","TextArea","bio",4,$bio,"Enter some information about yourself and your area of study(optional)","","","","Information about the User e.g. Field of Study");
+        $LocationField = array("Location: ","Text","location",30,$location,"User location on campus","","","","Where the User is on the University Campus e.g. Building 1");
         $DepartmentArray = Departments::getdepartmentsarray();
         $UserlevelArray = User::getuserlevelarray();
         if($_SESSION["userlevel"] > 2){
-            $DepartmentField = array("Department: ","Select","department",30,$department,"Select a Department",$DepartmentArray);
-            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"Select the User Level",$UserlevelArray);         
+            $DepartmentField = array("Department: ","Select","department",30,$department,"Select a Department",$DepartmentArray,"","","The Department the User is in at University e.g. Computer Science");
+            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"Select the User Level",$UserlevelArray,"","","Level access the User has e.g. Student");         
         }
         else{
-            $DepartmentField = array("Department: ","Select","department",30,$department,"Department that the user is in",$DepartmentArray,"","readonly");
-            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"User Level",$UserlevelArray,"","readonly");            
+            $DepartmentField = array("Department: ","Select","department",30,$department,"Department that the user is in",$DepartmentArray,"","readonly","The Department the User is in at University e.g. Computer Science");
+            $UserlevelField = array("User Level: ","Select","userlevel",30,$level,"User Level",$UserlevelArray,"","readonly","Level access the User has e.g. Student");            
         }
         if($UID > 0){
             $Button = "Edit User";

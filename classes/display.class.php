@@ -7,7 +7,6 @@ Class Display{
         //$Row[1][0]departmentid linked to staff
         //$Row[1][1]staffid
         //$Row[1][2]staffname
-        print("<div class='container'>");
         print("<div class='dropdowntable'>");
             foreach($Row[0][1] as $dropdownmenu){
                 print("<div class='dropdown show'>
@@ -24,10 +23,8 @@ Class Display{
                 print("</div");
             }
         print("</div>");
-        print("</div>");
     }
     static public function generatedynamiclistdisplay($ID,$Cols,$Rows,$Name = "",$SearchColumn = 0){
-        print("<div class='container'>");
         print("<input id='dynamictable' class='form-control' onkeyup='searchFunction()' placeholder='Type Here to Filter ".$Name."' type='text' style='margin-top:10px;'/>");
         print("<table class=\"table table-hover sorted_table\" id=\"" . $ID . "\">\n");
         print("<thead>");
@@ -107,11 +104,9 @@ Class Display{
                         $('#'+colid).css('background-color','#aaa');
                     });
                 </script>");
-            print("</div>");
     }
     static public function generatetabledisplay($ID,$Cols,$Rows)
     {
-        print("<div class='container'>");
         print("<table class='table table-hover sorted_table' id='" . $ID . "'>\n");
         print("<tbody>");
             print("<tr>\n");
@@ -139,7 +134,6 @@ Class Display{
             }
         print("</tbody>\n");
         print("</table>\n");
-        print("</div>");
     }
 
 }

@@ -2,7 +2,6 @@
 Class Forms{
     static public function generateform($FormName, $Action, $OnSubmit, $Fields, $Button){
         if($OnSubmit){$OnSubmit = " onsubmit='" . $OnSubmit . "'";}
-        print("<div class='container' style='padding-top:2em;'>");
         print("<form class='form-horizontal form-group' role='form' name='" . $FormName . "' id='" . $FormName . "' method='post' action='" . $Action . "'" . $OnSubmit . ">");
         foreach($Fields as $Field)
         {
@@ -38,7 +37,6 @@ Class Forms{
                     print("</div>");
                 }
             print("</form>");
-            print("</div>");
           
     }
     static public function generatefield($Field){
@@ -51,8 +49,8 @@ Class Forms{
         $Array = $Field[6];
         $Action = $Field[7];
         $ReadOnly = $Field[8];
-        $Class= $Field[9];
-        $ToolTip = $Field[10];
+        $ToolTip = $Field[9];
+        $Class= $Field[10];
 
         if($Type == "Text"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "' />");

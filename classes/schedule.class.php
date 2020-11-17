@@ -218,7 +218,7 @@ class Schedule {
         return $slots;
     }
     static public function listuserdepartments(){
-        if($_SESSION["userlevel"] == 2){
+        if($_SESSION["userlevel"] >= 2){
             $RQ = new ReadQuery("SELECT id,departmentname FROM departments WHERE deleted = 0");
             $UserDepartmentArray = array();
             $UserDepartmentCounter = 0;
@@ -243,7 +243,7 @@ class Schedule {
             
         }
         else{
-            print("<p class='banner-warning'>You are not a member of staff. As such you do not have permission for this page, you will be redirected shortly.</p>");
+            print("<p class='banner-warning'>You are not a member of staff or an administrator. As such you do not have permission for this page, you will be redirected shortly.</p>");
             header("refresh:5;url=http://".BASEPATH."/index.php");
         }
     }

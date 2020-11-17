@@ -67,12 +67,14 @@ Class WebPage{
         }
         print("</ul>
                </nav>
-               <main>");
+               <main>
+               <div class='container' style='padding-top:2em;'>");
 
     }
 
     static public function pageend(){
-        print("</main>
+        print("</div>
+               </main>
                </body
                </html>");
     }
