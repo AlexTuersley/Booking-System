@@ -6,7 +6,13 @@ $script[1] = "js/UserScript.js";
 $activate = $_GET["activate"];
 WebPage::headerandnav("User",$_SESSION["userlevel"],"",$script);
 if($_SESSION["userlevel"] > 0){
-    User::addedit($_SESSION["userid"]);  
+    if($_GET["password"]){
+        User::changepassword();
+    }
+    else{
+        User::addedit($_SESSION["userid"]);  
+    }
+
 }
 elseif($activate > 0){
     User::activateuser($_GET["activate"]);

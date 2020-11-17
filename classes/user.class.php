@@ -189,6 +189,19 @@ class User{
         ));
     }
 
+    function savepassword()
+        {
+            
+            $password = SALT . $this->getpassword();
+            //encrypt the password
+            $password = md5($password);
+
+            $WQ = new WriteQuery("UPDATE Users SET Password = :password WHERE IDLNK = :userid;", array(
+                PDOConnection::sqlarray(":password",$password,PDO::PARAM_STR),
+                PDOConnection::sqlarray(":userid",$this->getid(),PDO::PARAM_INT)
+            ));
+        }
+
     //delete user
     static public function deleteuser(){
         
@@ -297,7 +310,49 @@ class User{
         return false;
     }
 
+    static public function changepasswordform(){
+        $CurrentPasswordField = array("Current Password: ","Password","currentpassword",30,"","Enter your current Password","","","","");
+        $NewPasswordField = array("New Password: ","Password","newpassword",30,"","Enter your new Password","","","","Password you will use to login to the System, must be at least 8 characters long");
+        $ConfirmPasswordField = array("Repeat New Password: ","Password","confirmpassword",30,"","Enter your new Password again","","","","Enter the Password you want again");
+       
+       
+       $Fields = array($CurrentPasswordField,$NewPasswordField,$ConfirmPasswordField);
+       $Button = "Change Password";
+       Forms::generateform("changepasswordform","user.php?password=true"," return checkpasswordform(this)",$Fields,$Button);
+    }
+    static public function changepassword(){
+        $CurrentPassword = htmlspecialchars(filter_var($_POST["currentpassword"], FILTER_SANITIZE_STRING));
+        $NewPassword = htmlspecialchars(filter_var($_POST["newpassword"], FILTER_SANITIZE_STRING));
 
+        $Submit = $_POST["submit"];
+
+        $OldError = array("currentpassworderror","Please enter your current password.");
+        $NewError = array("newpassworderror","Please enter your new password. Passwords must be at least 10 Characters! Search online for best password practices for help on creating a secure password.");
+        $New1Error = array("new1paxxssworderror","Please re-enter your new password.");
+        $MatchError = array("passwordmatcherror","Your new passwords do not match.");
+        $BadPWError = array("badpwerror","You cannot use this password! Choose a more secure one.");
+        $DefaultError = array("defaulterror","Your current password does not match the system.");
+
+        if($Submit && $CurrentPassword && $NewPassword){
+            $User = new User($_SESSION["userid"]);
+            if(md5(SALT.$CurrentPassword === $User->getpassword())){
+                $User->setpassword($NewPassword);
+                $User->savepassword();
+                print("Your password has been changed. Use the new password next time you login.");
+            }
+            else{
+                print("<p>To change your password complete the form below and click the change password button.</p>");
+                $Errors = array($OldError,$NewError,$New1Error,$MatchError,$BadPWError);
+                Forms::generateerrors("Correct the following errors before you can continue.",$Errors,false);
+                User::changepasswordform();
+            }
+        }
+        else{
+            print("<p>To change your password complete the form below and click the change password button.</p>");
+            User::changepasswordform();
+        }
+
+    }
     //Data from Sign Up form is passed to this function to use in a Query
     static public function signup(){
         $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
