@@ -10,7 +10,9 @@ function checksigninform(form){
     else{
         setuperr(def,err);
         if(form.username.value != ""){usererr.style.display = "none";}
+        else{usererr.style.display = "list-item";}
         if(form.password.value != ""){passerr.style.display = "none";}
+        else{passerr.style.display = "list-item";}
         return false;
     }
 }
@@ -32,23 +34,24 @@ function checksignupform(form){
                 return true;
             }
             else{
+                departmenterr.style.display = "list-item";
                 emailerr.style.display = "none";
                 return false;
             }
         } 
         else{
-            if(form.usercheckbox.checked === true && form.department.value > 0){ departmenterr.style.display = "none";}
-            if(form.usercheckbox.checked === false && form.department.value === 0){ departmenterr.style.display = "none";}
+            if(form.usercheckbox.checked === true && form.department.value > 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
+            if(form.usercheckbox.checked === false && form.department.value === 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
             return false;
         }
     }
     else{
-        if(form.username.value != ""){usererr.style.display = "none";}
-        if(form.password.value != ""){passerr.style.display = "none";}
-        if(form.fullname.value != ""){fullnameerr.style.display = "none";}
-        if(form.email.value != "" && validateemail(form.email.value)){emailerr.style.display = "none";}
-        if(form.usercheckbox.checked === true && form.department.value > 0){ departmenterr.style.display = "none";}
-        if(form.usercheckbox.checked === false && form.department.value === 0){ departmenterr.style.display = "none";}
+        if(form.username.value != ""){usererr.style.display = "none";}else{usererr.style.display = "list-item";}
+        if(form.password.value != ""){passerr.style.display = "none";}else{passerr.style.display = "list-item";}
+        if(form.fullname.value != ""){fullnameerr.style.display = "none";}else{fullnameerr.style.display = "list-item";}
+        if(form.email.value != "" && validateemail(form.email.value)){emailerr.style.display = "none";}else{emailerr.style.display = "list-item";}
+        if(form.usercheckbox.checked === true && form.department.value > 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
+        if(form.usercheckbox.checked === false && form.department.value === 0 || departmenterr.style.display != "list-item"){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
         return false;
     }
 }

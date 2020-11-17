@@ -213,7 +213,7 @@ class Booking{
         
         }
         $Rows = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
-        Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Bookings");
+        Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Start");
     }
     static public function bookingsform($BID,$bookingname,$studentid,$staffid,$starttime,$endtime,$meeting,$note,$confirmed){
 
@@ -233,7 +233,7 @@ class Booking{
         else{
             $Button = "Add Booking";
         }
-        Forms::generateform("bookingform", "booking.php?bid=".$BID, "checkbookingform(true)", $Fields, $Button);
+        Forms::generateform("bookingform", "booking.php?bid=".$BID, "return checkbookingform(true)", $Fields, $Button);
     }
 }
 

@@ -454,7 +454,7 @@ class User{
                     $Errors = array($UsernameError,$LoginError);
                 }
                 else{
-                    $Errors = array($Username,$PasswordError,$LoginError);
+                    $Errors = array($UsernameError,$PasswordError,$LoginError);
                 }
                
                 Forms::generateerrors("The following errors must be corrected before you can sign in",$Errors,false);

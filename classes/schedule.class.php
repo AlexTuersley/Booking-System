@@ -87,8 +87,8 @@ class Schedule {
             $this->id = $ID;
             $this->staffid = $row["staffid"];
             $this->day = $row["day"];
-            $this->startime = $row["start_time"];
-            $this->end_time = $row["end_time"];
+            $this->startime = $row["starttime"];
+            $this->end_time = $row["endtime"];
             $this->active = $row["active"];
             $this->away = $row["away"];
             $this->start_date = $row["startdate"];
@@ -100,7 +100,7 @@ class Schedule {
         }
     }
     function savenew(){
-        $WQ = new WriteQuery("INSERT INTO staffschedule(staffid,staffday,start_time,end_time,active,away,deleted)
+        $WQ = new WriteQuery("INSERT INTO staffschedule(staffid,staffday,starttime,endtime,active,away,deleted)
                             VALUES(:staffid,staffday,starttime,endtime,active,away,0)",
                               array(
                                 PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
@@ -115,8 +115,8 @@ class Schedule {
         $WQ = new WriteQuery("UPDATE staffschedule SET
                               staffid = :staffid,
                               staffday = :staffday,
-                              start_time = :starttime,
-                              end_time = :endtime,
+                              starttime = :starttime,
+                              endtime = :endtime,
                               active = :active,
                               away = :away,
                               deleted = :deleted
@@ -199,7 +199,7 @@ class Schedule {
         );
     }
     static public function listuserslots($STID){
-        $RQ = new ReadQuery("SELECT start_time, end_time, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0",
+        $RQ = new ReadQuery("SELECT starttime, endtime, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                             ));
         $timeslots = array();
@@ -207,9 +207,9 @@ class Schedule {
         $counter = 0;
         $counter2 = 0;
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-            $timeslots[$counter] = array($row["start_time"],$row["end_time"],$row["active"]);
+            $timeslots[$counter] = array($row["starttime"],$row["endtime"],$row["active"]);
             if($row["away"] > 0) {
-                $holidays[$counter2] = array($row["start_time"],$row["startdate"],$row["end_time"],$row["enddate"],$row["active"],$row["away"]);
+                $holidays[$counter2] = array($row["starttime"],$row["startdate"],$row["endtime"],$row["enddate"],$row["active"],$row["away"]);
                 $counter2++;
             }
             $counter++;
