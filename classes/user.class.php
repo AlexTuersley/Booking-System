@@ -196,8 +196,8 @@ class User{
             //encrypt the password
             $password = md5($password);
 
-            $WQ = new WriteQuery("UPDATE Users SET Password = :password WHERE IDLNK = :userid;", array(
-                PDOConnection::sqlarray(":password",$password,PDO::PARAM_STR),
+            $WQ = new WriteQuery("UPDATE users SET userpassword = :userpassword WHERE id = :userid;", array(
+                PDOConnection::sqlarray(":userpassword",$password,PDO::PARAM_STR),
                 PDOConnection::sqlarray(":userid",$this->getid(),PDO::PARAM_INT)
             ));
         }
@@ -338,17 +338,17 @@ class User{
             if(md5(SALT.$CurrentPassword === $User->getpassword())){
                 $User->setpassword($NewPassword);
                 $User->savepassword();
-                print("Your password has been changed. Use the new password next time you login.");
+                print("<p class='welcome'>Your password has been changed. Use the new password next time you login.</p>");
             }
             else{
-                print("<p>To change your password complete the form below and click the change password button.</p>");
+                print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
                 $Errors = array($OldError,$NewError,$New1Error,$MatchError,$BadPWError);
                 Forms::generateerrors("Correct the following errors before you can continue.",$Errors,false);
                 User::changepasswordform();
             }
         }
         else{
-            print("<p>To change your password complete the form below and click the change password button.</p>");
+            print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
             User::changepasswordform();
         }
 
