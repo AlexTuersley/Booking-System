@@ -353,6 +353,52 @@ class User{
         }
 
     }
+    static public function forgotpasswordform(){
+        $EmailField = array("Email:","Email","email",30,$Email,"Enter your Email","","","","User Email e.g. john.example.com");
+        $Button = "Forgotten Password";
+        print("<p class='welcome'>If you have forgotten your password please complete this form and your password will be sent to your email.</p>");
+        $Fields = array($EmailField);
+        Forms::generateform("forgotpasswordform","signup.php?forgot=true","return checkpasswordform(this)",$Fields,$Button);
+    }
+    static public function forgotpassword($Email = ""){
+        $Email = htmlspecialchars(filter_var($_POST["email"], FILTER_SANITIZE_EMAIL));
+
+        $EmailError = array("emailerror","Please enter a valid email address");
+
+        $Submit = $_POST["submit"];
+
+        if($Submit){
+            $RQ = new ReadQuery("SELECT id,email FROM users WHERE email = :email",array(
+                PDOConnection::sqlarray(":email",$Email,PDO::PARAM_STR)
+            ));
+            if($row = $RQ->getnumberofresults() > 0){
+                if(function_exists("mail")){
+                    $headers = "From: noreply@bookingsystem.com\n";
+                    $email_subject = "Forgotten Password";
+                    $email_message = "Content-type: text/html\n
+                                      The Forgotten Form has been completed. Your password is: ".$NewPassword.".
+                                      If you did not request this please login with this password and change it to your preferred password.";
+                    $sendmail = mail($Email, $email_subject, $email_message, $headers);
+                    if($sendmail){
+                        print("<p>A message has been sent to your email, to activate your account please click the link send with the message</p>");
+                    }
+                    else{
+                        print("<p class='warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
+                        User::forgotpasswordform($Email);
+                    }
+                }
+                else{
+                    print("Email has not been enabled for this server. Please conaact the administrator ".ADMIN." to activate your account.");
+                }
+            }
+            else{
+                User::forgotpasswordform($Email);
+            }
+        }
+        else{
+            User::forgotpasswordform($Email);
+        }
+    }
     //Data from Sign Up form is passed to this function to use in a Query
     static public function signup(){
         $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));

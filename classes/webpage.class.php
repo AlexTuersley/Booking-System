@@ -40,7 +40,7 @@ Class WebPage{
                 $navList = array(array("index.php","Home","fa-book-open"),array("bookings.php","Bookings","fa-book"),array("schedule.php","Schedule","fa-calendar"),array("department.php","Department","fa-university"),array("user.php","Users","fa-users"),array("user.php","User","fa-user"),array("user.php?password=true","Change Password","fas fa-key"),array("index.php?signout=true","Sign out","fa-sign-out-alt"));
                 break;
             default:
-                $navList = array(array("index.php","Home","fa-book-open"),array("signin.php","Sign In","fa-sign-in-alt"),array("signin.php?signup=true","Sign Up","fa-user-plus"));
+                $navList = array(array("index.php","Home","fa-book-open"),array("signin.php","Sign In","fa-sign-in-alt"),array("signin.php?signup=true","Sign Up","fa-user-plus"),array("signin.php?forgot=true","Forgotten Password","fa-user-lock"));
                 break;
         }
         
