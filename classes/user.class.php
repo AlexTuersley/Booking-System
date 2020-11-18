@@ -358,7 +358,7 @@ class User{
         $Button = "Forgotten Password";
         print("<p class='welcome'>If you have forgotten your password please complete this form and your password will be sent to your email.</p>");
         $Fields = array($EmailField);
-        Forms::generateform("forgotpasswordform","signup.php?forgot=true","return checkpasswordform(this)",$Fields,$Button);
+        Forms::generateform("forgotpasswordform","signin.php?forgot=true","return checkforgottenpasswordform(this)",$Fields,$Button);
     }
     static public function forgotpassword($Email = ""){
         $Email = htmlspecialchars(filter_var($_POST["email"], FILTER_SANITIZE_EMAIL));
@@ -368,27 +368,28 @@ class User{
         $Submit = $_POST["submit"];
 
         if($Submit){
-            $RQ = new ReadQuery("SELECT id,email FROM users WHERE email = :email",array(
+            $RQ = new ReadQuery("SELECT id,email,userpassword FROM users WHERE email = :email",array(
                 PDOConnection::sqlarray(":email",$Email,PDO::PARAM_STR)
             ));
             if($row = $RQ->getnumberofresults() > 0){
                 if(function_exists("mail")){
-                    $headers = "From: noreply@bookingsystem.com\n";
+                    $NewPassword = $row["password"];
+                    //$headers = "From: noreply@bookingsystem.com\n";
                     $email_subject = "Forgotten Password";
                     $email_message = "Content-type: text/html\n
                                       The Forgotten Form has been completed. Your password is: ".$NewPassword.".
                                       If you did not request this please login with this password and change it to your preferred password.";
-                    $sendmail = mail($Email, $email_subject, $email_message, $headers);
+                    $sendmail = mail($Email, $email_subject, $email_message);
                     if($sendmail){
-                        print("<p>A message has been sent to your email, to activate your account please click the link send with the message</p>");
+                        print("<p class='alert alert-success'>A message has been sent to your email, to activate your account please click the link send with the message</p>");
                     }
                     else{
-                        print("<p class='warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
+                        print("<p class='welcome alert alert-warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
                         User::forgotpasswordform($Email);
                     }
                 }
                 else{
-                    print("Email has not been enabled for this server. Please conaact the administrator ".ADMIN." to activate your account.");
+                    print("Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.");
                 }
             }
             else{
