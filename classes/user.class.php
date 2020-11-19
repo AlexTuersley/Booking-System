@@ -130,13 +130,20 @@ class User{
     }
     //Save new User data to DB
     function savenew(){
+        //sets the cost of the password, adds a SALT set in config and encrypts the password with md5 and password hashinf
+        $options = [
+            'cost' => 12
+        ];
+        $password = SALT . $this->getpassword();
+        $password = password_hash(md5($password), PASSWORD_BCRYPT, $options);
+        
         $WQ = new WriteQuery("INSERT INTO users
             (email,username,userpassword,userlevel,activated,deleted)
             VALUES(:email,:username,:userpassword,:userlevel,0,0)",
             array(
                 PDOConnection::sqlarray(":email", $this->getemail(), PDO::PARAM_STR),
                 PDOConnection::sqlarray(":username",$this->getusername(),PDO::PARAM_STR),
-                PDOConnection::sqlarray(":userpassword", $this->getpassword(), PDO::PARAM_STR),
+                PDOConnection::sqlarray(":userpassword", $password, PDO::PARAM_STR),
                 PDOConnection::sqlarray(":userlevel", $this->getuserlevel(), PDO::PARAM_INT)
         ));
         $this->id = $WQ->getinsertid();
@@ -192,9 +199,11 @@ class User{
     function savepassword()
         {
             
+            $options = [
+                'cost' => 12
+            ];
             $password = SALT . $this->getpassword();
-            //encrypt the password
-            $password = md5($password);
+            $password = password_hash(md5($password), PASSWORD_BCRYPT, $options);
 
             $WQ = new WriteQuery("UPDATE users SET userpassword = :userpassword WHERE id = :userid;", array(
                 PDOConnection::sqlarray(":userpassword",$password,PDO::PARAM_STR),
@@ -335,7 +344,7 @@ class User{
 
         if($Submit && $CurrentPassword && $NewPassword){
             $User = new User($_SESSION["userid"]);
-            if(md5(SALT.$CurrentPassword === $User->getpassword())){
+            if(password_verify(md5(SALT.$CurrentPassword), $User->getpassword())){
                 $User->setpassword($NewPassword);
                 $User->savepassword();
                 print("<p class='welcome'>Your password has been changed. Use the new password next time you login.</p>");
@@ -428,7 +437,7 @@ class User{
                 $User->setusername($Username);
                 $User->setfullname($Fullname);
                 $User->setemail($Email);
-                $User->setpassword(md5(SALT.$Password));
+                $User->setpassword($Password);
                 if($Department > 0){
                     $User->setuserlevel(2);
                     $User->setdepartment($Department);
@@ -598,8 +607,8 @@ class User{
             ));
             if($RQ->getnumberofresults() > 0){
                 $row = $RQ->getresults()->fetch(PDO::FETCH_ASSOC);
-                
-                if($row["userpassword"] !== $Password || $row["activated"] === 0){    
+                $PasswordCheck = password_verify($Password, $row["userpassword"]);
+                if(!$PasswordCheck || $row["activated"] === 0){    
                     return 0;
                 }
                 else{
