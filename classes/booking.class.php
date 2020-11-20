@@ -195,6 +195,8 @@ class Booking{
                 PDOConnection::sqlarray(":id",$UID,PDO::PARAM_STR)
             ));
         $Cols = array(array("Booking Name", "bookingname",1),array("Student", "student",1),array("Staff Member","staff",1),array("Start", "start",1),array("End","end",1),array("Meeting Type","meetingtype",1), array("","functions",2));
+        $Rows = array();
+        $RowCounter = 0;
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
             if($row["confirmed"] == 1){
                 $status = "<i class='fas fa-check-circle' aria-hidden='true' title='booking confirmed'></i>";
@@ -208,11 +210,12 @@ class Booking{
             $Row4 = array($row["start_time"]);
             $Row5 = array($row["end_time"]);
             $Row6 = array(Meeting::getmeetingname($row["meetingtype"]));
-            $Row7 = array("<a href='?edit&bid=". $row["id"] ."'><i class='fas fa-user-edit' aria-hidden='true' title='Edit Booking'></i></a>","button");
-            $Row8 = array("<a alt='Delete ".$row["bookingname"]."' onclick='deletebookingdialog('Booking','" . $row["id"] . "');'><i class='fas fa-trash-alt' title='Delete Booking'></i></a>","button");
-        
+            $Row7 = array("<a href='?edit=". $row["id"] ."' alt='Edit ".$row["bookingname"]."'><i class='fas fa-edit' aria-hidden='true' title='Edit Booking'></i></a>","button");
+            $Row8 = array("<a href='?edit=". $row["id"] ."' alt='Delete ".$row["bookingname"]."'><i class='fas fa-trash-alt' title='Delete Booking'></i></a>","button");
+            $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
+            $RowCounter++;
         }
-        $Rows = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
+
         Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Start");
     }
     static public function bookingsform($BID,$bookingname,$studentid,$staffid,$starttime,$endtime,$meeting,$note,$confirmed){
@@ -233,9 +236,11 @@ class Booking{
         else{
             $Button = "Add Booking";
         }
-        Forms::generateform("bookingform", "booking.php?bid=".$BID, "return checkbookingform(true)", $Fields, $Button);
+        Forms::generateform("bookingform", "booking.php?edit=".$BID, "return checkbookingform(true)", $Fields, $Button);
     }
 }
+
+
 
 
 ?>

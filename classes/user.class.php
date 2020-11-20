@@ -213,7 +213,9 @@ class User{
 
     //delete user
     static public function deleteuser(){
-        
+
+
+        print("<p class='welcome alert alert-success'>The Department has been deleted</p>");        
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     static public function addedit($UID){
@@ -299,11 +301,7 @@ class User{
         $WQ = new WriteQuery("UPDATE users SET activated = 1 WHERE id = :id AND activated != 1",array(
             PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
         ));
-        if($row = $WQ->getresults() > 0){
-            return true;
-        }
-        print("<p>User already activated</p>");
-        return false;
+        print("<p class='welcome alert alert-success'>The User has been activated</p>");
     }
     static public function checkusernameandemail($Username, $Email){
         if($Username != "" && $Email != ""){
@@ -602,7 +600,7 @@ class User{
 
             //Add the SALT set in config.ini to the password for verification
             $Password = md5(SALT.$Password);
-            $RQ = new ReadQuery("SELECT id, userpassword, activated FROM users WHERE username = :username",array(
+            $RQ = new ReadQuery("SELECT id, userpassword, activated FROM users WHERE deleted = 0 AND username = :username",array(
                 PDOConnection::sqlarray(":username",$Username,PDO::PARAM_STR)
             ));
             if($RQ->getnumberofresults() > 0){
@@ -624,16 +622,27 @@ class User{
     }
    
     static public function listusers(){
-        $RQ = new ReadQuery("SELECT id, username, fullname, userlevel FROM users JOIN userinformation on users.id = userinformation.userid WHERE deleted = 0", null);
-        $Cols = array(array("Username","username",1),array("Fullname","fullname",1),array("User Level","userlevel",1),array("","",2));
+        $RQ = new ReadQuery("SELECT id, username, fullname, userlevel,activated FROM users JOIN userinformation on users.id = userinformation.userid WHERE deleted = 0", null);
+        $Cols = array(array("Username","username",1),array("Fullname","fullname",1),array("User Level","userlevel",1),array("","functions",3));
+        $Rows = array();
+        $Rowcounter = 0;
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
             $Row1 = array($row["username"]);
             $Row2 = array($row["fullname"]);
             $Row3 = array(User::getuserleveltype($row["userlevel"]));
-            $Row4 = array("<a href='?edit&uid=". $row["id"] ."'><i class='fas fa-user-edit' aria-hidden='true' title='Edit ".$row["username"]."'></i></a>","button");
-            $Row5 = array("<a alt='Delete ".$row["username"]."' onclick='deleteuserdialog('" . $row["username"] . "','" . $row["id"] . "');'><i class='fas fa-trash-alt' title='Delete ".$row["username"]."'></i></a>","button");
+            if($row["activated"] > 0){
+                $Row4 = array("<i class='fas fa-check-circle' title='user activated'></i>");
+            }
+            else{
+                $Row4 = array("<a href='?activate=". $row["id"] ."'><i class='fas fa-power-off' aria-hidden='true' title='Activate ".$row["username"]."'></i></a>","button");
+       
+            }
+            $Row5 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-user-edit' aria-hidden='true' title='Edit ".$row["username"]."'></i></a>","button");
+            $Row6 = array("<a href='?remove=".$row["id"]."' title='Delete ".$row["username"]."'  ><i class='fas fa-trash-alt' title='Delete ".$row["username"]."'></i></a>","button");
+            $Rows[$Rowcounter] = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6);
+            $Rowcounter++;
         }
-        $Rows = array($Row1,$Row2,$Row3,$Row4,$Row5);
+       
         Display::generatedynamiclistdisplay("userstable",$Cols,$Rows,"Username",0);
     }
      //return the User type as a String value
@@ -660,6 +669,14 @@ class User{
         return $UserlevelArray;
     }
     static public function edituserform($UID,$fullname,$username,$email,$level,$phone,$photo,$department,$bio,$location){
+        
+        if(strpos($_SERVER['REQUEST_URI'],'users.php')){
+            Forms::generateaddbutton("Users","users.php","arrow-left","secondary");
+            $Path = "users.php?edit=".$UID."";
+        }
+        else{
+            $Path = "user.php?edit=".$UID."";
+        }
         $EmailField = array("Email:","Email","email",30,$email,"Enter your Email","","","","User Email e.g. john.example.com");
         $UsernameField = array("Username: ","Text","username",30,$username,"Enter your Username","","","","Username used to login to the system e.g. User1");
         $FullnameField = array("Fullname: ","Text","fullname",30,$fullname,"Enter your Fullname","","","","Fullname of the User e.g. John Smith");
@@ -683,13 +700,13 @@ class User{
             $Button = "Add User";
         }
         $Fields = array($EmailField,$UsernameField,$FullnameField,$UserlevelField,$DepartmentField,$PhoneField,$BioField,$LocationField);
-        Forms::generateform("User Form","user.php?edit=".$UID," return checkuserform(this)",$Fields,$Button);
+        Forms::generateform("User Form",$Path," return checkuserform(this)",$Fields,$Button);
 
         ?>
 
 		<script>	
 			$(function(){
-                if($("#userlevel option:selected").val() == 2){
+                if($("#userlevel option:selected").val() === 2){
                   ShowFields();
                 }
                 else{
@@ -698,7 +715,7 @@ class User{
 			});
 
 			$("#userlevel").change(function(){
-                if($("#userlevel option:selected").val() == 2){
+                if($("#userlevel option:selected").val() === 2){
                   ShowFields();
                 }
                 else{

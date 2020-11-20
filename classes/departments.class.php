@@ -58,12 +58,14 @@ Class Departments{
             PDOConnection::sqlarray(":department",$DID,PDO::PARAM_INT)
         ));
         if($row = $RQ->getnumberofresults() > 0){
+            print("<p class='welcome alert alert-warning'>The Department has been not deleted. There are Users still within this Department.</p>");
             return false;
         }
         else{
-            $WQ = new WriteQuery("UPDATE departments SET deleted = 1 WHERE id =: id",array(
+            $WQ = new WriteQuery("UPDATE departments SET deleted = 1 WHERE id = :id",array(
                 PDOConnection::sqlarray(":id",$DID,PDO::PARAM_INT)
             ));
+            print("<p class='welcome alert alert-success'>The Department has been deleted</p>");
         }
         return true;
 
@@ -130,13 +132,13 @@ Class Departments{
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                 $Row1 = array($row["departmentname"]);
                 $Row2 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit ".$row["department"]."'></i></a>","button");
-                $Row3 = array("<a alt='Delete ".$row["departmentname"]."' onclick='deletedepartmentdialog('" . $row["departmentname"] . "','" . $row["id"] . "');'><i class='fas fa-trash-alt' title='Delete ".$row["departmentname"]."'></i></a>","button");
+                $Row3 = array("<a title='Delete ".$row["departmentname"]."' a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete ".$row["departmentname"]."'></i></a>","button");
                 $Rows[$RowCounter] = array($Row1,$Row2,$Row3);
                 $RowCounter++;
             }
             $Cols = array($Col1,$Col2);
 
-            Display::generatetabledisplay("admindepartmenttable",$Cols,$Rows);
+            Display::generatedynamiclistdisplay("admindepartmenttable",$Cols,$Rows,"Department",0);
         }
         else{
             print("<p class='welcome'>You do not have permission to view this page. Redirecting to home</p>");

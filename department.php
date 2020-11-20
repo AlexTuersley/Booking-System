@@ -7,8 +7,9 @@ if($_SESSION["userlevel"]){
 else{
     $Level = 0;
 }
-$Script[0] = "deletedialogs.js";
-$Script[1] = "DepartmentScript.js";
+$Script[0] = "js/bootbox.min.js";
+$Script[1] = "js/deletedialogs.js";
+$Script[2] = "js/DepartmentScript.js";
 WebPage::headerandnav("Home",$Level,"",$Script);
 if($_GET["signout"] && $Level > 0){
     User::signout();
@@ -23,6 +24,7 @@ elseif($_SESSION["userlevel"] > 0){
         }
         elseif($_GET["remove"]){
             Departments::delete($_GET["remove"]);
+            Departments::listdepartmentsadmin();
         }
         else{
             Departments::listdepartmentsadmin();
