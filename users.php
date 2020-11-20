@@ -12,7 +12,7 @@ if($_SESSION["userlevel"] > 2){
         User::addedit($UID);
     }
     elseif($remove){
-        User::delete($remove);
+        User::deleteuser($remove);
         User::listusers();
     }
     elseif($activate){

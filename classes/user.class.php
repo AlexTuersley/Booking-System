@@ -212,10 +212,22 @@ class User{
         }
 
     //delete user
-    static public function deleteuser(){
+    static public function deleteuser($UID){
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE studentuserid = :id OR staffuserid = :id",array(
+            PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
+        ));
+        if($row = $RQ->getnumberofresults() > 0){
+            print("<p class='welcome alert alert-warning'>The User has been not deleted. The User still has active bookings</p>");
+            return false;
+        }
+        else{
+            $WQ = new WriteQuery("UPDATE users SET deleted = 1 WHERE id = :id",array(
+                PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
+            ));
+        }
+        return true;
 
-
-        print("<p class='welcome alert alert-success'>The Department has been deleted</p>");        
+        print("<p class='welcome alert alert-success'>The User has been deleted</p>");        
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     static public function addedit($UID){
