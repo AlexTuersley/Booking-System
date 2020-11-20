@@ -38,8 +38,8 @@ Class Display{
 
             }
             print("</tr>\n");
-        print("</thead>");
-        print("<tbody>");
+            print("</thead>");
+            print("<tbody>");
             foreach($Rows as $Row)
             {
                 if($Row == null){ continue; }

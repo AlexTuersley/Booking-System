@@ -161,8 +161,7 @@ Class Forms{
                    </script>');
         }
     }
-    static public function generateerrors($ErrorTitle,$Errors,$ShowDefault)
-        {
+    static public function generateerrors($ErrorTitle,$Errors,$ShowDefault){
             if($ShowDefault)
             {
                 print("<div id='errorsshow' class='alert alert-danger'>");
@@ -178,7 +177,14 @@ Class Forms{
                 }
                 print("</ul>");
             print("</div>");
-        }
+    }
+    static public function generateaddbutton($Content,$Link = "#",$Icon = "plus",$Color = "primary",$CustomCode = "", $ExtraClass = "",$ToolTip = "", $Target = ""){
+
+        $Target = $Target == "" ? "_self" : $Target;
+
+        print("<p title='".$ToolTip."' style='display: inline-block; margin-right:5px; margin-bottom: 5px;'><a href='".$Link."' class='btn btn-outline-".$Color." ".$ExtraClass."' ".$CustomCode." title='".$ToolTip."' target='".$Target."'><i class=\"fas fa-".$Icon."\"></i> ".$Content."</a></p>");
+    }
 }
+   
 
 ?>

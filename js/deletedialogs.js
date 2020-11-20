@@ -12,7 +12,7 @@ function deletebookingdialog(deleteTitle,id)
 }
 function deletedepartmentdialog(deleteTitle,id)
 {
-  bootbox.confirm("Are you sure you wish to delete this Department: '<i>" + deleteTitle + "</i>' ? If this department has Users within, they must be moved to another department before deleting.", function(result){if(result){window.location.href="?delete&did=" + id + ""}});
+  bootbox.confirm("Are you sure you wish to delete this Department: '<i>" + deleteTitle + "</i>' ? If this department has Users within, they must be moved to another department before deleting.", function(result){if(result){window.location.href="?remove=" + id + ""}});
 }
 function deleteuserdialog(deleteTitle,id)
 {
