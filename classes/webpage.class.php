@@ -18,7 +18,7 @@ Class WebPage{
         print("<script type='text/javascript' src='js/jquery-3.4.1.min.js'></script>
                <script type='text/javascript' src='js/bootstrap.min.js'></script>
                <script type='text/javascript' src='js/bootstrap.bundle.min.js'></script>
-               <script src='https://kit.fontawesome.com/b774cd34b7.js' crossorigin='anonymous'></script>");
+               <script src='https://kit.fontawesome.com/45be65547d.js' crossorigin='anonymous'></script>");
                if($scripts != ""){
                 foreach($scripts as $script){
                     print("<script type='text/javascript' src='".$script."'></script>"); 
