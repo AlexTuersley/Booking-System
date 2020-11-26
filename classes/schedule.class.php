@@ -217,30 +217,51 @@ class Schedule {
         $slots = array($timeslots,$holidays);
         return $slots;
     }
-    static public function listuserdepartments(){
-        if($_SESSION["userlevel"] >= 2){
-            $RQ = new ReadQuery("SELECT id,departmentname FROM departments WHERE deleted = 0");
-            $UserDepartmentArray = array();
-            $UserDepartmentCounter = 0;
-            $DepartmentArray = array();
-            $DepartmentCounter = 0;
-            $UserArray = array();
-            $Counter = 0;
+    static public function showstaffschedule($ID){
+        //Forms::generateaddbutton("Departments","schedule.php?department=","arrow-left","secondary");
+    }
+    static public function listdepartmentstaff($DID){
+        if($_SESSION["userlevel"] == 1){
+            print("<p class='welcome'>The list below shows all Staff within this Department. Click on a Staff member to see their schedule.</p>");
+            Forms::generateaddbutton("Departments","schedule.php","arrow-left","secondary");
+            $RQ = new ReadQuery("SELECT * FROM users JOIN userinformation ON users.id = userinformation.userid WHERE userinformation.department = :department", array(
+                PDOConnection::sqlarray(":department",$DID,PDO::PARAM_INT)
+            ));
+            $Rows = array();
+            $RowCounter = 0;
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-                $DepartmentArray[$Counter] = $row["departmentname"];
-                $RQ2 = new ReadQuery("SELECT id, fullname FROM users JOIN userinformation ON users.id = userinformation.userid WHERE userinformation.department = :department",array(
-                    PDOConnection::sqlarray(":department",$row["id"],PARAM_INT)
-                ));
-                while($row2 = $RQ2->getresults()->fetch(PDO::FETCH_BOTH)){
-                    $UserArray[$Counter] = array($row2["id"],$row2["fullname"]);
-                    $Counter++;
-                }
-                
-                $UserDepartmentArray[$UserDepartmentCounter] = array($DepartmentArray,$UserArray);
-                $DepartmentCounter++;
-                $UserDepartmentCounter++;
+                $Row1 = array("<a href=?staff=".$row["id"].">".$row["fullname"]."</a>","button");
+                $Row2 = array($row["email"]);
+                $Rows[$RowCounter] = array($Row1,$Row2);
+                $RowCounter++;
             }
-            
+            $Cols = array(array("Staff","department",1),array("Email","staff",1));
+
+            Display::generatedynamiclistdisplay("staffdepartmenttable",$Cols,$Rows,"Staff",0);
+                
+        }
+        else{
+            print("<p class='banner-warning'>You are not a member of staff or an administrator. As such you do not have permission for this page, you will be redirected shortly.</p>");
+            header("refresh:5;url=http://".BASEPATH."/index.php");
+        }
+    }
+    static public function listdepartments(){
+        
+        if($_SESSION["userlevel"] == 1){
+            print("<p class='welcome'>The list below shows all departments. Click on a Department to see the Staff members.</p>");
+            $RQ = new ReadQuery("SELECT id,departmentname,(SELECT COUNT(*) FROM users JOIN userinformation ON users.id = userinformation.userid WHERE userinformation.department = departments.id) as staffcount FROM departments WHERE deleted = 0", null);
+            $Rows = array();
+            $RowCounter = 0;
+            while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                $Row1 = array("<a href=?department=".$row["id"].">".$row["departmentname"]."</a>","button");
+                $Row2 = array($row["staffcount"]);
+                $Rows[$RowCounter] = array($Row1,$Row2);
+                $RowCounter++;
+            }
+            $Cols = array(array("Department","department",1),array("Number of Staff","staff",1));
+
+            Display::generatedynamiclistdisplay("departmenttable",$Cols,$Rows,"Department",0);
+                
         }
         else{
             print("<p class='banner-warning'>You are not a member of staff or an administrator. As such you do not have permission for this page, you will be redirected shortly.</p>");

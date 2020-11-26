@@ -125,8 +125,6 @@ Class Departments{
             $RQ = new ReadQuery("SELECT * FROM departments WHERE deleted = 0", null);
             print("<p class='welcome'>The list below shows all departments</p>");
             Forms::generateaddbutton("Add Department","department.php?edit=-1","plus","primary","","","Click this button to add new Departments");
-            $Col1 = array("Department","department",1);
-            $Col2 = array("","functions",2);
             $Rows = array();
             $RowCounter = 0;
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
@@ -136,7 +134,7 @@ Class Departments{
                 $Rows[$RowCounter] = array($Row1,$Row2,$Row3);
                 $RowCounter++;
             }
-            $Cols = array($Col1,$Col2);
+            $Cols = array(array("Department","department",1),array("","functions",2));
 
             Display::generatedynamiclistdisplay("admindepartmenttable",$Cols,$Rows,"Department",0);
         }

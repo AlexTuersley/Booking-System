@@ -7,9 +7,9 @@ if($_SESSION["userlevel"]){
 else{
     $Level = 0;
 }
-$Script[0] = "js/bootbox.min.js";
-$Script[1] = "js/deletedialogs.js";
-$Script[2] = "js/DepartmentScript.js";
+
+$Script[0] = "js/DepartmentScript.js";
+$Script[1] = "js/jquery.tablesorter.min.js";
 WebPage::headerandnav("Home",$Level,"",$Script);
 if($_GET["signout"] && $Level > 0){
     User::signout();

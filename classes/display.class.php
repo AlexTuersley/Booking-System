@@ -1,29 +1,6 @@
 <?php
 Class Display{
 
-    static public function generatedropdowndisplay($ID,$Rows,$Cols){
-        //$Row[0][0]departmentid
-        //$Row[0][1]department name
-        //$Row[1][0]departmentid linked to staff
-        //$Row[1][1]staffid
-        //$Row[1][2]staffname
-        print("<div class='dropdowntable'>");
-            foreach($Row[0][1] as $dropdownmenu){
-                print("<div class='dropdown show'>
-                        <a class='btn btn-secondary dropdown-toggle' href='#' role='button' id='".$Row[0][1]."' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-                           ".$Row[0][1]."</a> ");
-                       print("<div class='dropdown-menu' aria-labelledby='".$Row[0][1]."'");
-                
-                while($Row[1][0] == $Row[0][0]){
-                    print("<div class='dropdown-item>");
-                        print("<a href='schedule.php?".$Row[1][1].">" .$Row[1][2]."</a>");
-                    print("</div>");
-                }
-                print("</div");
-                print("</div");
-            }
-        print("</div>");
-    }
     static public function generatedynamiclistdisplay($ID,$Cols,$Rows,$Name = "",$SearchColumn = 0){
         print("<input id='dynamictable' class='form-control' onkeyup='searchFunction()' placeholder='Type Here to Filter ".$Name."' type='text' style='margin-top:10px;'/>");
         print("<table class=\"table table-hover sorted_table\" id=\"" . $ID . "\">\n");

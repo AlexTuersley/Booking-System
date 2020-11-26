@@ -1,19 +1,26 @@
 <?php
 session_start();
 include("config/config.php");
-if($_SESSION["userlevel"]){
-    $Level = $_SESSION["userlevel"];
-}
-else{
-    $Level = 0;
-}
-WebPage::headerandnav("Home",$Level);
+
+$Level = $_SESSION["userlevel"];
+$Department = $_GET["department"];
+$Staff = $_GET["staff"];
+$Script[0] = "js/jquery.tablesorter.min.js";
+WebPage::headerandnav("Home",$Level,"",$Script);
 if($Level > 0){
     if($Level >= 2){
         //shows staff schedule and lets staff member edit their schedule
     }
     else{
-        //list of staff for students
+        if($Department){
+            Schedule::listdepartmentstaff($Department);
+        }
+        elseif($Staff){
+            //Schedule::liststaffschedule($Staff);
+        }
+        else{
+            Schedule::listdepartments();
+        }
     }
    
 }

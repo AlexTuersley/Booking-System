@@ -3,6 +3,7 @@ include("config/config.php");
 session_start();
 $script[0] = "js/ValidationScript.js";
 $script[1] = "js/UserScript.js";
+$script[2] = "js/jquery.tablesorter.min.js";
 $activate = $_GET["activate"];
 $UID = $_GET["edit"];
 $remove = $_GET["remove"];
