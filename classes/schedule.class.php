@@ -217,6 +217,25 @@ class Schedule {
         $slots = array($timeslots,$holidays);
         return $slots;
     }
+    static public function jsonstaffschedule($UID){
+        if($UID > 0){
+            $RQ = new ReadQuery("SELECT id, staffday, starttime, endtime FROM staffschedule WHERE staffid = :id AND active = 1 AND deleted = 0 ORDER BY staffday, starttime",array(
+                PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
+            ));
+            $schedule_json = array();
+            $i = 0;
+            while ($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                $schedule_json[$i] = array(
+                    'id' => $row['id'],
+                    'staffday' => $row['staffday'],
+                    'start' => $row['starttime'],
+                    'end' => $row['endtime']
+                );
+                $i++;
+            }
+            print_r(json_encode($schedule_json));
+        }
+    }
     static public function showstaffschedule($ID){
         //Forms::generateaddbutton("Departments","schedule.php?department=","arrow-left","secondary");
     }

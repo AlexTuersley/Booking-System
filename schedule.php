@@ -10,6 +10,7 @@ WebPage::headerandnav("Home",$Level,"",$Script);
 if($Level > 0){
     if($Level >= 2){
         //shows staff schedule and lets staff member edit their schedule
+        Schedule::jsonstaffschedule($_SESSION["userid"]);
     }
     else{
         if($Department){
@@ -17,6 +18,8 @@ if($Level > 0){
         }
         elseif($Staff){
             //Schedule::liststaffschedule($Staff);
+            
+
         }
         else{
             Schedule::listdepartments();
