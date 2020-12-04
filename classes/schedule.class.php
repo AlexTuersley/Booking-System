@@ -6,7 +6,7 @@ class Schedule {
     //Class Variables
     private $id;
     private $staffid;
-    private $date;
+    private $day;
     private $start_time;
     private $end_time;
     private $active;
@@ -28,11 +28,11 @@ class Schedule {
     function setstaffid($Val){
         $this->staffid = $Val;
     }
-    function getdate(){
-        return $this->date;
+    function getday(){
+        return $this->day;
     }
-    function setdate($Val){
-        $this->date = $Val;
+    function setday($Val){
+        $this->day = $Val;
     }
     function getstarttime(){
         return $this->start_time;
@@ -77,7 +77,7 @@ class Schedule {
         $this->deleted = $Val;
     }
 
-    function __construct(){
+    function __construct($ID = 0){
         if($ID > 0){
 
             $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE id = :staffscheduleid", array(
@@ -87,7 +87,7 @@ class Schedule {
             $this->id = $ID;
             $this->staffid = $row["staffid"];
             $this->day = $row["day"];
-            $this->startime = $row["starttime"];
+            $this->start_time = $row["starttime"];
             $this->end_time = $row["endtime"];
             $this->active = $row["active"];
             $this->away = $row["away"];
@@ -100,15 +100,17 @@ class Schedule {
         }
     }
     function savenew(){
-        $WQ = new WriteQuery("INSERT INTO staffschedule(staffid,staffday,starttime,endtime,active,away,deleted)
-                            VALUES(:staffid,staffday,starttime,endtime,active,away,0)",
+        $WQ = new WriteQuery("INSERT INTO staffschedule(staffid,staffday,starttime,endtime,active,away,startdate,enddate,deleted)
+                            VALUES(:staffid,:staffday,:starttime,:endtime,:active,:away,:startdate,:enddate,0)",
                               array(
                                 PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
                                 PDOConnection::sqlarray(":staffday",$this->getday(),PDO::PARAM_INT),
-                                PDOConnection::sqlarray(":starttime",$this->getstarttime()->getdatabasedatetime(), PDO::PARAM_STR),
-                                PDOConnection::sqlarray(":endtime",$this->getendtime()->getdatabasedatetime(), PDO::PARAM_STR),
+                                PDOConnection::sqlarray(":starttime",$this->getstarttime(), PDO::PARAM_STR),
+                                PDOConnection::sqlarray(":endtime",$this->getendtime(), PDO::PARAM_STR),
                                 PDOConnection::sqlarray(":active",$this->getactive(),PDO::PARAM_INT),
-                                PDOConnection::sqlarray(":away",$this->getnote(),PDO::PARAM_INT)
+                                PDOConnection::sqlarray(":away",$this->getaway(),PDO::PARAM_INT),
+                                PDOConnection::sqlarray(":startdate",$this->getstartdate(), PDO::PARAM_STR),
+                                PDOConnection::sqlarray(":enddate",$this->getenddate(), PDO::PARAM_STR)
         ));
     }
     function save(){
@@ -119,16 +121,19 @@ class Schedule {
                               endtime = :endtime,
                               active = :active,
                               away = :away,
-                              deleted = :deleted
+                              startdate = :startdate,
+                              enddate = :enddate
                               WHERE id = :id
                               ",
                               array(
                                 PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
                                 PDOConnection::sqlarray(":staffday",$this->getday(),PDO::PARAM_INT),
-                                PDOConnection::sqlarray(":starttime",$this->getstarttime()->getdatabasedatetime(), PDO::PARAM_STR),
-                                PDOConnection::sqlarray(":endtime",$this->getendtime()->getdatabasedatetime(), PDO::PARAM_STR),
+                                PDOConnection::sqlarray(":starttime",$this->getstarttime(), PDO::PARAM_STR),
+                                PDOConnection::sqlarray(":endtime",$this->getendtime(), PDO::PARAM_STR),
                                 PDOConnection::sqlarray(":active",$this->getactive(),PDO::PARAM_INT),
-                                PDOConnection::sqlarray(":away",$this->getnote(),PDO::PARAM_INT),
+                                PDOConnection::sqlarray(":away",$this->getaway(),PDO::PARAM_INT),
+                                PDOConnection::sqlarray(":startdate",$this->getstartdate(), PDO::PARAM_STR),
+                                PDOConnection::sqlarray(":enddate",$this->getenddate(), PDO::PARAM_STR),
                                 PDOConnection::sqlarray(":id", $this->getid(),PDO::PARAM_INT)
         ));
                                
@@ -151,47 +156,64 @@ class Schedule {
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     public function addedit($SID){
-        $staffid = $_GET["staffid"];
-        $day = $_GET["day"];
-        $starttime = $_GET["starttime"];
-        $endtime = $_GET["endtime"];
-        $active = $_GET["active"];
-        $away = $_GET["away"];
+        $staffid = filter_var($_POST["staff"], FILTER_SANITIZE_NUMBER_INT);
+        $day = filter_var($_POST["day"], FILTER_SANITIZE_NUMBER_INT);
+        $starttime = $_POST["starttime"];
+        $endtime = $_POST["endtime"];
+        $active = filter_var($_POST["active"], FILTER_SANITIZE_NUMBER_INT);
+        $away = filter_var($_POST["away"], FILTER_SANITIZE_NUMBER_INT);
         $startdate = $_GET["startdate"];
         $enddate = $_GET["enddate"];
+        $Submit =$_POST["submit"];
 
-        if($SID > 0){
-            $Schedule = new Schedule($SID);
-            $Schedule->setday($day);
-            $Schedule->setstarttime($starttime);
-            $Schedule->setendtime($endtime);
-            $Schedule->setactive($active);
-            $Schedule->setaway($away);
-            if($away > 0){
-                $Schedule->setstartdate(NULL);
-                $Schedule->setenddate(NULL);
-            }
-            $Schedule->save();
-        }
-        else{
-            $Schedule = new Schedule();
-            $Schedule->setstaffid($staffid);
-            $Schedule->setday($day);
-            $Schedule->setstarttime($starttime);
-            $Schedule->setendtime($endtime);
-            $Schedule->setactive($active);
-            $Schedule->setaway($away);
-            if($away > 0){
-                $Schedule->setstartdate($startdate);
-                $Schedule->setenddate($enddate);
+        if($Submit){
+            if($SID > 0){
+                $Schedule = new Schedule($SID);
+                $Schedule->setday($day);
+                $Schedule->setstarttime($starttime);
+                $Schedule->setendtime($endtime);
+                if($away > 0){
+                    $Schedule->setaway($away);
+                    $Schedule->setactive(0);
+                    $Schedule->setstartdate($startdate);
+                    $Schedule->setenddate($enddate);
+                }
+                else{
+                    $Schedule->setaway(0);
+                    $Schedule->setactive($active);
+                }
+                $Schedule->save();
             }
             else{
-                $Schedule->setstartdate(NULL);
-                $Schedule->setenddate(NULL);
+                $Schedule = new Schedule();
+                $Schedule->setstaffid($staffid);
+                $Schedule->setday($day);
+                $Schedule->setstarttime($starttime);
+                $Schedule->setendtime($endtime);
+                if($away > 0){
+                    $Schedule->setaway($away);
+                    $Schedule->setactive(0);
+                    $Schedule->setstartdate($startdate);
+                    $Schedule->setenddate($enddate);
+                }
+                else{
+                    $Schedule->setaway(0);
+                    $Schedule->setactive($active);
+                }
+                $Schedule->setdeleted(0);
+                $Schedule->savenew();
             }
-            $Schedule->setdeleted(0);
-            $Schedule->savenew();
+          
         }
+        if($SID > 0){
+            $Schedule = new Schedule($SID);
+            Schedule::scheduleform($SID,$Schedule->getstaffid(),$Schedule->getday(),$Schedule->getstarttime(),$Schedule->getendtime(),
+                                   $Schedule->getactive(),$Schedule->getaway(),$Schedule->getstartdate(),$Schedule->getenddate());
+        }
+        else{
+            Schedule::scheduleform($SID,$staffid,$day,$starttime,$endtime,$active,$away,$startdate,$enddate);
+        }
+
     }
     static public function deleteschedule($SID){
         $WQ = new WriteQuery("UPDATE staffschedule SET deleted = 1 WHERE id = :id",
@@ -217,6 +239,85 @@ class Schedule {
         $slots = array($timeslots,$holidays);
         return $slots;
     }
+    static public function getstaffday($day){
+        switch($day){
+            case 1:
+                return "Monday";
+                break;
+            case 2:
+                return "Tuesday";
+                break;
+            case 3:
+                return "Wednesday";
+                break; 
+            case 4:
+                return "Thursday";
+                break; 
+            case 5:
+                return "Friday";
+                break;  
+            case 6:
+                return "Saturday";
+                break;          
+            case 1:
+                return "Sunday";
+                break; 
+            default:
+                return "N/A";
+            break;
+        }
+
+    }
+    static public function liststaffschedule($STID, $holiday = 0){
+        if($STID){
+          
+            if($holiday){
+                Forms::generateaddbutton("Add Holiday","schedule.php?edit=-1&away=1","plus","primary","","","Click this button to add a new Holiday");
+                Forms::generateaddbutton("Show Schedule","schedule.php","calendar-alt","primary","","","Click this button to show the time slots in your schedule");
+                $RQ = new ReadQuery("SELECT id, starttime, endtime, startdate, enddate FROM staffschedule WHERE staffid = :stid AND away = 1 AND deleted = 0",
+                                array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
+                ));
+                $Rows = array();
+                $RowCounter = 0;
+                $Cols = array(array("Start","start",1),array("End","end",1),array("","functions",2));
+                while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                    $Row1 = array($row['starttime'].$row['startdate']);
+                    $Row2 = array($row['endtime'].$row['enddate']);
+                    $Row3 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
+                    $Row4 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");
+                    $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4);
+                    $RowCounter++;
+                }
+                print("<p>List of holidays for ". $_SESSION["username"]."</p>");
+                Display::generatedynamiclistdisplay("staffholidaytable",$Cols,$Rows,"Start Date",0);
+
+            }
+            else{
+                Forms::generateaddbutton("Add Schedule","schedule.php?edit=-1&active=1","plus","primary","","","Click this button to add a new Slot in your Schedule");
+                Forms::generateaddbutton("Show Holidays","schedule.php?away=1","plane","primary","","","Click this button to show your holidays");
+               
+                $RQ = new ReadQuery("SELECT id, staffday, starttime, endtime FROM staffschedule WHERE staffid = :stid AND active = 1 AND deleted = 0 ORDER BY staffday",
+                    array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
+                ));
+                $Rows = array();
+                $RowCounter = 0;
+                $Cols = array(array("Day","day",1),array("Start Time","starttimme",1),array("End Time","endtime",1),array("","functions",2));
+                while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                    $Row1 = array(Schedule::getstaffday($row['staffday']));
+                    $Row2 = array($row['starttime']);
+                    $Row3 = array($row['endtime']);
+                    $Row4 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
+                    $Row5 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");
+                    $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5);
+                    $RowCounter++;
+                }
+                print("<p>List of slots available for ". $_SESSION["username"]."</p>");
+                Display::generatedynamiclistdisplay("staffscheduletable",$Cols,$Rows,"Day",0);
+            }
+           
+
+        }
+    }
     static public function jsonstaffschedule($UID){
         if($UID > 0){
             $RQ = new ReadQuery("SELECT id, staffday, starttime, endtime FROM staffschedule WHERE staffid = :id AND active = 1 AND deleted = 0 ORDER BY staffday, starttime",array(
@@ -237,7 +338,7 @@ class Schedule {
         }
     }
     static public function showstaffschedule($ID){
-        //Forms::generateaddbutton("Departments","schedule.php?department=","arrow-left","secondary");
+        //Forms::generateaddbutton("","schedule.php?department=","arrow-left","secondary");
     }
     static public function listdepartmentstaff($DID){
         if($_SESSION["userlevel"] == 1){
@@ -288,7 +389,43 @@ class Schedule {
         }
     }
     static public function scheduleform($SID,$staff,$day,$starttime,$endtime,$active,$away,$startdate,$enddate){
-        
+        Forms::generateaddbutton("Schedule","schedule.php","arrow-left","secondary");
+        $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
+        $staff = $_SESSION['userid'];
+        $DayArray = array(array(1,"Monday"),array(2,"Tuesday"),array(3,"Wednesday"),array(4,"Thursday"),array(5,"Friday"));
+        if($away > 0){
+            $AwayField = array("Away: ","Text","active",$active);
+            $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray);
+            $StartField = array("Start Time: ","Time","starttime",10,$starttime,"Select the start time");
+            $EndField = array("End Time: ","Time","endtime",10,$endtime,"Select the end time");
+            $StartDateField = array("Start Date: ","Date","starttime",10,$startdate,"Select the start time");
+            $EndDateField = array("End Date: ","Date","endtime",10,$enddate,"Select the end time");
+            $Fields = array($ActiveField,$StaffField,$DayField,$StartDateField,$EndDateField);
+            if($SID > 0){
+                $Button = "Edit Holiday";
+            }
+            else{
+                $Button = "Add Holiday";
+            }
+            $Path = "schedule.php?edit=".$SID."&holiday=1";
+        }
+        else{
+            $ActiveField = array("Active: ","Text","active",30,$active,"","","readonly");
+            $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray,"","readonly");
+            $DayField = array("Day:","Select","day",30,$day,"Select the day you want to add this schedule",$DayArray,"","","Select a day to add this schedule to e.g. Monday");
+            $StartField = array("Start Time: ","Time","starttime",10,$starttime,"Select the start time");
+            $EndField = array("End Time: ","Time","endtime",10,$endtime,"Select the end time");
+            $Fields = array($ActiveField,$StaffField,$DayField,$StartField,$EndField);
+            if($SID > 0){
+                $Button = "Edit Schedule";
+            }
+            else{
+                $Button = "Add Schedule";
+            }
+            $Path = "schedule.php?edit=".$SID."&active=1";
+        }
+      
+        Forms::generateform("Schedule",$Path,"",$Fields,$Button);
     }
 
 }

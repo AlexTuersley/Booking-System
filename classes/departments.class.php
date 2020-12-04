@@ -130,7 +130,7 @@ Class Departments{
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                 $Row1 = array($row["departmentname"]);
                 $Row2 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit ".$row["department"]."'></i></a>","button");
-                $Row3 = array("<a title='Delete ".$row["departmentname"]."' a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete ".$row["departmentname"]."'></i></a>","button");
+                $Row3 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete ".$row["departmentname"]."'></i></a>","button");
                 $Rows[$RowCounter] = array($Row1,$Row2,$Row3);
                 $RowCounter++;
             }

@@ -52,30 +52,33 @@ Class Forms{
         $ToolTip = $Field[9];
         $Class= $Field[10];
 
-        if($Type == "Text"){
+        if($Type === "Text"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "' />");
         }
-        if($Type == "NumberText"){
+        if($Type === "NumberText"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='number' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "' />");
         }
-        elseif($Type == "TextArea"){
+        elseif($Type === "TextArea"){
             print("<div class='form-group purple-border'>
                 <textarea class='form-control' id='".$Name."' name='".$Name."' placeholder = '" . $Placeholder ."' rows='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "'>".$Value."</textarea>
             </div>");
         }
-        elseif($Type == "TextDynamic"){
+        elseif($Type === "Time"){
+            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='time' min='8:00' max='17:00' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "' />");
+        }
+        elseif($Type === "TextDynamic"){
             print("input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\" onchange='" . $Action . "' title = '" . $ToolTip . "'/><span id='" . $Name . "Image'></span>");
         }
-        elseif($Type == "Email"){
+        elseif($Type === "Email"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='email' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\"" . $ReadOnly . "title = '" . $ToolTip . "' />");
         }
-        elseif($Type == "Password"){
+        elseif($Type === "Password"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='password' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' title = '" . $ToolTip . "'/>");
         }
-        elseif($Type == "FileUpload"){
+        elseif($Type === "FileUpload"){
             print("<input type='file' class='form-control' placeholder = '" . $Placeholder ."' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "'/>");
         }
-        elseif($Type == "Select"){
+        elseif($Type === "Select"){
             print("<select class='form-control' name='" . $Name . "' id='" . $Name . "' ". $ReadOnly ." title = '" . $ToolTip ."'>");
                 if($ReadOnly){
                     foreach($Array as $Item)
@@ -98,10 +101,10 @@ Class Forms{
                
               print("</select>");
         }
-        elseif($Type == "Checkbox"){
+        elseif($Type === "Checkbox"){
             print("<div class='checkboxblock'><input placeholder = '" .$Placeholder."' class='checkbox' type='checkbox' name='" . $Name . "' value='" . $Value . "' " . $OnChange . "' style='display: inline; ".$RowHeaders."' title = '" . $ToolTip ."' id='" . $Name . "'> ".$Placeholder.$Class."</div>");
         }
-        elseif($Type == "DateTime") {
+        elseif($Type === "DateTime") {
             print('<div class="input-group date" id="dtp-'. $Name .'" data-target-input="nearest">
                       <input type="text" class="form-control datetimepicker-input ' . $Class . '" data-target="#dtp-'. $Name .'" name="'. $Name .'"/>
                       <div class="input-group-append" data-target="#dtp-'. $Name .'" data-toggle="datetimepicker">
@@ -115,21 +118,27 @@ Class Forms{
                     });
                   </script>');
 
-        } elseif($Type == "DateTimeNoTime") {
-            print('<div class="input-group date" id="dtp-'. $Name .'" data-target-input="nearest">
-                      <input type="text" class="form-control datetimepicker-input ' . $Class . '" data-target="#dtp-'. $Name .'" value="'. $Value .'" name="'. $Name .'" id="' . $Name . '"/>
-                      <div class="input-group-append" data-target="#dtp-'. $Name .'" data-toggle="datetimepicker">
-                          <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
-                      </div>
-                  </div>
-
-                  <script type="text/javascript">
-                    $(function () {
-                        $("#dtp-' . $Name . '").datetimepicker({format:"DD/MM/YYYY"});
-                    });
-                  </script>');
+        } elseif($Type === "DateRestricted") {
+            print("
+                <input type='text' id='datepicker' />
+                $('#datepicker').datepicker({
+                    format: 'DD/MM/YYYY'
+                });
+            ");
     
-        } elseif($Type == "DateRange") {
+        } elseif($Type === "DateRestricted") {
+            print("
+                <input type='text' id='datepicker' />
+                $('#datepicker').datepicker({
+                    format: 'DD/MM/YYYY',
+                    beforeShowDay: function(date) {
+                        var day = date.getDay();
+                        return [(day != 6 && day != 0), ''];
+                    }
+                });
+            ");
+    
+        } elseif($Type === "DateRange") {
             print('<div class="container" id="DateRange">
                    <div class="row">
                    <div class="col-6">
