@@ -156,6 +156,7 @@ class Schedule {
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     public function addedit($SID){
+        $awayget = $_GET['away'];
         $staffid = filter_var($_POST["staff"], FILTER_SANITIZE_NUMBER_INT);
         $day = filter_var($_POST["day"], FILTER_SANITIZE_NUMBER_INT);
         $starttime = $_POST["starttime"];
@@ -168,17 +169,18 @@ class Schedule {
 
         if($Submit){
             if($SID > 0){
-                $Schedule = new Schedule($SID);
-                $Schedule->setday($day);
+                $Schedule = new Schedule($SID);         
                 $Schedule->setstarttime($starttime);
                 $Schedule->setendtime($endtime);
                 if($away > 0){
+                    $Schedule->setday(0);
                     $Schedule->setaway($away);
                     $Schedule->setactive(0);
                     $Schedule->setstartdate($startdate);
                     $Schedule->setenddate($enddate);
                 }
                 else{
+                    $Schedule->setday($day);
                     $Schedule->setaway(0);
                     $Schedule->setactive($active);
                 }
@@ -187,16 +189,18 @@ class Schedule {
             else{
                 $Schedule = new Schedule();
                 $Schedule->setstaffid($staffid);
-                $Schedule->setday($day);
+              
                 $Schedule->setstarttime($starttime);
                 $Schedule->setendtime($endtime);
                 if($away > 0){
+                    $Schedule->setday(0);
                     $Schedule->setaway($away);
                     $Schedule->setactive(0);
                     $Schedule->setstartdate($startdate);
                     $Schedule->setenddate($enddate);
                 }
                 else{
+                    $Schedule->setday($day);
                     $Schedule->setaway(0);
                     $Schedule->setactive($active);
                 }
@@ -211,7 +215,13 @@ class Schedule {
                                    $Schedule->getactive(),$Schedule->getaway(),$Schedule->getstartdate(),$Schedule->getenddate());
         }
         else{
-            Schedule::scheduleform($SID,$staffid,$day,$starttime,$endtime,$active,$away,$startdate,$enddate);
+            if($awayget){
+                Schedule::scheduleform($SID,$staffid,$day,$starttime,$endtime,$active,1,$startdate,$enddate);    
+            }
+            else{
+                Schedule::scheduleform($SID,$staffid,$day,$starttime,$endtime,1,$away,$startdate,$enddate);
+            }
+            
         }
 
     }
@@ -389,18 +399,23 @@ class Schedule {
         }
     }
     static public function scheduleform($SID,$staff,$day,$starttime,$endtime,$active,$away,$startdate,$enddate){
-        Forms::generateaddbutton("Schedule","schedule.php","arrow-left","secondary");
-        $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
-        $staff = $_SESSION['userid'];
-        $DayArray = array(array(1,"Monday"),array(2,"Tuesday"),array(3,"Wednesday"),array(4,"Thursday"),array(5,"Friday"));
-        if($away > 0){
-            $AwayField = array("Away: ","Text","active",$active);
+        if($active == 1){
+            Forms::generateaddbutton("Schedule","schedule.php","arrow-left","secondary");
+        }
+        else{
+            Forms::generateaddbutton("Schedule","schedule.php?away=1","arrow-left","secondary");
+        }
+       
+       $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
+       $staff = $_SESSION['userid'];
+       if($away > 0){
+            $AwayField = array("Away: ","Text","away",30,$away);
             $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray);
             $StartField = array("Start Time: ","Time","starttime",10,$starttime,"Select the start time");
             $EndField = array("End Time: ","Time","endtime",10,$endtime,"Select the end time");
-            $StartDateField = array("Start Date: ","Date","starttime",10,$startdate,"Select the start time");
-            $EndDateField = array("End Date: ","Date","endtime",10,$enddate,"Select the end time");
-            $Fields = array($ActiveField,$StaffField,$DayField,$StartDateField,$EndDateField);
+            $StartDateField = array("Start Date: ","Date","startdate",10,$startdate,"Select the start date");
+            $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"Select the end date");
+            $Fields = array($AwayField,$StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
             if($SID > 0){
                 $Button = "Edit Holiday";
             }
@@ -410,6 +425,7 @@ class Schedule {
             $Path = "schedule.php?edit=".$SID."&holiday=1";
         }
         else{
+            $DayArray = array(array(1,"Monday"),array(2,"Tuesday"),array(3,"Wednesday"),array(4,"Thursday"),array(5,"Friday"));
             $ActiveField = array("Active: ","Text","active",30,$active,"","","readonly");
             $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray,"","readonly");
             $DayField = array("Day:","Select","day",30,$day,"Select the day you want to add this schedule",$DayArray,"","","Select a day to add this schedule to e.g. Monday");

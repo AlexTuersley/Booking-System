@@ -118,12 +118,14 @@ Class Forms{
                     });
                   </script>');
 
-        } elseif($Type === "DateRestricted") {
+        } elseif($Type === "Date") {
             print("
-                <input type='text' id='datepicker' />
-                $('#datepicker').datepicker({
+                <input type='text' id='".$Name."' />
+                <script>
+                $('#".$Name."').datepicker({
                     format: 'DD/MM/YYYY'
                 });
+                </script>
             ");
     
         } elseif($Type === "DateRestricted") {
