@@ -120,23 +120,30 @@ Class Forms{
 
         } elseif($Type === "Date") {
             print("
-                <input type='text' id='".$Name."' />
+               
+                <input type='text' id='datepicker-".$Name."' value='".$Value."' />
+                <input type='hidden' id='".$Name."' name='".$Name."' value='".$Value."'>
                 <script>
-                $('#".$Name."').datepicker({
-                    format: 'DD/MM/YYYY'
+                $('#datepicker-".$Name."').datepicker({
+                    altFormat: 'YYYY-MM-DD',
+                    onSelect: function(dateText, inst) {
+                        $('#".$Name."').val(dateText);
+                    }
                 });
                 </script>
             ");
     
         } elseif($Type === "DateRestricted") {
             print("
-                <input type='text' id='datepicker' />
-                $('#datepicker').datepicker({
+              
+                <input type='text' placeholder = '" .$Placeholder."' id='".$Name."' name='" . $Name . "' value='".$Value."'  />
+                $('#datepicker-".$Name."').datepicker({
                     format: 'DD/MM/YYYY',
                     beforeShowDay: function(date) {
                         var day = date.getDay();
                         return [(day != 6 && day != 0), ''];
                     }
+                  
                 });
             ");
     

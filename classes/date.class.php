@@ -12,6 +12,28 @@ date_default_timezone_set('Europe/London');
         var $minute;
         var $second;
 
+        //Set Normal Date
+        function setnormaldate($normaldate)
+        {
+            if(substr($normaldate,2,1) == "/"){
+                   //Normal Date
+                   $this->c_Day = substr($normaldate,0,2);
+                   $this->c_Month = substr($normaldate,3,2);
+                   $this->c_Year = substr($normaldate,6,4);
+            } else {
+                //Database Date
+                $this->c_Year = substr($normaldate,0,4);
+                $this->c_Month = substr($normaldate,5,2);
+                $this->c_Day = substr($normaldate,8,2);
+            }
+        }
+   
+        //Get Normal Date
+        function getnormaldate()
+        {
+            return $this->c_Day . "/" . $this->c_Month . "/" . $this->c_Year;
+        }
+
         //set a standard date time to the second
         function setnormaldatetime($normaldate)
         {
@@ -55,7 +77,7 @@ date_default_timezone_set('Europe/London');
         //return database date
         function getdatabasedate()
         {
-            return $this->year . "/" . $this->month . "/" . $this->day;
+            return $this->year . "-" . $this->month . "-" . $this->day;
         }
         //set the database datetime
         function setdatabasedatetime($databasedate)

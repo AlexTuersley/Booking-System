@@ -17,7 +17,7 @@ if($Level > 0){
             Schedule::addedit($_GET["edit"]);
         }
         elseif($_GET["remove"]){
-            Schedule::delete($_GET["remove"]);
+            Schedule::deleteschedule($_GET["remove"]);
             //Schedule::liststaffschedule($Staff);
         }
         else{
