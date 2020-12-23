@@ -683,7 +683,7 @@ class User{
     static public function edituserform($UID,$fullname,$username,$email,$level,$phone,$photo,$department,$bio,$location){
         
         if(strpos($_SERVER['REQUEST_URI'],'users.php')){
-            Forms::generateaddbutton("Users","users.php","arrow-left","secondary");
+            Forms::generatebutton("Users","users.php","arrow-left","secondary");
             $Path = "users.php?edit=".$UID."";
         }
         else{

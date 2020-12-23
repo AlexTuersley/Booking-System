@@ -124,7 +124,7 @@ Class Departments{
            if($_SESSION["userlevel"] >= 3){
             $RQ = new ReadQuery("SELECT * FROM departments WHERE deleted = 0", null);
             print("<p class='welcome'>The list below shows all departments</p>");
-            Forms::generateaddbutton("Add Department","department.php?edit=-1","plus","primary","","","Click this button to add new Departments");
+            Forms::generatebutton("Add Department","department.php?edit=-1","plus","primary","","","Click this button to add new Departments");
             $Rows = array();
             $RowCounter = 0;
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
@@ -158,7 +158,7 @@ Class Departments{
             return $ReturnArray;     
     }
     static public function departmentform($DID,$name){
-        Forms::generateaddbutton("Departments","department.php","arrow-left","secondary");
+        Forms::generatebutton("Departments","department.php","arrow-left","secondary");
         $NameField = array("Name: ","Text","departmentname",30,$name,"Enter the name of the Department","","","","Name of the Department e.g. Business");
         if($DID > 0){
             $Button = "Edit Department";

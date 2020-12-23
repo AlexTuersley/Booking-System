@@ -25,22 +25,25 @@ Class WebPage{
                 }
               }
                print("
-              
                </head>
                <nav class='navbar navbar-expand-lg'>
-               <div class='container'>");
+               ");
+                
+               //<img src='Booking-System/images/northumbria.png' style='max-width: 150px;
+               //max-height: 45px;'/>
+               //<div class='container'>
         switch($level){
             case 1:
-                $navList = array(array("index.php","Home","fa-book-open"),array("bookings.php","Bookings","fa-book"),array("schedule.php","Staff","fa-building"),array("user.php","User","fa-user"),array("user.php?password=true","Change Password","fas fa-key"),array("index.php?signout=true","Sign out","fa-sign-out-alt"));
+                $navList = array(array("index.php","Home","fa-book-open","Return to homepage"),array("bookings.php","Bookings","fa-book","View your Bookings"),array("schedule.php","Staff","fa-building","View Staff and make Bookings"),array("user.php",$_SESSION['username'],"fa-user","Edit your information"),array("user.php?password=true","Change Password","fas fa-key","Change Password"),array("index.php?signout=true","Sign out","fa-sign-out-alt","Sign Out of te system"));
                 break;
             case 2:
-                $navList = array(array("index.php","Home","fa-book-open"),array("bookings.php","Bookings","fa-book"),array("schedule.php","Schedule","fa-calendar"),array("user.php","User","fa-user"),array("user.php?password=true","Change Password","fas fa-key"),array("index.php?signout=true","Sign out","fa-sign-out-alt"));
+                $navList = array(array("index.php","Home","fa-book-open","Return to homepage"),array("bookings.php","Bookings","fa-book","View your Bookings"),array("schedule.php","Schedule","fa-calendar","View and edit Schedule"),array("user.php",$_SESSION['username'],"fa-user","Edit your information"),array("user.php?password=true","Change Password","fas fa-key"),array("index.php?signout=true","Sign out","fa-sign-out-alt","Sign Out of the system"));
                 break;
             case 3:
-                $navList = array(array("index.php","Home","fa-book-open"),array("bookings.php","Bookings","fa-book"),array("schedule.php","Schedule","fa-calendar"),array("department.php","Department","fa-university"),array("users.php","Users","fa-users"),array("user.php","User","fa-user"),array("user.php?password=true","Change Password","fas fa-key"),array("index.php?signout=true","Sign out","fa-sign-out-alt"));
+                $navList = array(array("index.php","Home","fa-book-open","Return to homepage"),array("bookings.php","Bookings","fa-book","View your Bookings"),array("schedule.php","Schedule","fa-calendar","View and edit Schedule"),array("department.php","Department","fa-university","Add and Edit Departments"),array("users.php","Users","fa-users","Edit Users within the system"),array("user.php",$_SESSION['username'],"fa-user","Edit your information"),array("user.php?password=true","Change Password","fas fa-key","Change your password to a new one"),array("index.php?signout=true","Sign out","fa-sign-out-alt","Sign Out of the system"));
                 break;
             default:
-                $navList = array(array("index.php","Home","fa-book-open"),array("signin.php","Sign In","fa-sign-in-alt"),array("signin.php?signup=true","Sign Up","fa-user-plus"),array("signin.php?forgot=true","Forgotten Password","fa-user-lock"));
+                $navList = array(array("index.php","Home","fa-book-open","Return to homepage"),array("signin.php","Sign In","fa-sign-in-alt","Sign in to the system"),array("signin.php?signup=true","Sign Up","fa-user-plus","Sign Upto the System"),array("signin.php?forgot=true","Forgotten Password","fa-user-lock","Recover a Forgotten Password"));
                 break;
         }
         

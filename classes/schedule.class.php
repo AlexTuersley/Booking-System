@@ -192,7 +192,7 @@ class Schedule {
         $startdate = $_POST["startdate"];
         $enddate = $_POST["enddate"];
         $Submit =$_POST["submit"];
-        echo date("YYYY-MM-DD",$startdate);
+        //echo date("YYYY-MM-DD",$startdate);
 
         if($Submit){
             if($SID > 0){
@@ -210,13 +210,15 @@ class Schedule {
                     $Schedule->setday($day);
                     $Schedule->setaway(0);
                     $Schedule->setactive($active);
+                    if(Schedule::checkstaffdayslot($day, $starttime,$endtime)){
+                        $Schedule->save();
+                    }
                 }
-                $Schedule->save();
+               
             }
             else{
                 $Schedule = new Schedule();
-                $Schedule->setstaffid($staffid);
-              
+                $Schedule->setstaffid($staffid);      
                 $Schedule->setstarttime($starttime);
                 $Schedule->setendtime($endtime);
                 if($away > 0){
@@ -230,8 +232,16 @@ class Schedule {
                     $Schedule->setaway(0);
                     $Schedule->setactive($active);
                 }
-                $Schedule->setdeleted(0);
-                $Schedule->savenew();
+                if($day > 0){
+                    if(Schedule::checkstaffdayslot($day, $starttime,$endtime)){
+                        $Schedule->setdeleted(0);
+                        $Schedule->savenew();
+                    }
+                }else{
+                    $Schedule->setdeleted(0);
+                    $Schedule->savenew();
+                }
+               
             }
           
         }
@@ -304,11 +314,37 @@ class Schedule {
         }
 
     }
+    static public function checkstaffdayslot($day, $starttime, $endtime){
+        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE staffday = :staffday AND deleted = 0 AND (starttime BETWEEN :starttime AND :endtime OR endtime BETWEEN :starttime AND :endtime)",array(
+            PDOConnection::sqlarray(':staffday',$day,PDO::PARAM_INT),
+            PDOConnection::sqlarray(':starttime',$starttime,PDO::PARAM_STR),
+            PDOConnection::sqlarray(':endtime',$endtime,PDO::PARAM_STR)
+        ));
+        if($RQ->getnumberofresults() > 0){
+            print("<p class='alert alert-warning'><strong>Schedule Exists</strong> A schedule slot exists between these times on this day. Please select a different time slot.</p>");
+            return false;
+        }
+        return true;
+
+    }
+
+    static public function checkholidayslot($startdate, $enddate){
+        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 AND startdate BETWEEN :startdate  AND :enddate OR enddate BETWEEN :startdate AND :enddate",array(
+            PDOConnection::sqlarray(':startdate',$startdate,PDO::PARAM_STR),
+            PDOConnection::sqlarray(':enddate',$enddate,PDO::PARAM_STR)
+        ));
+        if($RQ->getnumberofresults() > 0){
+            print("<p class='alert alert-warning'><strong>Holiday Exists</strong>A holiday exists between these dates. Please edit or delete the holiday before adding a new one.</p>");
+            return false;
+        }
+        return true;
+    }
+
     static public function liststaffschedule($STID, $holiday = 0){
         if($STID){
             if($holiday){
-                Forms::generateaddbutton("Add Holiday","schedule.php?edit=-1&away=1","plus","primary","","","Click this button to add a new Holiday");
-                Forms::generateaddbutton("Show Schedule","schedule.php","calendar-alt","primary","","","Click this button to show the time slots in your schedule");
+                Forms::generatebutton("Add Holiday","schedule.php?edit=-1&away=1","plus","primary","","","Click this button to add a new Holiday");
+                Forms::generatebutton("Show Schedule","schedule.php","calendar-alt","primary","","","Click this button to show the time slots in your schedule");
                 $RQ = new ReadQuery("SELECT id, starttime, endtime, startdate, enddate FROM staffschedule WHERE staffid = :stid AND away = 1 AND deleted = 0",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                 ));
@@ -329,8 +365,8 @@ class Schedule {
 
             }
             else{
-                Forms::generateaddbutton("Add Schedule","schedule.php?edit=-1&active=1","plus","primary","","","Click this button to add a new Slot in your Schedule");
-                Forms::generateaddbutton("Show Holidays","schedule.php?away=1","plane","primary","","","Click this button to show your holidays");
+                Forms::generatebutton("Add Schedule","schedule.php?edit=-1&active=1","plus","primary","","","Click this button to add a new Slot in your Schedule");
+                Forms::generatebutton("Show Holidays","schedule.php?away=1","plane","primary","","","Click this button to show your holidays");
                
                 $RQ = new ReadQuery("SELECT id, staffday, starttime, endtime FROM staffschedule WHERE staffid = :stid AND active = 1 AND deleted = 0 ORDER BY staffday",
                     array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
@@ -377,7 +413,7 @@ class Schedule {
     static public function listdepartmentstaff($DID){
         if($_SESSION["userlevel"] == 1){
             print("<p class='welcome'>The list below shows all Staff within this Department. Click on a Staff member to see their schedule.</p>");
-            Forms::generateaddbutton("Departments","schedule.php","arrow-left","secondary");
+            Forms::generatebutton("Departments","schedule.php","arrow-left","secondary");
             $RQ = new ReadQuery("SELECT * FROM users JOIN userinformation ON users.id = userinformation.userid WHERE userinformation.department = :department", array(
                 PDOConnection::sqlarray(":department",$DID,PDO::PARAM_INT)
             ));
@@ -424,10 +460,10 @@ class Schedule {
     }
     static public function scheduleform($SID,$staff,$day,$starttime,$endtime,$active,$away,$startdate,$enddate){
         if($active == 1){
-            Forms::generateaddbutton("Schedule","schedule.php","arrow-left","secondary");
+            Forms::generatebutton("Schedule","schedule.php","arrow-left","secondary");
         }
         else{
-            Forms::generateaddbutton("Schedule","schedule.php?away=1","arrow-left","secondary");
+            Forms::generatebutton("Schedule","schedule.php?away=1","arrow-left","secondary");
         }
        
        $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));

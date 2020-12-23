@@ -18,7 +18,12 @@ if($Level > 0){
         }
         elseif($_GET["remove"]){
             Schedule::deleteschedule($_GET["remove"]);
-            //Schedule::liststaffschedule($Staff);
+            if($Holiday){
+                Schedule::liststaffschedule($_SESSION["userid"],$Holiday);
+            }
+            else{
+                Schedule::liststaffschedule($_SESSION["userid"]);
+            }
         }
         else{
             if($Holiday){
