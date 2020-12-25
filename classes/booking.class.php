@@ -215,7 +215,7 @@ class Booking{
             $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
             $RowCounter++;
         }
-
+        print("<p class='welcome'>List of Bookings for ".$_SESSION['username']."</p>");
         Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Start");
     }
     static public function bookingsform($BID,$bookingname,$studentid,$staffid,$starttime,$endtime,$meeting,$note,$confirmed){

@@ -125,6 +125,7 @@ Class Forms{
                 <input type='hidden' id='".$Name."' name='".$Name."' value='".$Value."'>
                 <script>
                 $('#datepicker-".$Name."').datepicker({
+                    format:'DD/MM/YYYY',
                     altFormat: 'YYYY-MM-DD',
                     onSelect: function(dateText, inst) {
                         $('#".$Name."').val(dateText);

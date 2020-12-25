@@ -1,5 +1,5 @@
 function checkdepartmentform(form){
-    var nam = document.getElementById("nameerror");
+    var name = document.getElementById("nameerror");
     var err = setuperrvar();
     if(form.name.value != ""){
         return true;

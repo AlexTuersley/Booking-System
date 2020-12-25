@@ -1,7 +1,6 @@
 <?php
 
 date_default_timezone_set('Europe/London');
-include_once('classes/date.class.php');
 
 class Schedule {
 
@@ -93,8 +92,8 @@ class Schedule {
             $this->end_time = $row["endtime"];
             $this->active = $row["active"];
             $this->away = $row["away"];
-            $this->start_date = new DateClass("",$row["startdate"]);
-            $this->end_date = new DateClass("",$row["enddate"]);
+            $this->start_date = $row["startdate"];
+            $this->end_date = $row["enddate"];
             $this->deleted = $row["deleted"];
         }
         else{
@@ -102,17 +101,17 @@ class Schedule {
         }
     }
     function savenew(){
-        if($this->getstartdate()){
-            $SD = $this->getstartdate()->getdatabasedate();
-        }   
-        else{
+        if(!$this->getstartdate()){
             $SD = NULL;
         }
-        if($this->getenddate()){
-            $ED = $this->getenddate()->getdatabasedate();
+        else{
+            $SD = $this->getstartdate();
+        }
+        if(!$this->getenddate()){
+            $ED = NULL;
         }   
         else{
-            $ED = NULL;
+            $ED = $this->getenddate();
         }
         $WQ = new WriteQuery("INSERT INTO staffschedule(staffid,staffday,starttime,endtime,active,away,startdate,enddate,deleted)
                             VALUES(:staffid,:staffday,:starttime,:endtime,:active,:away,:startdate,:enddate,0)",
@@ -128,17 +127,17 @@ class Schedule {
         ));
     }
     function save(){
-        if($this->getstartdate()){
-            $SD = $this->getstartdate()->getdatabasedate();
-        }   
-        else{
+        if(!$this->getstartdate()){
             $SD = NULL;
         }
-        if($this->getenddate()){
-            $ED = $this->getenddate()->getdatabasedate();
+        else{
+            $SD = $this->getstartdate();
+        }
+        if(!$this->getenddate()){
+            $ED = NULL;
         }   
         else{
-            $ED = NULL;
+            $ED = $this->getenddate();
         }
         $WQ = new WriteQuery("UPDATE staffschedule SET
                               staffid = :staffid,
@@ -163,6 +162,9 @@ class Schedule {
                                 PDOConnection::sqlarray(":id", $this->getid(),PDO::PARAM_INT)
         ));
                                
+    }
+    function getdatabasedate(){
+
     }
     //add new schedule item
     public function addnewschedule(){
@@ -192,9 +194,15 @@ class Schedule {
         $startdate = $_POST["startdate"];
         $enddate = $_POST["enddate"];
         $Submit =$_POST["submit"];
-        //echo date("YYYY-MM-DD",$startdate);
 
         if($Submit){
+            if($startdate != NULL){
+                $startdate = new DateTime($startdate);
+            }
+            if($enddate != NULL){
+                $enddate = new DateTime($enddate);
+            }
+           
             if($SID > 0){
                 $Schedule = new Schedule($SID);         
                 $Schedule->setstarttime($starttime);
@@ -203,14 +211,15 @@ class Schedule {
                     $Schedule->setday(0);
                     $Schedule->setaway($away);
                     $Schedule->setactive(0);
-                    $Schedule->setstartdate(new DateClass("",$startdate));
-                    $Schedule->setenddate(new DateClass("",$enddate));
+                    $Schedule->setstartdate($startdate->format('Y-m-d'));
+                    $Schedule->setenddate($enddate->format('Y-m-d'));
+                    $Schedule->save();
                 }
                 else{
                     $Schedule->setday($day);
                     $Schedule->setaway(0);
                     $Schedule->setactive($active);
-                    if(Schedule::checkstaffdayslot($day, $starttime,$endtime)){
+                    if(Schedule::checkstaffdayslot($SID,$day, $starttime,$endtime)){
                         $Schedule->save();
                     }
                 }
@@ -225,23 +234,20 @@ class Schedule {
                     $Schedule->setday(0);
                     $Schedule->setaway($away);
                     $Schedule->setactive(0);
-                    $Schedule->setstartdate(new DateClass("",$startdate));
-                    $Schedule->setenddate(new DateClass("",$enddate));  }
+                    $Schedule->setstartdate($startdate->format('Y-m-d'));
+                    $Schedule->setenddate($enddate->format('Y-m-d'));
+                    $Schedule->setdeleted(0);
+                    $Schedule->savenew();
+                }
                 else{
                     $Schedule->setday($day);
                     $Schedule->setaway(0);
                     $Schedule->setactive($active);
-                }
-                if($day > 0){
-                    if(Schedule::checkstaffdayslot($day, $starttime,$endtime)){
+                    if(Schedule::checkstaffdayslot(-1,$day, $starttime,$endtime)){
                         $Schedule->setdeleted(0);
                         $Schedule->savenew();
                     }
-                }else{
-                    $Schedule->setdeleted(0);
-                    $Schedule->savenew();
-                }
-               
+                }               
             }
           
         }
@@ -314,9 +320,10 @@ class Schedule {
         }
 
     }
-    static public function checkstaffdayslot($day, $starttime, $endtime){
-        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE staffday = :staffday AND deleted = 0 AND (starttime BETWEEN :starttime AND :endtime OR endtime BETWEEN :starttime AND :endtime)",array(
+    static public function checkstaffdayslot($id,$day, $starttime, $endtime){
+        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE staffday = :staffday AND id != :id AND deleted = 0 AND (starttime BETWEEN :starttime AND :endtime OR endtime BETWEEN :starttime AND :endtime)",array(
             PDOConnection::sqlarray(':staffday',$day,PDO::PARAM_INT),
+            PDOConnection::sqlarray(':id',$id,PDO::PARAM_INT),
             PDOConnection::sqlarray(':starttime',$starttime,PDO::PARAM_STR),
             PDOConnection::sqlarray(':endtime',$endtime,PDO::PARAM_STR)
         ));
@@ -329,7 +336,7 @@ class Schedule {
     }
 
     static public function checkholidayslot($startdate, $enddate){
-        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 AND startdate BETWEEN :startdate  AND :enddate OR enddate BETWEEN :startdate AND :enddate",array(
+        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 AND startdate BETWEEN :startdate AND :enddate OR enddate BETWEEN :startdate AND :enddate",array(
             PDOConnection::sqlarray(':startdate',$startdate,PDO::PARAM_STR),
             PDOConnection::sqlarray(':enddate',$enddate,PDO::PARAM_STR)
         ));
@@ -353,14 +360,16 @@ class Schedule {
                 $Cols = array(array("Start","start",1),array("End","end",1),array("","functions",2));
                 while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                     $Schedule =new Schedule($row['id']);
-                    $Row1 = array($row['starttime'].$Schedule->getstartdate()->getnormaldate());
-                    $Row2 = array($row['endtime'].$row['enddate']);
+                    $startdate = new DateTime($row['startdate']);
+                    $enddate = new DateTime($row['enddate']);
+                    $Row1 = array($row['starttime']." ".$startdate->format('d/m/Y'));
+                    $Row2 = array($row['endtime']." ".$enddate->format('d/m/Y'));
                     $Row3 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
                     $Row4 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");
                     $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4);
                     $RowCounter++;
                 }
-                print("<p>List of holidays for ". $_SESSION["username"]."</p>");
+                print("<p class='welcome'>List of holidays for ". $_SESSION["username"]."</p>");
                 Display::generatedynamiclistdisplay("staffholidaytable",$Cols,$Rows,"Start Date",0);
 
             }
@@ -383,7 +392,7 @@ class Schedule {
                     $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5);
                     $RowCounter++;
                 }
-                print("<p>List of slots available for ". $_SESSION["username"]."</p>");
+                print("<p class='welcome'>List of slots available for ". $_SESSION["username"]."</p>");
                 Display::generatedynamiclistdisplay("staffscheduletable",$Cols,$Rows,"Day",0);
             }
            
@@ -468,10 +477,37 @@ class Schedule {
        
        $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
        $staff = $_SESSION['userid'];
-       if($away > 0){
-            if(is_a($startdate, "DateClass")){
-                $startdate = $startdate->getnormaldatetime();
-                $enddate = $enddate->getnormaldatetime();
+       if($away > 0){          
+            if($SID > 0){
+                if($startdate != NULL){
+                    if(!is_object($startdate)){
+                        $startdate = new DateTime($startdate);
+                    }           
+                    $startdate = $startdate->format('d/m/Y');                   
+                }
+                if($enddate != NULL){
+                    if(!is_object($enddate)){
+                        $enddate = new DateTime($enddate);
+                    }
+                    $enddate = $enddate->format('d/m/Y');
+                }
+                $Button = "Edit Holiday";
+            }
+            else{
+                if($startdate != NULL){
+                    if(!is_object($startdate)){
+                        $startdate = new DateTime($startdate);
+                    }
+                    $startdate = $startdate->format('d/m/Y');
+                   
+                }
+                if($enddate != NULL){
+                    if(!is_object($enddate)){
+                        $enddate = new DateTime($enddate);
+                    }   
+                    $enddate = $enddate->format('d/m/Y');
+                }
+                $Button = "Add Holiday";
             }
             $AwayField = array("Away: ","Text","away",30,$away);
             $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray);
@@ -480,12 +516,6 @@ class Schedule {
             $StartDateField = array("Start Date: ","Date","startdate",10,$startdate,"Select the start date");
             $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"Select the end date");
             $Fields = array($AwayField,$StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
-            if($SID > 0){
-                $Button = "Edit Holiday";
-            }
-            else{
-                $Button = "Add Holiday";
-            }
             $Path = "schedule.php?edit=".$SID."&holiday=1";
         }
         else{

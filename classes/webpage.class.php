@@ -25,13 +25,11 @@ Class WebPage{
                 }
               }
                print("
-               </head>
+               </head>  
                <nav class='navbar navbar-expand-lg'>
+               <div class='container'>
                ");
                 
-               //<img src='Booking-System/images/northumbria.png' style='max-width: 150px;
-               //max-height: 45px;'/>
-               //<div class='container'>
         switch($level){
             case 1:
                 $navList = array(array("index.php","Home","fa-book-open","Return to homepage"),array("bookings.php","Bookings","fa-book","View your Bookings"),array("schedule.php","Staff","fa-building","View Staff and make Bookings"),array("user.php",$_SESSION['username'],"fa-user","Edit your information"),array("user.php?password=true","Change Password","fas fa-key","Change Password"),array("index.php?signout=true","Sign out","fa-sign-out-alt","Sign Out of te system"));
