@@ -219,7 +219,7 @@ class Schedule {
                     $Schedule->setday($day);
                     $Schedule->setaway(0);
                     $Schedule->setactive($active);
-                    if(Schedule::checkstaffdayslot($SID,$day, $starttime,$endtime)){
+                    if(Schedule::checkstaffdayslot($SID,$day,$starttime,$endtime,$staffid)){
                         $Schedule->save();
                     }
                 }
@@ -243,7 +243,7 @@ class Schedule {
                     $Schedule->setday($day);
                     $Schedule->setaway(0);
                     $Schedule->setactive($active);
-                    if(Schedule::checkstaffdayslot(-1,$day, $starttime,$endtime)){
+                    if(Schedule::checkstaffdayslot(-1,$day, $starttime,$endtime,$staffid)){
                         $Schedule->setdeleted(0);
                         $Schedule->savenew();
                     }
@@ -320,10 +320,11 @@ class Schedule {
         }
 
     }
-    static public function checkstaffdayslot($id,$day, $starttime, $endtime){
-        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE staffday = :staffday AND id != :id AND deleted = 0 AND (starttime BETWEEN :starttime AND :endtime OR endtime BETWEEN :starttime AND :endtime)",array(
+    static public function checkstaffdayslot($id,$day,$starttime,$endtime,$userid){
+        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE staffday = :staffday AND id != :id AND staffid = :staff AND deleted = 0 AND (starttime BETWEEN :starttime AND :endtime OR endtime BETWEEN :starttime AND :endtime)",array(
             PDOConnection::sqlarray(':staffday',$day,PDO::PARAM_INT),
             PDOConnection::sqlarray(':id',$id,PDO::PARAM_INT),
+            PDOConnection::sqlarray(':staff',$userid,PDO::PARAM_INT),
             PDOConnection::sqlarray(':starttime',$starttime,PDO::PARAM_STR),
             PDOConnection::sqlarray(':endtime',$endtime,PDO::PARAM_STR)
         ));
