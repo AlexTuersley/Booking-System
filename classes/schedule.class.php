@@ -336,8 +336,10 @@ class Schedule {
 
     }
 
-    static public function checkholidayslot($startdate, $enddate){
-        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 AND startdate BETWEEN :startdate AND :enddate OR enddate BETWEEN :startdate AND :enddate",array(
+    static public function checkholidayslot($id,$startdate, $enddate,$userid){
+        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 id != :id AND staffid = :staff AND startdate BETWEEN :startdate AND :enddate OR enddate BETWEEN :startdate AND :enddate",array(
+            PDOConnection::sqlarray(':id',$id,PDO::PARAM_INT),
+            PDOConnection::sqlarray(':staff',$userid,PDO::PARAM_INT),
             PDOConnection::sqlarray(':startdate',$startdate,PDO::PARAM_STR),
             PDOConnection::sqlarray(':enddate',$enddate,PDO::PARAM_STR)
         ));
