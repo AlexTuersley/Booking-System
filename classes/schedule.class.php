@@ -475,7 +475,7 @@ class Schedule {
             Forms::generatebutton("Schedule","schedule.php","arrow-left","secondary");
         }
         else{
-            Forms::generatebutton("Schedule","schedule.php?away=1","arrow-left","secondary");
+            Forms::generatebutton("Holidays","schedule.php?away=1","arrow-left","secondary");
         }
        
        $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
