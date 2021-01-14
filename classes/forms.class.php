@@ -67,7 +67,7 @@ Class Forms{
             </div>");
         }
         elseif($Type === "Time"){
-            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='time' step='300' min='8:00' max='17:00' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "' />");
+            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='time' min='".$Min."' max='".$Max."' step='".$Step."' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "' />");
         }
         elseif($Type === "TextDynamic"){
             print("input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value=\"" . $Value . "\" onchange='" . $Action . "' title = '" . $ToolTip . "'/><span id='" . $Name . "Image'></span>");
