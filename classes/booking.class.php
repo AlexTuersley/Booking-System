@@ -175,6 +175,7 @@ class Booking{
             $Booking->setmeetingtype($meeting);
             $Booking->setnote($note);
             $Booking->save();
+            print("<p class='welcome alert alert-success'>The Booking ".$bookingname." has been edited.</p>");
         }
         else{
             $Booking = new Booking();
@@ -187,6 +188,7 @@ class Booking{
             $Booking->setnote($note);
             $Booking->setconfirmed(0);
             $Booking->savenew();
+            print("<p class='welcome alert alert-success'>The Booking ".$bookingname." has been added. Please wait for confirmation from the member of staff</p>");
         }
     }
     static public function showbookings($ID){

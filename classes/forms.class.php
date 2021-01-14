@@ -51,16 +51,19 @@ Class Forms{
         $ReadOnly = $Field[8];
         $ToolTip = $Field[9];
         $Class= $Field[10];
+        $Min = $Field[11];
+        $Max = $Field[12];
+        $Step = $Field[13];
 
         if($Type === "Text"){
             print("<input class='form-control' placeholder = '" . $Placeholder ."' type='text' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "' />");
         }
         if($Type === "NumberText"){
-            print("<input class='form-control' placeholder = '" . $Placeholder ."' type='number' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "' />");
+            print("<input class='form-control' min='".$Min."' max='".$Max."' step='".$Step."' placeholder = '" . $Placeholder ."' type='number' name='" . $Name . "' id='" . $Name . "' size='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "'  />");
         }
         elseif($Type === "TextArea"){
             print("<div class='form-group purple-border'>
-                <textarea class='form-control' id='".$Name."' name='".$Name."' placeholder = '" . $Placeholder ."' rows='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "'>".$Value."</textarea>
+                <textarea class='form-control' id='".$Name."' name='".$Name."'  placeholder = '" . $Placeholder ."' rows='" . $FieldSize . "' value='" . $Value . "' " . $ReadOnly . " title = '" . $ToolTip . "'>".$Value."</textarea>
             </div>");
         }
         elseif($Type === "Time"){

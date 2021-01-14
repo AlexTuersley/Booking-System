@@ -79,12 +79,14 @@ Class Departments{
                 if($DID > 0){
                     $Department = new Departments($DID);
                     $Department->setname($name);
-                    $Department->save();    
+                    $Department->save(); 
+                    print("<p class='welcome alert alert-success'>The Department ".$name." has been edited</p>");   
                 }
                 else{
                     $Department = new Departments();
                     $Department->setname($name);
                     $Department->savenew();
+                    print("<p class='welcome alert alert-success'>The Department ".$name." has been added</p>");   
                 }
             }
             else{
@@ -104,7 +106,7 @@ Class Departments{
     static public function listdepartments(){
         if($_SESSION["userlevel"] >= 1){
             $RQ = new ReadQuery("SELECT id FROM departments WHERE deleted = 0", null);
-            print("<p class='Welcome'>The list below shows all departments</p><p class='welcome'>Click on a department to see the staff inside and select a staff member for bookings</p>");
+            print("<p class='welcome'>The list below shows all departments</p><p class='welcome'>Click on a department to see the staff inside and select a staff member for bookings</p>");
             $Col1 = array("Department","department",1);
             $Col2 = array("","functions",2);
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){

@@ -163,17 +163,10 @@ class Schedule {
         ));
                                
     }
-    function getdatabasedate(){
+    // function getdatabasedate(){
 
-    }
-    //add new schedule item
-    public function addnewschedule(){
+    // }
 
-    }
-    //edit schedule item
-    public function editschedule(){
-
-    }
     //make item a holiday(away)
     public function makescheduleholiday(){
 
@@ -271,6 +264,7 @@ class Schedule {
         $WQ = new WriteQuery("UPDATE staffschedule SET deleted = 1 WHERE id = :id",
             array(PDOConnection::sqlarray(":id",$SID,PDO::PARAM_INT))
         );
+        print("<p class='alert alert-success'>Schedule has successfully been deleted</p>");
     }
     static public function listuserslots($STID){
         $RQ = new ReadQuery("SELECT starttime, endtime, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0",
@@ -349,12 +343,87 @@ class Schedule {
         }
         return true;
     }
+    static public function getstaffname($ID){
+        $RQ = new ReadQuery("SELECT fullname FROM userinformation WHERE userid = :id",
+        array(
+            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+        ));
+        if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+          return $row["fullname"];
+        }
+        return false;
+    }
+    static public function liststaffavailability($ID){
+        if($ID){
+            if(Schedule::listuserslots($ID)){
+                $name = Schedule::getstaffname($ID);
+                if($name){
+                    print("<p class='welcome'>Availability for ".$name."</p>
+                    <div id='picker'></div>");
+                    //Pass the availability through to the calendar
+                    //Make sure can only go forward in dates and not backwards
+                    //Availability should only show if does not interfere with a booking
+                    //
+                    ?>
+        <script type="text/javascript">
+        (function($) {
+          $('#picker').markyourcalendar({
+            availability: [
+              ['1:00', '2:00', '3:00', '4:00', '5:00'],
+              ['2:00'],
+              ['3:00'],
+              ['4:00'],
+              ['5:00'],
+              ['6:00'],
+              ['7:00']
+            ],
+            onClick: function(ev, data) {
+              // data is a list of datetimes
+              var d = data[0].split(' ')[0];
+              var t = data[0].split(' ')[1];
+              $('#selected-date').html(d);
+              $('#selected-time').html(t);
+            },
+            onClickNavigator: function(ev, instance) {
+              var arr = [
+                [
+                  ['4:00', '5:00', '6:00', '7:00', '8:00'],
+                  ['1:00', '5:00'],
+                  ['2:00', '5:00'],
+                  ['3:30'],
+                  ['2:00', '5:00'],
+                  ['2:00', '5:00'],
+                  ['2:00', '5:00']
+                ]
+              ]
+              instance.setAvailability(arr[0]);
+            }
+          });
+        })(jQuery);
+    </script>
+                    <?
+                }
+                else{
+                    print("<p class='welcome alert alert-danger'>User does not exist</p>");
+                }
+             
+            }
+            else{
+                print("<p class='alert alert-warning'>Either this member of staff does not exist of has not setup a schedule. Please contact them to arrange a meeting.</p>"); 
+            }
+        }
+        else{
+            print("<p class='alert alert-warning'>Member of Staff not Selected</p>");
+        }
+    }
 
     static public function liststaffschedule($STID, $holiday = 0){
         if($STID){
             if($holiday){
                 Forms::generatebutton("Add Holiday","schedule.php?edit=-1&away=1","plus","primary","","","Click this button to add a new Holiday");
                 Forms::generatebutton("Show Schedule","schedule.php","calendar-alt","primary","","","Click this button to show the time slots in your schedule");
+                Forms::generatebutton("Show Meeting Types","meetingtype.php","handshake","primary","","","Click this button to show your meeting types");
+               
                 $RQ = new ReadQuery("SELECT id, starttime, endtime, startdate, enddate FROM staffschedule WHERE staffid = :stid AND away = 1 AND deleted = 0",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                 ));
@@ -379,13 +448,14 @@ class Schedule {
             else{
                 Forms::generatebutton("Add Schedule","schedule.php?edit=-1&active=1","plus","primary","","","Click this button to add a new Slot in your Schedule");
                 Forms::generatebutton("Show Holidays","schedule.php?away=1","plane","primary","","","Click this button to show your holidays");
+                Forms::generatebutton("Show Meeting Types","meetingtype.php","handshake","primary","","","Click this button to show your meeting types");
                
                 $RQ = new ReadQuery("SELECT id, staffday, starttime, endtime FROM staffschedule WHERE staffid = :stid AND active = 1 AND deleted = 0 ORDER BY staffday",
                     array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                 ));
                 $Rows = array();
                 $RowCounter = 0;
-                $Cols = array(array("Day","day",1),array("Start Time","starttimme",1),array("End Time","endtime",1),array("","functions",2));
+                $Cols = array(array("Day","day",1),array("Start Time","starttime",1),array("End Time","endtime",1),array("","functions",2));
                 while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                     $Row1 = array(Schedule::getstaffday($row['staffday']));
                     $Row2 = array($row['starttime']);

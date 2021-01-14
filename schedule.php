@@ -7,8 +7,11 @@ $Department = $_GET["department"];
 $Staff = $_GET["staff"];
 $Holiday = $_GET['away'];
 $CSS[0] = "/Booking-System/css/jquery-ui.min.css";
+$CSS[1] = "/Booking-System/css/calendar.css";
 $Script[0] = "js/jquery.tablesorter.min.js";
 $Script[1] = "js/jquery-ui.min.js";
+$Script[2] = "js/CalendarPicker.js";
+$Script[3] = "js/mark-your-calendar.js";
 WebPage::headerandnav("Home",$Level,$CSS,$Script);
 
 if($Level > 0){
@@ -42,9 +45,7 @@ if($Level > 0){
             Schedule::listdepartmentstaff($Department);
         }
         elseif($Staff){
-               //Schedule::liststaffschedule($Staff);
-            
-
+            Schedule::liststaffavailability($Staff);
         }
         else{
             Schedule::listdepartments();

@@ -197,8 +197,7 @@ class User{
     }
 
     function savepassword()
-        {
-            
+        {     
             $options = [
                 'cost' => 12
             ];
@@ -224,6 +223,7 @@ class User{
             $WQ = new WriteQuery("UPDATE users SET deleted = 1 WHERE id = :id",array(
                 PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
             ));
+            print("<p class='alert alert-success'>User has successfully been deleted</p>");
         }
         return true;
 
@@ -254,6 +254,7 @@ class User{
                     $User->setbio($bio);
                     $User->setlocation($location);
                     $User->save();
+                    print("<p class='welcome alert alert-success'>".$username." has been edited</p>"); 
                 }
                 else{
                     $User = new User();
@@ -269,6 +270,7 @@ class User{
                     $User->setlogin(0);
                     $User->setdeleted(0);
                     $User->savenew();
+                    print("<p class='welcome alert alert-success'>".$username." has been added</p>"); 
                 }
         }
 
@@ -282,24 +284,10 @@ class User{
         
     }
 
-    //When passed an id returns a username
-    static public function staticgetusername($UID){
-        $RQ = new ReadQuery("SELECT username, fullname FROM users WHERE id = :id",
-                array(
-                    PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
-                ));
-        if($row = $RQ->getresults() > 0){
-            $username = $row["username"]."(".$row["fullname"].")";
-        }
-        else{
-            $username = NULL;
-        }
-        return $username;
-    }
     //checks the level of the user id passed through
     static public function checkuserlevel($UID){
         if($UID > 0){
-            $RQ = new ReadQuery("SELECT userlevel FROM users WHERE :id",
+            $RQ = new ReadQuery("SELECT userlevel FROM users WHERE id = :id",
             array(
                 PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
             ));
@@ -357,7 +345,7 @@ class User{
             if(password_verify(md5(SALT.$CurrentPassword), $User->getpassword())){
                 $User->setpassword($NewPassword);
                 $User->savepassword();
-                print("<p class='welcome'>Your password has been changed. Use the new password next time you login.</p>");
+                print("<p class='welcome alert alert-success'>Your password has been changed. Use the new password next time you login.</p>");
             }
             else{
                 print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
@@ -462,6 +450,8 @@ class User{
                 $User->setbio($Bio);
                 $User->setlocation($Location);
                 $User->savenew();
+
+                
               
                 /*if(function_exists("mail")){
                     $Link = "user.php?activate=".$User->getid();
@@ -472,7 +462,7 @@ class User{
                                       If this was not you, your emai may have been hacked, changing your password is recommended.";
                     $sendmail = mail($Email, $email_subject, $email_message, $headers);
                     if($sendmail){
-                        print("<p>A message has been sent to your email, to activate your account please click the link send with the message</p>");
+                        print("<p class='welcome alert alert-success'>A message has been sent to your email, to activate your account please click the link send with the message</p>");
                     }
                     else{
                         print("<p class='warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
@@ -480,10 +470,9 @@ class User{
                     }
                 }
                 else{
-                    print("Email has not been enabled for this server. Please conaact the administrator ".ADMIN." to activate your account.");
+                    print("Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.");
                 }*/
-                print("<p class='welcome'>Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.</p>");
-             
+                print("<p class='welcome alert alert-success'>Your Account has been created. Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.</p>");         
             }
             else{
                 $Errors = array($UsernameError,$PasswordError,$FullnameError,$EmailError,$DepartmentError);
