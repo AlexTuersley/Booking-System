@@ -596,10 +596,10 @@ class Schedule {
             }
             $AwayField = array("Away: ","Text","away",30,$away);
             $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray);
-            $StartField = array("Start Time: ","Time","starttime",10,$starttime,"9:00","","","","Select the starttime","",'8:00','16:50',300);
-            $EndField = array("End Time: ","Time","endtime",10,$endtime,"10:00","","","","Select the endtime","",'9:10','17:00',300);
-            $StartDateField = array("Start Date: ","Date","startdate",10,$startdate,"Select the start date");
-            $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"Select the end date");
+            $StartField = array("Start Time: ","Time","starttime",10,$starttime,"","","","","Select the Start Time","",'8:00','16:50',300);
+            $EndField = array("End Time: ","Time","endtime",10,$endtime,"","","","","Select the End Time","",'9:10','17:00',300);
+            $StartDateField = array("Start Date: ","Date","startdate",10,$startdate,"","","","","Select the Start Date");
+            $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"","","","","Select the End Date");
             $Fields = array($AwayField,$StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
             $Path = "schedule.php?edit=".$SID."&away=1";
         }
@@ -608,8 +608,8 @@ class Schedule {
             $ActiveField = array("Active: ","Text","active",30,$active,"","","readonly");
             $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray,"","readonly");
             $DayField = array("Day:","Select","day",30,$day,"Select the day you want to add this schedule",$DayArray,"","","Select a day to add this schedule to e.g. Monday");
-            $StartField = array("Start Time: ","Time","starttime",10,$starttime,"","","","","Select the starttime","",'08:00','16:50',300);
-            $EndField = array("End Time: ","Time","endtime",10,$endtime,"","","","","Select the endtime","",'09:10','17:00',300);
+            $StartField = array("Start Time: ","Time","starttime",10,$starttime,"","","","","Select the Start Time","",'08:00','16:50',300);
+            $EndField = array("End Time: ","Time","endtime",10,$endtime,"","","","","Select the End Time","",'09:10','17:00',300);
             $Fields = array($ActiveField,$StaffField,$DayField,$StartField,$EndField);
             if($SID > 0){
                 $Button = "Edit Schedule";
