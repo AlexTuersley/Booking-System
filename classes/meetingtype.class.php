@@ -106,8 +106,10 @@ Class MeetingType{
                 $MeetingType->setdescription($description);
                 $MeetingType->setstaffid($staffid);
                 $MeetingType->setduration($duration);
-                $MeetingType->save();
-                print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been edited</p>");
+                if(MeetingType::checkmeetingname($MID,$name,$staffid)){
+                    $MeetingType->save();
+                    print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been edited</p>");
+                }
             }
             else{
                 $MeetingType = new MeetingType();
@@ -115,8 +117,10 @@ Class MeetingType{
                 $MeetingType->setdescription($description);
                 $MeetingType->setstaffid($staffid);
                 $MeetingType->setduration($duration);
-                $MeetingType->savenew();
-                print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been added</p>");   
+                if(MeetingType::checkmeetingname(0,$name,$staffid)){
+                    $MeetingType->savenew();
+                    print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been added</p>");
+                }         
             }
         }
         if($MID > 0){
@@ -126,6 +130,18 @@ Class MeetingType{
         else{
             MeetingType::meetingform($MID,$name,$staffid,$description,$duration);
         }
+    }
+    static public function checkmeetingname($MID, $name, $STID){
+        $RQ = new ReadQuery("SELECT meetingname FROM meetingtype WHERE meetingname = :meetingname AND deleted = 0 AND id != :id AND staffid = :staffid",array(
+            PDOConnection::sqlarray(":meetingname",$name,PDO::PARAM_STR),
+            PDOConnection::sqlarray(":id",$MID,PDO::PARAM_INT),
+            PDOConnection::sqlarray(":staffid",$STID,PDO::PARAM_INT)
+        ));
+        if($RQ->getnumberofresults() > 0){
+            print("<p class='alert alert-warning'><strong>Meeting Exists </strong>A Meeting with this name already exists for your user. Please edit it if you wish to make changes</p>");       
+            return false;
+        }
+        return true;
     }
     //Display selectable meeting types for student users
     static public function showmeetingtypes($STID){

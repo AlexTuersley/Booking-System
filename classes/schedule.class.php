@@ -201,12 +201,16 @@ class Schedule {
                 $Schedule->setstarttime($starttime);
                 $Schedule->setendtime($endtime);
                 if($away > 0){
+                    $startdate = $startdate->format('Y-m-d');
+                    $enddate = $enddate->format('Y-m-d');
                     $Schedule->setday(0);
                     $Schedule->setaway($away);
                     $Schedule->setactive(0);
-                    $Schedule->setstartdate($startdate->format('Y-m-d'));
-                    $Schedule->setenddate($enddate->format('Y-m-d'));
-                    $Schedule->save();
+                    $Schedule->setstartdate($startdate);
+                    $Schedule->setenddate($enddate);
+                    if(Schedule::checkholidayslot($SID,$startdate,$enddate,$staffid)){
+                        $Schedule->save();
+                    }             
                 }
                 else{
                     $Schedule->setday($day);
@@ -224,19 +228,23 @@ class Schedule {
                 $Schedule->setstarttime($starttime);
                 $Schedule->setendtime($endtime);
                 if($away > 0){
+                    $startdate = $startdate->format('Y-m-d');
+                    $enddate = $enddate->format('Y-m-d');
                     $Schedule->setday(0);
                     $Schedule->setaway($away);
                     $Schedule->setactive(0);
-                    $Schedule->setstartdate($startdate->format('Y-m-d'));
-                    $Schedule->setenddate($enddate->format('Y-m-d'));
+                    $Schedule->setstartdate($startdate);
+                    $Schedule->setenddate($enddate);
                     $Schedule->setdeleted(0);
-                    $Schedule->savenew();
+                    if(Schedule::checkholidayslot(-1,$startdate,$enddate,$staffid)){
+                        $Schedule->savenew();
+                    }     
                 }
                 else{
                     $Schedule->setday($day);
                     $Schedule->setaway(0);
                     $Schedule->setactive($active);
-                    if(Schedule::checkstaffdayslot(-1,$day, $starttime,$endtime,$staffid)){
+                    if(Schedule::checkstaffdayslot(-1,$day,$starttime,$endtime,$staffid)){
                         $Schedule->setdeleted(0);
                         $Schedule->savenew();
                     }
@@ -330,15 +338,15 @@ class Schedule {
 
     }
 
-    static public function checkholidayslot($id,$startdate, $enddate,$userid){
-        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 id != :id AND staffid = :staff AND startdate BETWEEN :startdate AND :enddate OR enddate BETWEEN :startdate AND :enddate",array(
+    static public function checkholidayslot($id,$startdate,$enddate,$userid){
+        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 AND id != :id AND staffid = :staff AND (startdate BETWEEN :startdate AND :enddate OR enddate BETWEEN :startdate AND :enddate)",array(
             PDOConnection::sqlarray(':id',$id,PDO::PARAM_INT),
             PDOConnection::sqlarray(':staff',$userid,PDO::PARAM_INT),
             PDOConnection::sqlarray(':startdate',$startdate,PDO::PARAM_STR),
             PDOConnection::sqlarray(':enddate',$enddate,PDO::PARAM_STR)
         ));
         if($RQ->getnumberofresults() > 0){
-            print("<p class='alert alert-warning'><strong>Holiday Exists</strong>A holiday exists between these dates. Please edit or delete the holiday before adding a new one.</p>");
+            print("<p class='alert alert-warning'><strong>Holiday Exists </strong>A holiday for your User exists between these dates. Please edit or delete the holiday before adding a new one.</p>");
             return false;
         }
         return true;
@@ -589,7 +597,7 @@ class Schedule {
             $StartDateField = array("Start Date: ","Date","startdate",10,$startdate,"Select the start date");
             $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"Select the end date");
             $Fields = array($AwayField,$StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
-            $Path = "schedule.php?edit=".$SID."&holiday=1";
+            $Path = "schedule.php?edit=".$SID."&away=1";
         }
         else{
             $DayArray = array(array(1,"Monday"),array(2,"Tuesday"),array(3,"Wednesday"),array(4,"Thursday"),array(5,"Friday"));
