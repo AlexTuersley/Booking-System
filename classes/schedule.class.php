@@ -368,7 +368,7 @@ class Schedule {
         return false;
     }
     static public function liststaffavailability($ID,$Type,$DID){
-        Forms::generatebutton("Staff","schedule.php?department=".$DID."&staff=".$ID,"arrow-left","secondary");
+        Forms::generatebutton("Meetings","schedule.php?department=".$DID."&staff=".$ID,"arrow-left","secondary");
         if($ID){
             if(Schedule::listuserslots($ID)){
                 $name = Schedule::getstaffname($ID);

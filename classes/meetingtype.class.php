@@ -150,10 +150,11 @@ Class MeetingType{
         ));
         Forms::generatebutton("Staff","schedule.php?department=".$DID,"arrow-left","secondary");
         if($RQ->getnumberofresults() > 0){
+            print("<p class='welcome'>Please select the type of Meeting you would like to arrange</p>");
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                 $Description = "";
-                if($row['description'] != ""){
-                    $Description =  "<p>Description: ".$row['description']."</p>";
+                if($row['meetingdescription'] != ""){
+                    $Description =  "<p>Description: ".$row['meetingdescription']."</p>";
                 }
                 print("<div class='item'>
                         <h3><a href='schedule.php?department=".$DID."&staff=".$STID."&type=".$row['id']."'>".$row['meetingname']."</a></h3>
