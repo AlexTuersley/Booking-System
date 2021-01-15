@@ -177,13 +177,11 @@ class Schedule {
     }
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     public function addedit($SID){
-        $awayget = $_GET['away'];
+        $away = $_GET['away'];
         $staffid = filter_var($_POST["staff"], FILTER_SANITIZE_NUMBER_INT);
         $day = filter_var($_POST["day"], FILTER_SANITIZE_NUMBER_INT);
         $starttime = $_POST["starttime"];
         $endtime = $_POST["endtime"];
-        $active = filter_var($_POST["active"], FILTER_SANITIZE_NUMBER_INT);
-        $away = filter_var($_POST["away"], FILTER_SANITIZE_NUMBER_INT);
         $startdate = $_POST["startdate"];
         $enddate = $_POST["enddate"];
         $Submit =$_POST["submit"];
@@ -214,6 +212,7 @@ class Schedule {
                     $Schedule->setenddate($enddate);
                     if(Schedule::checkholidayslot($SID,$startdate,$enddate,$staffid)){
                         $Schedule->save();
+                        print("<p class='alert alert-success'>Holiday has successfully been edited</p>");
                     }             
                 }
                 else{
@@ -222,6 +221,7 @@ class Schedule {
                     $Schedule->setactive($active);
                     if(Schedule::checkstaffdayslot($SID,$day,$starttime,$endtime,$staffid)){
                         $Schedule->save();
+                        print("<p class='alert alert-success'>Schedule has successfully been edited</p>");
                     }
                 }
                
@@ -235,22 +235,24 @@ class Schedule {
                     $startdate = $startdate->format('Y-m-d');
                     $enddate = $enddate->format('Y-m-d');
                     $Schedule->setday(0);
-                    $Schedule->setaway($away);
+                    $Schedule->setaway(1);
                     $Schedule->setactive(0);
                     $Schedule->setstartdate($startdate);
                     $Schedule->setenddate($enddate);
                     $Schedule->setdeleted(0);
                     if(Schedule::checkholidayslot(-1,$startdate,$enddate,$staffid)){
                         $Schedule->savenew();
+                        print("<p class='alert alert-success'>Holiday has successfully been added</p>");
                     }     
                 }
                 else{
                     $Schedule->setday($day);
                     $Schedule->setaway(0);
-                    $Schedule->setactive($active);
+                    $Schedule->setactive(1);
                     if(Schedule::checkstaffdayslot(-1,$day,$starttime,$endtime,$staffid)){
                         $Schedule->setdeleted(0);
                         $Schedule->savenew();
+                        print("<p class='alert alert-success'>Schedule has successfully been added</p>");
                     }
                 }               
             }
@@ -365,7 +367,8 @@ class Schedule {
         }
         return false;
     }
-    static public function liststaffavailability($ID){
+    static public function liststaffavailability($ID,$Type,$DID){
+        Forms::generatebutton("Staff","schedule.php?department=".$DID."&staff=".$ID,"arrow-left","secondary");
         if($ID){
             if(Schedule::listuserslots($ID)){
                 $name = Schedule::getstaffname($ID);
@@ -514,7 +517,7 @@ class Schedule {
             $Rows = array();
             $RowCounter = 0;
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-                $Row1 = array("<a href=?staff=".$row["id"].">".$row["fullname"]."</a>","button");
+                $Row1 = array("<a href=?department=".$DID."&staff=".$row["id"].">".$row["fullname"]."</a>","button");
                 $Row2 = array($row["email"]);
                 $Rows[$RowCounter] = array($Row1,$Row2);
                 $RowCounter++;
@@ -594,23 +597,21 @@ class Schedule {
                 }
                 $Button = "Add Holiday";
             }
-            $AwayField = array("Away: ","Text","away",30,$away);
             $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray);
             $StartField = array("Start Time: ","Time","starttime",10,$starttime,"","","","","Select the Start Time","",'8:00','16:50',300);
             $EndField = array("End Time: ","Time","endtime",10,$endtime,"","","","","Select the End Time","",'9:10','17:00',300);
             $StartDateField = array("Start Date: ","Date","startdate",10,$startdate,"","","","","Select the Start Date");
             $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"","","","","Select the End Date");
-            $Fields = array($AwayField,$StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
+            $Fields = array($StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
             $Path = "schedule.php?edit=".$SID."&away=1";
         }
         else{
             $DayArray = array(array(1,"Monday"),array(2,"Tuesday"),array(3,"Wednesday"),array(4,"Thursday"),array(5,"Friday"));
-            $ActiveField = array("Active: ","Text","active",30,$active,"","","readonly");
             $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray,"","readonly");
             $DayField = array("Day:","Select","day",30,$day,"Select the day you want to add this schedule",$DayArray,"","","Select a day to add this schedule to e.g. Monday");
             $StartField = array("Start Time: ","Time","starttime",10,$starttime,"","","","","Select the Start Time","",'08:00','16:50',300);
             $EndField = array("End Time: ","Time","endtime",10,$endtime,"","","","","Select the End Time","",'09:10','17:00',300);
-            $Fields = array($ActiveField,$StaffField,$DayField,$StartField,$EndField);
+            $Fields = array($StaffField,$DayField,$StartField,$EndField);
             if($SID > 0){
                 $Button = "Edit Schedule";
             }

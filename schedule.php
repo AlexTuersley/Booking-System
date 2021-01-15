@@ -6,6 +6,7 @@ $Level = $_SESSION["userlevel"];
 $Department = $_GET["department"];
 $Staff = $_GET["staff"];
 $Holiday = $_GET['away'];
+$MeetingType = $_GET['type'];
 $CSS[0] = "/Booking-System/css/jquery-ui.min.css";
 $CSS[1] = "/Booking-System/css/calendar.css";
 $Script[0] = "js/jquery.tablesorter.min.js";
@@ -41,12 +42,19 @@ if($Level > 0){
         //Schedule::jsonstaffschedule($_SESSION["userid"]);
     }
     else{
-        if($Department){
-            Schedule::listdepartmentstaff($Department);
-        }
-        elseif($Staff){
-            Schedule::liststaffavailability($Staff);
-        }
+        if($Department){         
+            if($Staff){
+                if($MeetingType){
+                    Schedule::liststaffavailability($Staff,$MeetingType,$Department);
+                }
+                else{
+                    MeetingType::showmeetingtypes($Staff,$Department);
+                }
+            }
+            else{
+                Schedule::listdepartmentstaff($Department);
+            }
+        } 
         else{
             Schedule::listdepartments();
         }

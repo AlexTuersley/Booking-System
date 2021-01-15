@@ -144,8 +144,47 @@ Class MeetingType{
         return true;
     }
     //Display selectable meeting types for student users
-    static public function showmeetingtypes($STID){
-
+    static public function showmeetingtypes($STID,$DID){
+        $RQ = new ReadQuery("SELECT id, meetingname, duration FROM meetingtype WHERE staffid = :stid AND deleted = 0 ORDER BY meetingname",
+                    array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
+        ));
+        Forms::generatebutton("Staff","schedule.php?department=".$DID,"arrow-left","secondary");
+        if($RQ->getnumberofresults() > 0){
+            while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                $Description = "";
+                if($row['description'] != ""){
+                    $Description =  "<p>Description: ".$row['description']."</p>";
+                }
+                print("<div class='item'>
+                        <h3><a href='schedule.php?department=".$DID."&staff=".$STID."&type=".$row['id']."'>".$row['meetingname']."</a></h3>
+                        <p>Duration: ".$row['duration']." Minutes</p>
+                        ".$Description."
+                </div>");
+            }
+        }
+        else{
+            $RQ2 = new ReadQuery("SELECT * FROM users JOIN userinformation ON users.id = userinformation.userid WHERE id = :stid",array(
+                PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
+            ));
+            if($row2 = $RQ2->getresults()->fetch(PDO::FETCH_BOTH)){
+                $Phone = "";
+                $Location = "";
+                if($row2['phone'] > 0){
+                    $Phone = "<p>Phone: ".$row2['phone']."</p>";
+                }
+                if($row2['location']){
+                    $Location = "<p>Location: ".$row2['location']."</p>";
+                }
+                print("<div class='welcome'>
+                       <p>".$row2['username']." has not setup their meetings.</p>
+                       <p>Their contact information is listed below if you wish to inform them</p>
+                       <p>Email: ".$row2['email']."</p>
+                       ".$Phone."
+                       ".$Location."
+                       </div>");
+            }
+        }
+    
     }
     static public function listmeetingtypes($STID){
         if($STID){

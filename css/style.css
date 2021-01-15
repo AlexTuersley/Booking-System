@@ -1,10 +1,31 @@
-.navbar-expand-lg { background-color: #484848; }
+.navbar-expand-lg { background-color: #2e2e2e; }
 .nav-item {list-style: none;}
 .nav-item a { color: #fff; }
-.nav-item a:hover { color: #a3deec; }
+.nav-item a:hover { color: #26b9dd; }
 .nav-item .active { color: #2a8399; }
 
 .welcome{
     text-align: center;
     font-size: 16px;
+}
+
+.item{
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(89 90 91 / 74%);
+    background-color: #080808;
+    color: rgb(255, 255, 255);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    background: #2e2e2e;
+    padding: 20px 55px;
+}
+.item a{
+    text-decoration: none;
+    color: inherit;
+
+}
+.item a:hover{
+    text-decoration: none;
+    color:#26b9dd;
 }
