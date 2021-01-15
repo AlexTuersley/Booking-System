@@ -380,13 +380,20 @@ class User{
             ));
             if($row = $RQ->getnumberofresults() > 0){
                 if(function_exists("mail")){
+                    $headers[] = 'MIME-Version: 1.0';
+                    $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+                    $headers[] = "From: Booking System <noreply@bookingsystem.com>";
                     $NewPassword = $row["password"];
-                    //$headers = "From: noreply@bookingsystem.com\n";
                     $email_subject = "Forgotten Password";
-                    $email_message = "Content-type: text/html\n
-                                      The Forgotten Form has been completed. Your password is: ".$NewPassword.".
-                                      If you did not request this please login with this password and change it to your preferred password.";
-                    $sendmail = mail($Email, $email_subject, $email_message);
+                    $email_message = "<html>
+                                      <head><title>New User Registration</title></head>
+                                      <body>
+                                      <p>The Forgotten Form has been completed. Your password is: ".$NewPassword.".</p>
+                                      <p>If you did not request this please login with this password and change it to your preferred password.</p>
+                                      </body>
+                                      </html>";
+                    $sendmail = mail($Email, $email_subject, $email_message, implode("\r\n", $headers));
+                    
                     if($sendmail){
                         print("<p class='alert alert-success'>A message has been sent to your email, to activate your account please click the link send with the message</p>");
                     }
@@ -453,14 +460,22 @@ class User{
 
                 
               
-                /*if(function_exists("mail")){
+                if(function_exists("mail")){
+                    $headers[] = 'MIME-Version: 1.0';
+                    $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+                    $headers[] = "From: Booking System <noreply@bookingsystem.com>";
                     $Link = "user.php?activate=".$User->getid();
-                    $headers = "From: noreply@bookingsystem.com\n";
+
                     $email_subject = "New User Registration";
-                    $email_message = "Content-type: text/html\n
-                                      A user has signed up to the booking system with this email".$Email." to confirm your registration click this link".$Link.".\n
-                                      If this was not you, your emai may have been hacked, changing your password is recommended.";
-                    $sendmail = mail($Email, $email_subject, $email_message, $headers);
+                    $email_message = "<html>
+                                      <head><title>New User Registration</title></head>
+                                      <body>
+                                      <p>A user has signed up to the booking system with this email ".$Email."</p>
+                                      <p>to confirm your registration click this <a href='".$Link."'>link</a></p>
+                                      <p>If this was not you, your email may have been hacked, changing your password is recommended.</>
+                                      </body>
+                                      </html>";
+                    $sendmail = mail($Email, $email_subject, $email_message, implode("\r\n", $headers));
                     if($sendmail){
                         print("<p class='welcome alert alert-success'>A message has been sent to your email, to activate your account please click the link send with the message</p>");
                     }
@@ -470,10 +485,9 @@ class User{
                     }
                 }
                 else{
-                    print("Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.");
-                }*/
-                print("<p class='welcome alert alert-success'>Your Account has been created. Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.</p>");         
-            }
+                    print("<p class='welcome alert alert-success'>Your Account has been created. Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.</p>");
+                }
+               }
             else{
                 $Errors = array($UsernameError,$PasswordError,$FullnameError,$EmailError,$DepartmentError);
                 Forms::generateerrors("Please correct the following errors before continuing.",$Errors,true);
