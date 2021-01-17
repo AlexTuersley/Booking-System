@@ -604,6 +604,7 @@ class Schedule {
             $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"","","","","Select the End Date");
             $Fields = array($StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
             $Path = "schedule.php?edit=".$SID."&away=1";
+            $Script = "return checkholidayfrom(this)";
         }
         else{
             $DayArray = array(array(1,"Monday"),array(2,"Tuesday"),array(3,"Wednesday"),array(4,"Thursday"),array(5,"Friday"));
@@ -619,9 +620,10 @@ class Schedule {
                 $Button = "Add Schedule";
             }
             $Path = "schedule.php?edit=".$SID."&active=1";
+            $Script = "return checkschedulefrom(this)";
         }
       
-        Forms::generateform("Schedule",$Path,"",$Fields,$Button);
+        Forms::generateform("Schedule",$Path,$Script,$Fields,$Button);
     }
 
 }

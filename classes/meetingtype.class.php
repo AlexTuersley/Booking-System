@@ -145,22 +145,41 @@ Class MeetingType{
     }
     //Display selectable meeting types for student users
     static public function showmeetingtypes($STID,$DID){
-        $RQ = new ReadQuery("SELECT id, meetingname, duration FROM meetingtype WHERE staffid = :stid AND deleted = 0 ORDER BY meetingname",
+        $RQ = new ReadQuery("SELECT id,meetingname,meetingdescription,duration FROM meetingtype WHERE staffid = :stid AND deleted = 0 ORDER BY meetingname",
                     array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
         ));
-        Forms::generatebutton("Staff","schedule.php?department=".$DID,"arrow-left","secondary");
+       
         if($RQ->getnumberofresults() > 0){
             print("<p class='welcome'>Please select the type of Meeting you would like to arrange</p>");
+            Forms::generatebutton("Staff","schedule.php?department=".$DID,"arrow-left","secondary");
+            $count = 0;
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                 $Description = "";
                 if($row['meetingdescription'] != ""){
                     $Description =  "<p>Description: ".$row['meetingdescription']."</p>";
                 }
-                print("<div class='item'>
-                        <h3><a href='schedule.php?department=".$DID."&staff=".$STID."&type=".$row['id']."'>".$row['meetingname']."</a></h3>
-                        <p>Duration: ".$row['duration']." Minutes</p>
-                        ".$Description."
-                </div>");
+                if($count%2 == 0){
+                    print("<div class='row'>
+                    <div class='col-6'>
+                    <div class='item'>
+                    <h3><a href='schedule.php?department=".$DID."&staff=".$STID."&type=".$row['id']."'>".$row['meetingname']."</a></h3>
+                    <p style='margin-bottom:auto;'>Duration: ".$row['duration']." Minutes</p>
+                    ".$Description."
+                    </div>
+                    </div>");
+                }
+                else{
+                    print("<div class='col-6'>
+                    <div class='item'>
+                    <h3><a href='schedule.php?department=".$DID."&staff=".$STID."&type=".$row['id']."'>".$row['meetingname']."</a></h3>
+                    <p style='margin-bottom:auto;'>Duration: ".$row['duration']." Minutes</p>
+                    ".$Description."
+                    </div>
+                    </div>
+                    </div>");
+                }
+               
+                $count++;
             }
         }
         else{
@@ -176,6 +195,7 @@ Class MeetingType{
                 if($row2['location']){
                     $Location = "<p>Location: ".$row2['location']."</p>";
                 }
+                Forms::generatebutton("Staff","schedule.php?department=".$DID,"arrow-left","secondary");
                 print("<div class='welcome'>
                        <p>".$row2['username']." has not setup their meetings.</p>
                        <p>Their contact information is listed below if you wish to inform them</p>
@@ -227,11 +247,12 @@ Class MeetingType{
         $Fields= array($StaffField,$NameField,$DescriptionField,$DurationField);
         if($MID > 0){
             $Button = "Edit Meeting Type";
+
         }
         else{
             $Button = "Add Meeting Type";
         }
-        Forms::generateform("Meeting Type","meetingtype.php?edit=".$MID,"",$Fields,$Button);
+        Forms::generateform("Meeting Type","meetingtype.php?edit=".$MID,"return checkmeetingform(this)",$Fields,$Button);
        
     }
 }
