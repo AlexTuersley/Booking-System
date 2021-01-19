@@ -143,6 +143,7 @@ Class MeetingType{
         }
         return true;
     }
+    
     //Display selectable meeting types for student users
     static public function showmeetingtypes($STID,$DID){
         $RQ = new ReadQuery("SELECT id,meetingname,meetingdescription,duration FROM meetingtype WHERE staffid = :stid AND deleted = 0 ORDER BY meetingname",

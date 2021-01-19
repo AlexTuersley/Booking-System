@@ -178,6 +178,7 @@ class Schedule {
     //User inputted data from a from is passed to this function, which then updates or adds the data to the database
     public function addedit($SID){
         $away = $_GET['away'];
+        $active = $_GET['active'];
         $staffid = filter_var($_POST["staff"], FILTER_SANITIZE_NUMBER_INT);
         $day = filter_var($_POST["day"], FILTER_SANITIZE_NUMBER_INT);
         $starttime = $_POST["starttime"];
@@ -200,13 +201,12 @@ class Schedule {
            
             if($SID > 0){
                 $Schedule = new Schedule($SID);         
-                $Schedule->setstarttime($starttime);
-                $Schedule->setendtime($endtime);
+               
                 if($away > 0){
                     $startdate = $startdate->format('Y-m-d');
                     $enddate = $enddate->format('Y-m-d');
                     $Schedule->setday(0);
-                    $Schedule->setaway($away);
+                    $Schedule->setaway(1);
                     $Schedule->setactive(0);
                     $Schedule->setstartdate($startdate);
                     $Schedule->setenddate($enddate);
@@ -216,9 +216,11 @@ class Schedule {
                     }             
                 }
                 else{
+                    $Schedule->setstarttime($starttime);
+                    $Schedule->setendtime($endtime);
                     $Schedule->setday($day);
                     $Schedule->setaway(0);
-                    $Schedule->setactive($active);
+                    $Schedule->setactive(1);
                     if(Schedule::checkstaffdayslot($SID,$day,$starttime,$endtime,$staffid)){
                         $Schedule->save();
                         print("<p class='alert alert-success'>Schedule has successfully been edited</p>");
@@ -229,8 +231,7 @@ class Schedule {
             else{
                 $Schedule = new Schedule();
                 $Schedule->setstaffid($staffid);      
-                $Schedule->setstarttime($starttime);
-                $Schedule->setendtime($endtime);
+              
                 if($away > 0){
                     $startdate = $startdate->format('Y-m-d');
                     $enddate = $enddate->format('Y-m-d');
@@ -246,6 +247,8 @@ class Schedule {
                     }     
                 }
                 else{
+                    $Schedule->setstarttime($starttime);
+                    $Schedule->setendtime($endtime);
                     $Schedule->setday($day);
                     $Schedule->setaway(0);
                     $Schedule->setactive(1);
@@ -264,7 +267,7 @@ class Schedule {
                                    $Schedule->getactive(),$Schedule->getaway(),$Schedule->getstartdate(),$Schedule->getenddate());
         }
         else{
-            if($awayget){
+            if($away){
                 Schedule::scheduleform($SID,$staffid,$day,$starttime,$endtime,$active,1,$startdate,$enddate);    
             }
             else{
@@ -280,23 +283,51 @@ class Schedule {
         );
         print("<p class='alert alert-success'>Schedule has successfully been deleted</p>");
     }
-    static public function listuserslots($STID){
-        $RQ = new ReadQuery("SELECT starttime, endtime, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0",
+    static public function listuserslots($STID,$Duration){
+        $RQ = new ReadQuery("SELECT staffday, starttime, endtime, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0 ORDER BY staffday",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                             ));
-        $timeslots = array();
+        $userslot = array();
+        $slots = array();
         $holidays  = array();
         $counter = 0;
-        $counter2 = 0;
-        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-            $timeslots[$counter] = array($row["starttime"],$row["endtime"],$row["active"]);
+        $day = 0;
+        $counter3 = 0;
+        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){          
             if($row["away"] > 0) {
-                $holidays[$counter2] = array($row["starttime"],$row["startdate"],$row["endtime"],$row["enddate"],$row["active"],$row["away"]);
+                $holidays[$counter3] = array($row["startdate"],$row["enddate"]);
                 $counter2++;
             }
-            $counter++;
+            else{
+                if($day === 0){
+                    $day = $row['staffday'];
+                }
+                if($day === $row['staffday']){
+                    $duration = strval($Duration * 60);
+                    $timeslot = strtotime($row['starttime']);
+                    while($timeslot < strtotime($row['endtime'])){
+                        $timeslots[] = date('H:i',$timeslot);
+                        //echo "slot: ". date('H:i',$timeslot)."\n";
+                        $timeslot = $timeslot + $duration;
+                    }
+                    $userslot[$counter] = $timeslots;
+                }
+                else{
+                    unset($timeslots);
+                    $timeslots = array();
+                    $counter++;
+                    $day++;
+                    $duration = strval($Duration * 60);
+                    $timeslot = strtotime($row['starttime']);
+                    while($timeslot < strtotime($row['endtime'])){
+                        $timeslots[] = date('H:i',$timeslot);
+                        $timeslot = $timeslot + $duration;
+                    }
+                    $userslot[$counter] = $timeslots;
+                }   
+            }
         }
-        $slots = array($timeslots,$holidays);
+        $slots = array($userslot,$holidays);
         return $slots;
     }
     static public function getstaffday($day){
@@ -319,7 +350,7 @@ class Schedule {
             case 6:
                 return "Saturday";
                 break;          
-            case 1:
+            case 7:
                 return "Sunday";
                 break; 
             default:
@@ -367,64 +398,68 @@ class Schedule {
         }
         return false;
     }
+    static public function getstaticduration($ID){
+        if($ID > 0){
+            $RQ = new ReadQuery("SELECT duration FROM meetingtype WHERE id = :id",
+            array(
+                PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+            ));
+            while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+               return $row['duration'];
+            }
+        }
+        return 0;
+    }
     static public function liststaffavailability($ID,$Type,$DID){
         Forms::generatebutton("Meetings","schedule.php?department=".$DID."&staff=".$ID,"arrow-left","secondary");
-        if($ID){
-            if(Schedule::listuserslots($ID)){
-                $name = Schedule::getstaffname($ID);
-                if($name){
-                    print("<p class='welcome'>Availability for ".$name."</p>
-                    <div id='picker'></div>");
-                    //Pass the availability through to the calendar
-                    //Make sure can only go forward in dates and not backwards
-                    //Availability should only show if does not interfere with a booking
-                    //
-                    ?>
-        <script type="text/javascript">
-        (function($) {
-          $('#picker').markyourcalendar({
-            availability: [
-              ['1:00', '2:00', '3:00', '4:00', '5:00'],
-              ['2:00'],
-              ['3:00'],
-              ['4:00'],
-              ['5:00'],
-              ['6:00'],
-              ['7:00']
-            ],
-            onClick: function(ev, data) {
-              // data is a list of datetimes
-              var d = data[0].split(' ')[0];
-              var t = data[0].split(' ')[1];
-              $('#selected-date').html(d);
-              $('#selected-time').html(t);
-            },
-            onClickNavigator: function(ev, instance) {
-              var arr = [
-                [
-                  ['4:00', '5:00', '6:00', '7:00', '8:00'],
-                  ['1:00', '5:00'],
-                  ['2:00', '5:00'],
-                  ['3:30'],
-                  ['2:00', '5:00'],
-                  ['2:00', '5:00'],
-                  ['2:00', '5:00']
-                ]
-              ]
-              instance.setAvailability(arr[0]);
-            }
-          });
-        })(jQuery);
-    </script>
-                    <?
+        if($ID && $Type){
+            $Duration = Schedule::getstaticduration($Type);
+            if($Duration > 0){
+                $schedule = Schedule::listuserslots($ID,$Duration);
+                if($schedule){
+                    //print_r($schedule);
+                    print_r($schedule[0]);
+                    $name = Schedule::getstaffname($ID);
+                    if($name){
+                        print("<p class='welcome'>Availability for ".$name."</p>
+                        <div id='picker'></div>");
+                        //Pass the availability through to the calendar
+                        //Make sure can only go forward in dates and not backwards
+                        //Availability should only show if does not interfere with a booking
+                        //
+                        ?>
+                        <script type="text/javascript">
+                        (function($) {
+                            var availabilityArray = <?echo json_encode($schedule[0]);?>;
+                            console.log(availabilityArray);
+                        $('#picker').markyourcalendar({
+                            availability: availabilityArray
+                            ,
+                            onClick: function(ev, data) {
+                            // data is a list of datetimes
+                            var d = data[0].split(' ')[0];
+                            var t = data[0].split(' ')[1];
+                            $('#selected-date').html(d);
+                            $('#selected-time').html(t);
+                            },
+                            onClickNavigator: function(ev, instance) {
+                            instance.setAvailability(availabilityArray);
+                            }
+                        });
+                        })(jQuery);
+                        </script>
+                        <?
+                    }
+                    else{
+                        print("<p class='welcome alert alert-danger'>User does not exist</p>");
+                    }
                 }
                 else{
-                    print("<p class='welcome alert alert-danger'>User does not exist</p>");
+                    print("<p class='alert alert-warning'>Either this member of staff does not exist of has not setup a schedule. Please contact them to arrange a meeting.</p>"); 
                 }
-             
             }
             else{
-                print("<p class='alert alert-warning'>Either this member of staff does not exist of has not setup a schedule. Please contact them to arrange a meeting.</p>"); 
+                print("<p class='alert alert-warning'>This Meeting type does not exist. Please go back and select a valid meeting type.</p>"); 
             }
         }
         else{
@@ -449,8 +484,8 @@ class Schedule {
                     $Schedule =new Schedule($row['id']);
                     $startdate = new DateTime($row['startdate']);
                     $enddate = new DateTime($row['enddate']);
-                    $Row1 = array($row['starttime']." ".$startdate->format('d/m/Y'));
-                    $Row2 = array($row['endtime']." ".$enddate->format('d/m/Y'));
+                    $Row1 = array($startdate->format('d/m/Y'));
+                    $Row2 = array($enddate->format('d/m/Y'));
                     $Row3 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
                     $Row4 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");
                     $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4);
@@ -598,8 +633,8 @@ class Schedule {
                 $Button = "Add Holiday";
             }
             $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray);
-            $StartField = array("Start Time: ","Time","starttime",10,$starttime,"","","","","Select the Start Time","",'8:00','16:50',300);
-            $EndField = array("End Time: ","Time","endtime",10,$endtime,"","","","","Select the End Time","",'9:10','17:00',300);
+            // $StartField = array("Start Time: ","Time","starttime",10,$starttime,"","","","","Select the Start Time","",'8:00','16:50',300);
+            // $EndField = array("End Time: ","Time","endtime",10,$endtime,"","","","","Select the End Time","",'9:10','17:00',300);
             $StartDateField = array("Start Date: ","Date","startdate",10,$startdate,"","","","","Select the Start Date");
             $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"","","","","Select the End Date");
             $Fields = array($StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
