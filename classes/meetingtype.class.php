@@ -72,14 +72,14 @@ Class MeetingType{
                                 PDOConnection::sqlarray(":meetingname",$this->getname(),PDO::PARAM_STR),
                                 PDOConnection::sqlarray(":meetingdescription",$this->getdescription(),PDO::PARAM_STR),
                                 PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
-                                PDOConnection::sqlarray(":duration",$this->getduration(),PDO::PARAM_INT),
+                                PDOConnection::sqlarray(":duration",$this->getduration(),PDO::PARAM_INT)
                             ));
         $this->id = $WQ->getinsertid();
     }
     function save(){
-        $WQ = new WriteQuery("UPDATE meetings SET
+        $WQ = new WriteQuery("UPDATE meetingtype SET
                               meetingname = :meetingname,
-                              meetingdescription = :meetingdescription
+                              meetingdescription = :meetingdescription,
                               staffid = :staffid,
                               duration = :duration
                               WHERE id = :id",
@@ -238,13 +238,13 @@ Class MeetingType{
         ));
         print("<p class='alert alert-success'>Meeting Type has successfully been deleted</p>");
     }
-    static public function meetingform($MID,$name,$staffid,$duration){
+    static public function meetingform($MID,$name,$staffid,$description,$duration){
         Forms::generatebutton("Meeting Types","meetingtype.php","arrow-left","secondary");
         $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
         $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray);
         $NameField = array("Meeting Name: ","Text","name",30,$name,"Name of the Meeting Type","","","","Enter a Name for the Meeting Type");
         $DescriptionField = array("Description: ","TextArea","description",4,$description,"Enter a Description for the Meeting Type","","","","Details about the type of meeting e.g. Project Tutorial");
-        $DurationField = array("Duration (In minutes):", "NumberText","duration",30,$duration,5,"","","","Duration of the Meeting Type e.g. 30 mins","",5,120,5);
+        $DurationField = array("Duration (In minutes):", "NumberText","duration",30,$duration,"","","","","Duration of the Meeting Type e.g. 30 mins","",5,120,5);
         $Fields= array($StaffField,$NameField,$DescriptionField,$DurationField);
         if($MID > 0){
             $Button = "Edit Meeting Type";
