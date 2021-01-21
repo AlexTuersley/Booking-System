@@ -70,12 +70,18 @@
                     ` + this.getMonthName(settings.startDate.getMonth()) + ' ' + settings.startDate.getFullYear() + `
                 </div>
             `;
-            if(Date.parse(settings.startDate) > Date.parse(firstDay)){
+            if(settings.startDate.getTime() > firstDay.getTime()){
                 previousWeekHtml = `<div id="myc-prev-week-container">` + settings.prevHtml + `</div>`;
             }
             else{
                 previousWeekHtml = `<div id='myc-prev-week-container'></div>`;
             }
+            // if(firstDay.getTime() > usersetTimestamp){
+            //     nextWeekHtml = `<div id="myc-prev-week-container">` + settings.nextHtml + `</div>`;
+            // }
+            // else{
+            //     nextWeekHtml = `<div id='myc-prev-week-container'></div>`;
+            // }
             var navHtml = `
                 <div id="myc-nav-container">
                     ` + previousWeekHtml + `
@@ -112,8 +118,8 @@
                 var tmpAvailTimes = ``;
                 $.each(settings.availability[i], function() {
                     var date = new Date(settings.startDate.addDays(i));
-                    
-                    if(Date.parse(date) > Date.parse(curr)){
+                    //console.log(date.getTime());
+                    if(date.getTime() > curr.getTime()){
                         tmpAvailTimes += `
                         <a href="javascript:;" class="myc-available-time" data-time="` + this + `" data-date="` + formatDate(settings.startDate.addDays(i)) + `">
                             ` + this + `

@@ -107,13 +107,14 @@
         this.getAvailableTimes = function() {
             var tmp = ``;
             var curr = new Date(); // get current date
-            console.log(Date.parse(curr));
+            //console.log(Date.parse(curr));
             for (i = 0; i < 7; i++) {
                 var tmpAvailTimes = ``;
                 $.each(settings.availability[i], function() {
                     var date = new Date(settings.startDate.addDays(i));
-                    
-                    if(Date.parse(date) > Date.parse(curr)){
+                    //console.log(date.getTime());
+                    //console.log(curr.getTime());
+                    if(date.getTime() > curr.getTime()){
                         tmpAvailTimes += `
                         <a href="javascript:;" class="myc-available-time" data-time="` + this + `" data-date="` + formatDate(settings.startDate.addDays(i)) + `">
                             ` + this + `
