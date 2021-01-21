@@ -417,13 +417,16 @@ class Schedule {
             if($Duration > 0){
                 $schedule = Schedule::listuserslots($ID,$Duration);
                 if($schedule){
-                    //print_r($schedule);
-                    print_r($schedule[0]);
+                    
+                    //print_r($schedule[0]);
                     $name = Schedule::getstaffname($ID);
                     if($name){
                         print("<p class='welcome'>Availability for ".$name."</p>
                         <div id='picker'></div>");
-                        //Pass the availability through to the calendar
+                        print("<p>Selected Time: <span id='selected-time'></span></p>
+                               <p>Selected Date: <span id='selected-date'></span></p>");
+                        Forms::generatebutton("Make Booking","booking.php?edit=-1&staff=".$ID."&type=".$Type."&booking=","book","primary","","","","","book-button");
+                        
                         //Make sure can only go forward in dates and not backwards
                         //Availability should only show if does not interfere with a booking
                         //
@@ -431,7 +434,17 @@ class Schedule {
                         <script type="text/javascript">
                         (function($) {
                             var availabilityArray = <?echo json_encode($schedule[0]);?>;
-                            console.log(availabilityArray);
+                            //console.log(availabilityArray);
+                            $('#book-button').attr("disabled", true);
+                            $('#book-button').click(function (e) {
+                                e.preventDefault();
+                                if ($(this).attr('disabled'))
+
+                                    return false; // Do something else in here if required
+                                else
+                                    window.location.href = $(this).attr('href');
+                            });
+
                         $('#picker').markyourcalendar({
                             availability: availabilityArray
                             ,
@@ -441,9 +454,14 @@ class Schedule {
                             var t = data[0].split(' ')[1];
                             $('#selected-date').html(d);
                             $('#selected-time').html(t);
+                            var href = $("#book-button").attr("href");
+                            href= href + t +"-"+ d;
+                            $('#book-button').attr("disabled", false);
+                            $("#book-button").attr("href", href);
                             },
                             onClickNavigator: function(ev, instance) {
-                            instance.setAvailability(availabilityArray);
+                                instance.setAvailability(availabilityArray);
+                                
                             }
                         });
                         })(jQuery);
@@ -606,13 +624,13 @@ class Schedule {
                     if(!is_object($startdate)){
                         $startdate = new DateTime($startdate);
                     }           
-                    $startdate = $startdate->format('d/m/Y');                   
+                    $startdate = $startdate->format('m/d/Y');                   
                 }
                 if($enddate != NULL){
                     if(!is_object($enddate)){
                         $enddate = new DateTime($enddate);
                     }
-                    $enddate = $enddate->format('d/m/Y');
+                    $enddate = $enddate->format('m/d/Y');
                 }
                 $Button = "Edit Holiday";
             }

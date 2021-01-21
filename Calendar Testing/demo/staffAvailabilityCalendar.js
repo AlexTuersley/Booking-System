@@ -13,21 +13,24 @@
     }
 
     $.fn.markyourcalendar = function(opts) {
+        var curr = new Date(); // get current date
+        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+        var firstday = new Date(curr.setDate(first));
         var defaults = {
-            availability: [[], [], [], [], [],],
+            availability: [[], [], [], [], [], [], []], // listahan ng mga oras na pwedeng piliin
             isMultiple: false,
-            startDate: new Date(),
-            selectedTimes: [],
-            weekdays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+            months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            selectedDates: [],
+            startDate: firstday,
+            weekdays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday'],
         };
         var settings = $.extend({}, defaults, opts);
-        var onClick = settings.onClick;
         var instance = this;
 
         // kuhanin at ipakita ang mga araw
         this.getDaysHeader = function() {
             var tmp = ``;
-            for (i = 0; i < 5; i++) {
+            for (i = 0; i < 7; i++) {
                 tmp += `
                     <div class="myc-date-header" id="myc-date-header-` + i + `">
                         <div class="myc-date-display">` + settings.weekdays[i] + `</div>
@@ -45,9 +48,9 @@
                 var tmpAvailTimes = ``;
                 $.each(settings.availability[i], function() {
                     tmpAvailTimes += `
-                        <a href="javascript:;" class="myc-available-time" data-time="` + this + `" data-date="` + settings.startDate.addDays(i) + `">
+                        <p class="myc-available-time" data-time="` + this + `"">
                             ` + this + `
-                        </a>
+                        </p>
                     `;
                 });
                 tmp += `
@@ -67,36 +70,8 @@
 
         // clear
         this.clearAvailability = function() {
-            settings.availability = [[], [], [], [], []];
+            settings.availability = [[], [], [], [], [],[],[]];
         }
-
-        // pag namili ng oras
-        this.on('click', '.myc-available-time', function() {
-            var time = $(this).data('time');
-            var tmp =  time;
-            if ($(this).hasClass('selected')) {
-                $(this).removeClass('selected');
-                var idx = settings.selectedTimes.indexOf(tmp);
-                if (idx !== -1) {
-                    settings.selectedTimes.splice(idx, 1);
-                }
-            } else {
-                if (settings.isMultiple) {
-                    $(this).addClass('selected');
-                    settings.selectedTimes.push(tmp);
-                } else {
-                    settings.selectedTimes.pop();
-                    if (!settings.selectedTimes.length) {
-                        $('.myc-available-time').removeClass('selected');
-                        $(this).addClass('selected');
-                        settings.selectedTimes.push(tmp);
-                    }
-                }
-            }
-            if ($.isFunction(onClick)) {
-                onClick.call(this, ...arguments, settings.selectedTimes);
-            }
-        });
 
         var render = function() {
             ret = `

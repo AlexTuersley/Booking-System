@@ -4,6 +4,9 @@ session_start();
 $Script[0] = "js/BookingScript.js";
 $Script[1] = "js/ValidationScript.js";
 $Script[2] = "js/jquery.tablesorter.min.js";
+$_GET['booking'];
+$_GET['staff'];
+$_GET['type'];
 if($_SESSION["userlevel"]){
     $Level = $_SESSION["userlevel"];
 }
@@ -13,7 +16,7 @@ else{
 WebPage::headerandnav("Booking",$Level,"",$Script);
 if($Level > 0){
     if($_GET["edit"]){
-        
+        //Booking::addedit()
         //addedit($_GET["bid"]);
     }
     else{

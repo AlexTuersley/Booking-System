@@ -13,6 +13,9 @@
     }
 
     $.fn.markyourcalendar = function(opts) {
+        var curr = new Date(); // get current date
+        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+        var firstday = new Date(curr.setDate(first));
         var prevHtml = `
             <div id="myc-prev-week">
                 <
@@ -20,14 +23,14 @@
         `;
         var nextHtml = `<div id="myc-next-week">></div>`;
         var defaults = {
-            availability: [[], [], [], [], [], [], []], // listahan ng mga oras na pwedeng piliin
+            availability: [[], [], [], [], [], [], []],
             isMultiple: false,
-            months: ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'],
+            months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             prevHtml: prevHtml,
             nextHtml: nextHtml,
             selectedDates: [],
-            startDate: new Date(),
-            weekdays: ['sun', 'mon', 'tue', 'wed', 'thurs', 'fri', 'sat'],
+            startDate: firstday,
+            weekdays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday'],
         };
         var settings = $.extend({}, defaults, opts);
         var html = ``;
@@ -51,20 +54,28 @@
             if (month.length < 2) {
                 month = '0' + month;
             }
-            return year + '-' + month + '-' + date;
+            return date + '/' + month + '/' + year;
         };
 
         // Eto ang controller para lumipat ng linggo
         // Controller to change 
         this.getNavControl = function() {
-            var previousWeekHtml = `<div id="myc-prev-week-container">` + settings.prevHtml + `</div>`;
+            var previousWeekHtml = ``;
             var nextWeekHtml = `<div id="myc-prev-week-container">` + settings.nextHtml + `</div>`;
+            var curr = new Date(); // get current date
+            var first = curr.getDate() - curr.getDay();
+            var firstDay = new Date(curr.setDate(first));
             var monthYearHtml = `
                 <div id="myc-current-month-year-container">
                     ` + this.getMonthName(settings.startDate.getMonth()) + ' ' + settings.startDate.getFullYear() + `
                 </div>
             `;
-
+            if(Date.parse(settings.startDate) > Date.parse(firstDay)){
+                previousWeekHtml = `<div id="myc-prev-week-container">` + settings.prevHtml + `</div>`;
+            }
+            else{
+                previousWeekHtml = `<div id='myc-prev-week-container'></div>`;
+            }
             var navHtml = `
                 <div id="myc-nav-container">
                     ` + previousWeekHtml + `
@@ -95,14 +106,21 @@
         // kuhanin ang mga pwedeng oras sa bawat araw ng kasalukuyang linggo
         this.getAvailableTimes = function() {
             var tmp = ``;
+            var curr = new Date(); // get current date
+            //console.log(Date.parse(curr));
             for (i = 0; i < 7; i++) {
                 var tmpAvailTimes = ``;
                 $.each(settings.availability[i], function() {
-                    tmpAvailTimes += `
+                    var date = new Date(settings.startDate.addDays(i));
+                    
+                    if(Date.parse(date) > Date.parse(curr)){
+                        tmpAvailTimes += `
                         <a href="javascript:;" class="myc-available-time" data-time="` + this + `" data-date="` + formatDate(settings.startDate.addDays(i)) + `">
                             ` + this + `
                         </a>
                     `;
+                    }
+                
                 });
                 tmp += `
                     <div class="myc-day-time-container" id="myc-day-time-container-` + i + `">

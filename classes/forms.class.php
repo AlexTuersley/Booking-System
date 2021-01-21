@@ -130,6 +130,7 @@ Class Forms{
                 $('#datepicker-".$Name."').datepicker({
                     format:'DD/MM/YYYY',
                     altFormat: 'YYYY-MM-DD',
+                    minDate:0,
                     onSelect: function(dateText, inst) {
                         $('#".$Name."').val(dateText);
                     }
@@ -200,11 +201,11 @@ Class Forms{
                 print("</ul>");
             print("</div>");
     }
-    static public function generatebutton($Content,$Link = "#",$Icon = "plus",$Color = "primary",$CustomCode = "", $ExtraClass = "",$ToolTip = "", $Target = ""){
+    static public function generatebutton($Content,$Link = "#",$Icon = "plus",$Color = "primary",$CustomCode = "", $ExtraClass = "",$ToolTip = "", $Target = "", $ID = ""){
 
         $Target = $Target == "" ? "_self" : $Target;
 
-        print("<p title='".$ToolTip."' style='display: inline-block; margin-right:5px; margin-bottom: 5px;'><a href='".$Link."' class='btn btn-outline-".$Color." ".$ExtraClass."' ".$CustomCode." title='".$ToolTip."' target='".$Target."'><i class=\"fas fa-".$Icon."\"></i> ".$Content."</a></p>");
+        print("<p title='".$ToolTip."' style='display: inline-block; margin-right:5px; margin-bottom: 5px;'><a href='".$Link."' id='".$ID."' class='btn btn-outline-".$Color." ".$ExtraClass."' ".$CustomCode." title='".$ToolTip."' target='".$Target."'><i class=\"fas fa-".$Icon."\"></i> ".$Content."</a></p>");
     }
 }
    
