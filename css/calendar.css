@@ -114,7 +114,17 @@
 }
 
 .myc-available-time {
-    background-color: #29b6f6;
+    background-color:#2e2e2e;
+    border-radius: 20px;
+    color: #ffffff;
+    display: block;
+    margin-bottom: 15px;
+    padding: 10px 0px 10px 0px;
+    text-align: center;
+}
+
+.myc-available-time-2 {
+    background-color:#2e2e2e;
     border-radius: 20px;
     color: #ffffff;
     display: block;
@@ -124,7 +134,7 @@
 }
 
 .myc-available-time.selected, .myc-available-time:hover {
-    background-color: #222;
+    background-color: rgb(14, 146, 207);
 }
 
 .myc-date-display {

@@ -514,29 +514,30 @@ class User{
             if($row){
                 if($ID === $_SESSION['userid']){
                     Forms::generatebutton("Edit","user.php?edit=".$ID,"user-edit","primary");
+                    Forms::generatebutton("Feedback","feedback.php","comment","primary");
                 }
                 else{
                     //booking button
                 }
                 $Bio = "";
-                $UserInfo = "<p>Full name: ".$row['fullname']."</p>
-                             <p>Email: ".$row['email']."</p>";
+                $UserInfo = "<p><strong>Full name:</strong> ".$row['fullname']."</p>
+                             <p><strong>Email:</strong> ".$row['email']."</p>";
                 if($row['phone'] > 0){
-                    $UserInfo .= "<p>Phone: ".$row['phone']."</p>";
+                    $UserInfo .= "<p><strong>Phone:</strong> ".$row['phone']."</p>";
                 }  
                 // if($row['department' > 0]){
                 //     $UserInfo += "<p>Department: ".$row['departmentname']."</p>";
                 // }   
             
                 if($row['userlocation'] != NULL){
-                    $UserInfo .= "<p>Location: ".$row['userlocation']."</p>";
+                    $UserInfo .= "<p><strong>Location:</strong> ".$row['userlocation']."</p>";
                 }
 
                 if($row['bio'] != NULL){
-                    $UserInfo .= "<p>Bio: ".$row['bio']."</p>";
+                    $UserInfo .= "<p><strong>Bio:</strong> ".$row['bio']."</p>";
                 }
                 print("
-                <div class='row'>
+                <div class='row' style='margin-top:20px;'>
                 <div class='col-6'>
                     <img src='http://localhost/Booking-System/images/Default%20Profile%20Picture.png' alt='User Profile Picture'>
                 </div>
@@ -546,8 +547,8 @@ class User{
                 if($schedule[0]){
                     print("
                     <div class='container'>
-                        <p class='welcome'>Weekly Availability for ".$row['username']." (30 Min Slots)</p>
-                        <div id='picker'>
+                        <h3 class='welcome'>Weekly Availability for ".$row['username']." (30 Min Slots)</h3>
+                        <div id='picker' style='clear:both;'>
                     </div>");
                     ?>
                     <script type="text/javascript">

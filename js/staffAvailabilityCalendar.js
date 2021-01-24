@@ -40,7 +40,7 @@
                 var tmpAvailTimes = ``;
                 $.each(settings.availability[i], function() {
                     tmpAvailTimes += `
-                        <p class="myc-available-time" data-time="` + this + `"">
+                        <p class="myc-available-time-2" data-time="` + this + `"">
                             ` + this + `
                         </p>
                     `;
