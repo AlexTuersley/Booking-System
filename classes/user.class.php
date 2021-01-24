@@ -513,7 +513,7 @@ class User{
             $row = $RQ->getresults()->fetch(PDO::FETCH_ASSOC);
             if($row){
                 if($ID === $_SESSION['userid']){
-                    //edit button
+                    Forms::generatebutton("Edit","user.php?edit=".$ID,"user-edit","primary");
                 }
                 else{
                     //booking button
@@ -522,22 +522,23 @@ class User{
                 $UserInfo = "<p>Full name: ".$row['fullname']."</p>
                              <p>Email: ".$row['email']."</p>";
                 if($row['phone'] > 0){
-                    $UserInfo += "<p>Phone: ".$row['phone']."</p>";
+                    $UserInfo .= "<p>Phone: ".$row['phone']."</p>";
                 }  
                 // if($row['department' > 0]){
                 //     $UserInfo += "<p>Department: ".$row['departmentname']."</p>";
                 // }   
             
-                if($row['userlocation'] != ""){
-                    $UserInfo += "<p>Location: ".$row['userlocation']."</p>";
+                if($row['userlocation'] != NULL){
+                    $UserInfo .= "<p>Location: ".$row['userlocation']."</p>";
                 }
-                if($row['bio'] != ""){
-                    $Userinfo += "<p>Bio: ".$row['bio']."</p>";
+
+                if($row['bio'] != NULL){
+                    $UserInfo .= "<p>Bio: ".$row['bio']."</p>";
                 }
                 print("
                 <div class='row'>
                 <div class='col-6'>
-                    PHOTO HERE
+                    <img src='http://localhost/Booking-System/images/Default%20Profile%20Picture.png' alt='User Profile Picture'>
                 </div>
                 <div class='col-6'>
                     ".$UserInfo."
@@ -765,6 +766,9 @@ class User{
         }
         else{
             $Path = "user.php?edit=".$UID."";
+            if($UID = $_SESSION['userid']){
+                Forms::generatebutton("User Details","user.php","arrow-left","secondary");
+            }
         }
         $EmailField = array("Email:","Email","email",30,$email,"Enter your Email","","","","User Email e.g. john.example.com");
         $UsernameField = array("Username: ","Text","username",30,$username,"Enter your Username","","","","Username used to login to the system e.g. User1");
