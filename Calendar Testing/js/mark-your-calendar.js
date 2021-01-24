@@ -13,9 +13,9 @@
     }
 
     $.fn.markyourcalendar = function(opts) {
-        var curr = new Date(); // get current date
-        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        var firstday = new Date(curr.setDate(first));
+        var currentDate = new Date(); // get current date
+        var first = currentDate.getDate() - currentDate.getDay(); // First day is the day of the month - the day of the week
+        var firstday = new Date(currentDate.setDate(first));
         var prevHtml = `
             <div id="myc-prev-week">
                 <
@@ -62,20 +62,34 @@
         this.getNavControl = function() {
             var previousWeekHtml = ``;
             var nextWeekHtml = `<div id="myc-prev-week-container">` + settings.nextHtml + `</div>`;
-            var curr = new Date(); // get current date
-            var first = curr.getDate() - curr.getDay();
-            var firstDay = new Date(curr.setDate(first));
+            //calculate the firstday of the week displayed
+            var currentDate = new Date(); // get currentDateent date
+            var first = currentDate.getDate() - currentDate.getDay();
+            var firstDay = new Date(currentDate.setDate(first));
+            //one month form now
+            
+            var currentMonth = currentDate.getMonth();
+            var currentDay = currentDate.getDate();
+            currentDate.setMonth(currentMonth + 1, currentDay);
+            console.log(firstDay);
             var monthYearHtml = `
                 <div id="myc-current-month-year-container">
                     ` + this.getMonthName(settings.startDate.getMonth()) + ' ' + settings.startDate.getFullYear() + `
                 </div>
             `;
-            if(Date.parse(settings.startDate) > Date.parse(firstDay)){
+            if(settings.startDate.getTime() > firstDay.getTime()){
                 previousWeekHtml = `<div id="myc-prev-week-container">` + settings.prevHtml + `</div>`;
             }
             else{
                 previousWeekHtml = `<div id='myc-prev-week-container'></div>`;
             }
+            // if(curr.getTime() > firstDay.getTime()){
+            //     nextWeekHtml = `<div id="myc-prev-week-container">` + settings.nextHtml + `</div>`;
+            // }
+            // else{
+            //     nextWeekHtml = `<div id="myc-prev-week-container"></div>`;
+            // }
+
             var navHtml = `
                 <div id="myc-nav-container">
                     ` + previousWeekHtml + `
@@ -106,15 +120,12 @@
         // kuhanin ang mga pwedeng oras sa bawat araw ng kasalukuyang linggo
         this.getAvailableTimes = function() {
             var tmp = ``;
-            var curr = new Date(); // get current date
-            //console.log(Date.parse(curr));
+            var currentDate = new Date();
             for (i = 0; i < 7; i++) {
                 var tmpAvailTimes = ``;
                 $.each(settings.availability[i], function() {
                     var date = new Date(settings.startDate.addDays(i));
-                    //console.log(date.getTime());
-                    //console.log(curr.getTime());
-                    if(date.getTime() > curr.getTime()){
+                    if(date.getTime() > currentDate.getTime()){
                         tmpAvailTimes += `
                         <a href="javascript:;" class="myc-available-time" data-time="` + this + `" data-date="` + formatDate(settings.startDate.addDays(i)) + `">
                             ` + this + `
@@ -155,7 +166,6 @@
             }
         });
 
-        // pag napindot ang susunod na linggo
         this.on('click', '#myc-next-week', function() {
             settings.startDate = settings.startDate.addDays(7);
             instance.clearAvailability();
@@ -166,7 +176,6 @@
             }
         });
 
-        // pag namili ng oras
         this.on('click', '.myc-available-time', function() {
             var date = $(this).data('date');
             var time = $(this).data('time');

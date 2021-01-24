@@ -335,7 +335,7 @@ class User{
 
         $OldError = array("currentpassworderror","Please enter your current password.");
         $NewError = array("newpassworderror","Please enter your new password. Passwords must be at least 10 Characters! Search online for best password practices for help on creating a secure password.");
-        $New1Error = array("new1paxxssworderror","Please re-enter your new password.");
+        $New1Error = array("new1passworderror","Please re-enter your new password.");
         $MatchError = array("passwordmatcherror","Your new passwords do not match.");
         $BadPWError = array("badpwerror","You cannot use this password! Choose a more secure one.");
         $DefaultError = array("defaulterror","Your current password does not match the system.");
@@ -499,6 +499,80 @@ class User{
             User::signupform();
         }
 
+    }
+
+    static public function aboutmepage($ID){
+        include("schedule.class.php");
+        if($ID > 0){
+            $RQ = new ReadQuery("SELECT email, username, fullname, phone, department,bio,userlocation 
+                                 FROM users JOIN userinformation ON users.id = userinformation.userid
+                                 WHERE users.id = :id", array(
+                                     PDOConnection::sqlarray(':id',$ID,PDO::PARAM_INT)
+                                 ));
+            $schedule = Schedule::listuserslots($ID,30);
+            $row = $RQ->getresults()->fetch(PDO::FETCH_ASSOC);
+            if($row){
+                if($ID === $_SESSION['userid']){
+                    //edit button
+                }
+                else{
+                    //booking button
+                }
+                $Bio = "";
+                $UserInfo = "<p>Full name: ".$row['fullname']."</p>
+                             <p>Email: ".$row['email']."</p>";
+                if($row['phone'] > 0){
+                    $UserInfo += "<p>Phone: ".$row['phone']."</p>";
+                }  
+                // if($row['department' > 0]){
+                //     $UserInfo += "<p>Department: ".$row['departmentname']."</p>";
+                // }   
+            
+                if($row['userlocation'] != ""){
+                    $UserInfo += "<p>Location: ".$row['userlocation']."</p>";
+                }
+                if($row['bio'] != ""){
+                    $Userinfo += "<p>Bio: ".$row['bio']."</p>";
+                }
+                print("
+                <div class='row'>
+                <div class='col-6'>
+                    PHOTO HERE
+                </div>
+                <div class='col-6'>
+                    ".$UserInfo."
+                </div>");
+                if($schedule[0]){
+                    print("
+                    <div class='container'>
+                        <p class='welcome'>Weekly Availability for ".$row['username']." (30 Min Slots)</p>
+                        <div id='picker'>
+                    </div>");
+                    ?>
+                    <script type="text/javascript">
+                    (function($) {
+                        var availabilityArray = <?echo json_encode($schedule[0]);?>;
+    
+                    $('#picker').markyourcalendar({
+                        availability: availabilityArray
+                        ,
+                        onClick: function(ev, data) {
+                        },
+                        onClickNavigator: function(ev, instance) {
+                            instance.setAvailability(availabilityArray);                    
+                        }
+                    });
+                    })(jQuery);
+                    </script>
+                    <?
+                }
+                else{
+
+                }
+               
+            }
+        }
+        //use default photo atm
     }
     //Sign up form
     static public function signupform($Email = "",$Username = "",$Password = "", $Fullname = "",$Phone = "", $Bio = "", $Check = 0,$Department = 0, $Location = ""){

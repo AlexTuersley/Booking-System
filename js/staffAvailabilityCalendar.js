@@ -6,11 +6,11 @@
     }
 
     $.fn.markyourcalendar = function(opts) {
-        var curr = new Date(); // get current date
-        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        var firstday = new Date(curr.setDate(first));
+        var currentDate = new Date(); // get current date
+        var first = currentDate.getDate() - currentDate.getDay(); // First day is the day of the month - the day of the week
+        var firstday = new Date(currentDate.setDate(first));
         var defaults = {
-            availability: [[], [], [], [], [], [], []], // listahan ng mga oras na pwedeng piliin
+            availability: [[], [], [], [], [], [], []],
             isMultiple: false,
             selectedDates: [],
             startDate: firstday,
