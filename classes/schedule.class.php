@@ -185,7 +185,7 @@ class Schedule {
         $endtime = $_POST["endtime"];
         $startdate = $_POST["startdate"];
         $enddate = $_POST["enddate"];
-        $Submit =$_POST["submit"];
+        $Submit = $_POST["submit"];
 
         if($Submit){
             if($startdate != NULL){
@@ -417,7 +417,6 @@ class Schedule {
             if($Duration > 0){
                 $schedule = Schedule::listuserslots($ID,$Duration);
                 if($schedule){
-                    
                     //print_r($schedule[0]);
                     $name = Schedule::getstaffname($ID);
                     if($name){
@@ -425,7 +424,7 @@ class Schedule {
                         <div id='picker'></div>");
                         print("<p>Selected Time: <span id='selected-time'></span></p>
                                <p>Selected Date: <span id='selected-date'></span></p>");
-                        Forms::generatebutton("Make Booking","booking.php?edit=-1&staff=".$ID."&type=".$Type."&booking=","book","primary","","","","","book-button");
+                        Forms::generatebutton("Make Booking","bookings.php?edit=-1&staff=".$ID."&type=".$Type."&booking=","book","primary","","","","","book-button");
                         
                         //Make sure can only go forward in dates and not backwards
                         //Availability should only show if does not interfere with a booking
@@ -454,8 +453,12 @@ class Schedule {
                             var t = data[0].split(' ')[1];
                             $('#selected-date').html(d);
                             $('#selected-time').html(t);
+                            
+                            
                             var href = $("#book-button").attr("href");
-                            href= href + t +"-"+ d;
+                            var point = href.substring(0, href.lastIndexOf('booking='));
+                            point += "booking="+t+":00-"+ d;
+                            href = point;
                             $('#book-button').attr("disabled", false);
                             $("#book-button").attr("href", href);
                             },

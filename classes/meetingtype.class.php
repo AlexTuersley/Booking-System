@@ -143,6 +143,16 @@ Class MeetingType{
         }
         return true;
     }
+
+    static public function getmeetingnamestatic($ID){
+        $RQ = new ReadQuery("SELECT meetingname FROM meetingtype WHERE id = :id AND deleted = 0",array(
+            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+        ));
+        if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            return $row["meetingname"];
+        }
+        return "Meeting Type doesn't exist";
+    }
     
     //Display selectable meeting types for student users
     static public function showmeetingtypes($STID,$DID){
@@ -248,7 +258,6 @@ Class MeetingType{
         $Fields= array($StaffField,$NameField,$DescriptionField,$DurationField);
         if($MID > 0){
             $Button = "Edit Meeting Type";
-
         }
         else{
             $Button = "Add Meeting Type";

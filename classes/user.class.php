@@ -360,6 +360,15 @@ class User{
         }
 
     }
+    static public function getstaticusername($ID){
+        $RQ = new ReadQuery("SELECT username FROM users WHERE id = :id",array(
+            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+        ));
+        if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            return $row["username"];
+          }
+        return "user not found";
+    }
     static public function forgotpasswordform(){
         $EmailField = array("Email:","Email","email",30,$Email,"Enter your Email","","","","User Email e.g. john.example.com");
         $Button = "Forgotten Password";
@@ -536,10 +545,16 @@ class User{
                 if($row['bio'] != NULL){
                     $UserInfo .= "<p><strong>Bio:</strong> ".$row['bio']."</p>";
                 }
+                if($row['photo'] != ""){
+                    $UserPic = $row['photo'];
+                }
+                else{
+                    $UserPic = DEFAULTPICTURE;
+                }
                 print("
                 <div class='row' style='margin-top:20px;'>
                 <div class='col-6'>
-                    <img src='http://localhost/Booking-System/images/Default%20Profile%20Picture.png' alt='User Profile Picture'>
+                    <img style='height:256px;width:256px;'src='".$UserPic."' alt='User Profile Picture'>
                 </div>
                 <div class='col-6'>
                     ".$UserInfo."

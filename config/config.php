@@ -15,6 +15,7 @@ define("BASEPATH",$ini["config"]["paths"]['basepath']);
 define("EMAILCHECK",$ini["config"]["security"]["email"]);
 define('SALT', $ini['config']['security']['salt']);
 define('ADMIN', $ini['config']['security']['admin']);
+define('DEFAULTPICTURE',$ini['config']['user']['defaultphoto']);
 
 /**
 * This file handles errors and sets the paths to different files and routes based on .ini files

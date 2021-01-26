@@ -7,6 +7,7 @@ $Department = $_GET["department"];
 $Staff = $_GET["staff"];
 $Holiday = $_GET['away'];
 $MeetingType = $_GET['type'];
+$Booking = $_GET['booking'];
 $CSS[0] = "/Booking-System/css/jquery-ui.min.css";
 $CSS[1] = "/Booking-System/css/calendar.css";
 $Script[0] = "js/jquery.tablesorter.min.js";

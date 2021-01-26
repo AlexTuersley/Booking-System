@@ -4,9 +4,9 @@ session_start();
 $Script[0] = "js/BookingScript.js";
 $Script[1] = "js/ValidationScript.js";
 $Script[2] = "js/jquery.tablesorter.min.js";
-$_GET['booking'];
-$_GET['staff'];
-$_GET['type'];
+$Booking = $_GET['booking'];
+$Staff = $_GET['staff'];
+$Type = $_GET['type'];
 if($_SESSION["userlevel"]){
     $Level = $_SESSION["userlevel"];
 }
@@ -16,13 +16,14 @@ else{
 WebPage::headerandnav("Booking",$Level,"",$Script);
 if($Level > 0){
     if($_GET["edit"]){
-        //Booking::addedit()
-        //addedit($_GET["bid"]);
+        if($Staff && $Booking && $Type){
+            Booking::makebooking($Staff,$Type,$Booking);
+        }
+        Booking::addedit($_GET["bid"]);
     }
     else{
         Booking::showbookings($_SESSION["userid"]);
     }
-
 }
 else{
     print("<p class='welcome'>You do not have permission to access this page. Redirecting shortly</p>");
