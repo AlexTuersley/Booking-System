@@ -369,6 +369,16 @@ class User{
           }
         return "user not found";
     }
+    static public function getstaticemail($ID){
+        $RQ = new ReadQuery("SELECT email FROM users WHERE id = :id",array(
+            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+        ));
+        if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            return $row["email"];
+          }
+        return false;
+    }
+
     static public function forgotpasswordform(){
         $EmailField = array("Email:","Email","email",30,$Email,"Enter your Email","","","","User Email e.g. john.example.com");
         $Button = "Forgotten Password";
@@ -473,7 +483,7 @@ class User{
                     $headers[] = 'MIME-Version: 1.0';
                     $headers[] = 'Content-type: text/html; charset=iso-8859-1';
                     $headers[] = "From: Booking System <noreply@bookingsystem.com>";
-                    $Link = "user.php?activate=".$User->getid();
+                    $Link = BASEPATH."user.php?activate=".$User->getid();
 
                     $email_subject = "New User Registration";
                     $email_message = "<html>
@@ -651,6 +661,7 @@ class User{
                 $_SESSION["username"] = $User->getusername();
                 $_SESSION["userid"] = $UserID;
                 $_SESSION["userlevel"] = $User->getuserlevel();
+                $_SESSION['email'] = $User->getemail();
                 $_SESSION["loginstatus"] = 1;
                 //print("<p class='welcome'>Login Successful. You will be redirected to the main page shortly</p>");
                 header("Location: http://".BASEPATH."/index.php");
@@ -737,10 +748,10 @@ class User{
             $Row2 = array($row["fullname"]);
             $Row3 = array(User::getuserleveltype($row["userlevel"]));
             if($row["activated"] > 0){
-                $Row4 = array("<i class='fas fa-check-circle' title='user activated'></i>");
+                $Row4 = array("<i class='fas fa-check-circle' style='color:green;' title='user activated'></i>");
             }
             else{
-                $Row4 = array("<a href='?activate=". $row["id"] ."'><i class='fas fa-power-off' aria-hidden='true' title='Activate ".$row["username"]."'></i></a>","button");
+                $Row4 = array("<a href='?activate=". $row["id"] ."'><i class='fas fa-power-off' aria-hidden='true' style='color:red; cursor: pointer;' title='Activate ".$row["username"]."'></i></a>","button");
        
             }
             $Row5 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-user-edit' aria-hidden='true' title='Edit ".$row["username"]."'></i></a>","button");

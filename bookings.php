@@ -15,11 +15,26 @@ else{
 }
 WebPage::headerandnav("Booking",$Level,"",$Script);
 if($Level > 0){
+    if($GET['id'] && $GET['confirm']){
+        Booking::confirmbooking($GET['id']);
+    }
+    // if($Level > 2){
+    //     //showusers with bookings link
+    //     //then showusers bookings
+    //     //or addedit
+    // }
     if($_GET["edit"]){
         if($Staff && $Booking && $Type){
             Booking::makebooking($Staff,$Type,$Booking);
         }
-        Booking::addedit($_GET["bid"]);
+        else{
+            Booking::addedit($_GET["edit"]);
+        }
+       
+    }
+    elseif($_GET['remove']){
+        Booking::cancelbooking($_GET['remove']);
+        Booking::showbookings($_SESSION["userid"]);
     }
     else{
         Booking::showbookings($_SESSION["userid"]);

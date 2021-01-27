@@ -18,7 +18,11 @@ if($_GET["signout"] && $Level > 0){
 }
 elseif($_SESSION["userlevel"] > 0){
 
-   
+    // if($Level > 2){
+    //     //showusers with meeting type link
+    //     //then showusers meeting types
+    //     //or addedit
+    // }
     if($_GET["edit"]){
         MeetingType::addedit($_GET['edit']);
     }

@@ -17,6 +17,11 @@ $Script[3] = "js/mark-your-calendar.js";
 WebPage::headerandnav("Home",$Level,$CSS,$Script);
 
 if($Level > 0){
+    // if($Level > 2){
+    //     //showusers with schedule link
+    //     //then showusers schedule with holiday link and meeting type
+    //     //or addedit
+    // }
     if($Level >= 2){
         if($_GET["edit"]){
             Schedule::addedit($_GET["edit"]);
