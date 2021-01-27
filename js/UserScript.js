@@ -27,10 +27,10 @@ function checksignupform(form){
         passerr.style.display = "none";
         fullnameerr.style.display = "none";
         if(validateEmail(form.email.value)){
-            if(form.usercheckbox.checked === true && form.department.value > 0){
+            if(form.usercheckbox.checked == true && form.department.value > 0){
                 return true;
             }
-            else if(form.usercheckbox.checked === false && form.department.value === 0){
+            else if(form.usercheckbox.checked == false && form.department.value == 0){
                 return true;
             }
             else{
@@ -40,8 +40,8 @@ function checksignupform(form){
             }
         } 
         else{
-            if(form.usercheckbox.checked === true && form.department.value > 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
-            if(form.usercheckbox.checked === false && form.department.value === 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
+            if(form.usercheckbox.checked == true && form.department.value > 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
+            if(form.usercheckbox.checked == false && form.department.value == 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
             return false;
         }
     }
@@ -50,8 +50,9 @@ function checksignupform(form){
         if(form.password.value != ""){passerr.style.display = "none";}else{passerr.style.display = "list-item";}
         if(form.fullname.value != ""){fullnameerr.style.display = "none";}else{fullnameerr.style.display = "list-item";}
         if(form.email.value != "" && validateEmail(form.email.value)){emailerr.style.display = "none";}else{emailerr.style.display = "list-item";}
-        if(form.usercheckbox.checked === true && form.department.value > 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
-        if(form.usercheckbox.checked === false && form.department.value === 0 || departmenterr.style.display != "list-item"){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
+        if(form.usercheckbox.checked == true && form.department.value > 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
+
+        if(form.usercheckbox.checked == false && form.department.value == 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
         return false;
     }
 }
