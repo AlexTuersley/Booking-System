@@ -219,6 +219,9 @@ class Booking{
             }
             if($BID > 0){
                 $Booking = new Booking($BID);
+                if($starttime != $Booking->getstarttime()->format('y-m-d H:i:s')){
+                    $Update =1;
+                }
                 $Booking->setstudentid($studentid);
                 $Booking->setstaffid($staffid);
                 $Booking->setstarttime($starttime);
@@ -226,6 +229,31 @@ class Booking{
                 $Booking->setmeetingtype($meeting);
                 $Booking->setnote($note);
                 $Booking->save();
+                if($Update){
+                    if(function_exists("mail")){
+                        include('user.class.php');
+                        $headers[] = 'MIME-Version: 1.0';
+                        $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+                        $headers[] = "From: Booking System <noreply@bookingsystem.com>";
+                        $recipients = array(
+                            $_SESSION['email'],
+                            User::getstaticemail($studentid)
+                        );
+            
+                        $email_subject = "Booking Change";
+                        $email_message = "<html>
+                                            <head><title>Booking Change</title></head>
+                                            <body>
+                                            <p>Booking at time with ".$_SESSION['username']." has changed to ".$Booking->getstarttime()."</p>
+                                            </body>
+                                            </html>";
+                        $sendmail = mail(implode(',', $recipients), $email_subject, $email_message, implode("\r\n", $headers));
+                        if($sendmail){
+                            print("<p class='alert alert-success welcome'>An email has been sent to you to show the changes</p>");
+                            print("</div>");
+                        }
+                    }
+                }
                 print("<p class='welcome alert alert-success'>The Booking has been edited.</p>");
             }
             else{
@@ -275,8 +303,8 @@ class Booking{
             $Row4 = array($starttime->format("H:i:s d/m/Y"));
             $Row5 = array($endtime->format("H:i:s d/m/Y"));
             $Row6 = array(MeetingType::getmeetingnamestatic($row["meetingtype"]));
-            $Row7 = array("<a href='?edit=". $row["id"] ."' alt='Edit Booking'><i class='fas fa-edit' aria-hidden='true' title='Edit Booking'></i></a>","button");
-            $Row8 = array("<a href='?remove=". $row["id"] ."' alt='Delete Booking'><i class='fas fa-trash-alt' title='Delete Booking'></i></a>","button");
+            $Row7 = array("<a href='?edit=". $row["id"] ."' alt='Edit Booking'><i class='fas fa-edit' aria-hidden='true' title='Edit Booking' alt='Edit'></i></a>","button");
+            $Row8 = array("<a href='?remove=". $row["id"] ."' alt='Delete Booking'><i class='fas fa-trash-alt' title='Delete Booking' alt='Delete'></i></a>","button");
             $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
             $RowCounter++;
         }

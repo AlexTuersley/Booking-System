@@ -13,20 +13,14 @@ function setuperr(def,err){
 
     err.style.display = "block";
 }
-function validateemail(field)
-{
-    with (field)
-    {
-        apostophe=value.indexOf("@");
-        dotposistion=value.lastIndexOf(".");
-        if (apostrophe<1||dotposistion-apostrophe<2) 
-        {
-            return false;
-        } else {
-            return true;
-        }
+function validateEmail(email) {
+    atpos = email.indexOf("@");
+    dotpos = email.lastIndexOf(".");
+    if (atpos < 1 || ( dotpos - atpos < 2 )) {
+       return false;
     }
-}
+    return( true );
+ }
 function validatedate(date)
 {
     var error;

@@ -523,14 +523,21 @@ class User{
     static public function aboutmepage($ID){
         include("schedule.class.php");
         if($ID > 0){
-            $RQ = new ReadQuery("SELECT email, username, fullname, phone, department,bio,userlocation 
+            $RQ = new ReadQuery("SELECT email,username,userlevel,fullname,phone,department,bio,userlocation 
                                  FROM users JOIN userinformation ON users.id = userinformation.userid
                                  WHERE users.id = :id", array(
                                      PDOConnection::sqlarray(':id',$ID,PDO::PARAM_INT)
                                  ));
-            $schedule = Schedule::listuserslots($ID,30);
+            
+
             $row = $RQ->getresults()->fetch(PDO::FETCH_ASSOC);
             if($row){
+                if($row["userlevel"] == 2){
+                    $schedule = Schedule::listuserslots($ID,30);
+                }
+                else{
+                    $schedule = array();
+                }
                 if($ID === $_SESSION['userid']){
                     Forms::generatebutton("Edit","user.php?edit=".$ID,"user-edit","primary");
                     Forms::generatebutton("Feedback","feedback.php","comment","primary");

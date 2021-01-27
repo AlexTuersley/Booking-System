@@ -26,7 +26,7 @@ function checksignupform(form){
         usererr.style.display = "none";
         passerr.style.display = "none";
         fullnameerr.style.display = "none";
-        if(validateemail(form.email.value)){
+        if(validateEmail(form.email.value)){
             if(form.usercheckbox.checked === true && form.department.value > 0){
                 return true;
             }
@@ -49,7 +49,7 @@ function checksignupform(form){
         if(form.username.value != ""){usererr.style.display = "none";}else{usererr.style.display = "list-item";}
         if(form.password.value != ""){passerr.style.display = "none";}else{passerr.style.display = "list-item";}
         if(form.fullname.value != ""){fullnameerr.style.display = "none";}else{fullnameerr.style.display = "list-item";}
-        if(form.email.value != "" && validateemail(form.email.value)){emailerr.style.display = "none";}else{emailerr.style.display = "list-item";}
+        if(form.email.value != "" && validateEmail(form.email.value)){emailerr.style.display = "none";}else{emailerr.style.display = "list-item";}
         if(form.usercheckbox.checked === true && form.department.value > 0){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
         if(form.usercheckbox.checked === false && form.department.value === 0 || departmenterr.style.display != "list-item"){ departmenterr.style.display = "none";}else{departmenterr.style.display = "list-item";}
         return false;
@@ -68,7 +68,7 @@ function checkforgottenpasswordform(form)
 
     if(form.email.value != "") 
     {
-        if(validateemail(form.email)){
+        if(validateEmail(form.email)){
         	return true;
         } else {
         	setuperr(def,err);
