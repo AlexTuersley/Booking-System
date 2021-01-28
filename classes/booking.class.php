@@ -168,7 +168,7 @@ class Booking{
     }
     //used by staff to confirm that the booking will go ahead
     static public function confirmbooking($BID){
-        $WQ = new WriteQuery("UPDATE bookings SET confimed = 1 WHERE id = :id",
+        $WQ = new WriteQuery("UPDATE bookings SET confirmed = 1 WHERE id = :id",
             array(PDOConnection::sqlarray(":id",$BID,PDO::PARAM_INT))
         );
     }
@@ -345,7 +345,7 @@ class Booking{
             $headers[] = 'MIME-Version: 1.0';
             $headers[] = 'Content-type: text/html; charset=iso-8859-1';
             $headers[] = "From: Booking System <noreply@bookingsystem.com>";
-            $Link = BASEPATH."bookings.php?id=".$Booking->getid()."&confirm=1";
+            $Link = BASEPATH."/bookings.php?id=".$Booking->getid()."&confirm=1";
             $StaffEmail = User::getstaticemail($staffid);
             $StaffName = User::getstaticusername($staffid);
             $recipients = array(

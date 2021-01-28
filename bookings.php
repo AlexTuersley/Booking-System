@@ -7,6 +7,7 @@ $Script[2] = "js/jquery.tablesorter.min.js";
 $Booking = $_GET['booking'];
 $Staff = $_GET['staff'];
 $Type = $_GET['type'];
+
 if($_SESSION["userlevel"]){
     $Level = $_SESSION["userlevel"];
 }
@@ -15,8 +16,8 @@ else{
 }
 WebPage::headerandnav("Booking",$Level,"",$Script);
 if($Level > 0){
-    if($GET['id'] && $GET['confirm']){
-        Booking::confirmbooking($GET['id']);
+    if($_GET['id'] && $_GET['confirm']){
+        Booking::confirmbooking($_GET['id']);
     }
     // if($Level > 2){
     //     //showusers with bookings link
