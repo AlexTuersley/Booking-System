@@ -152,7 +152,7 @@ class Booking{
             $email_message = "<html>
                               <head><title>Booking Cancelled</title></head>
                               <body>
-                              <p>The Booking at".$BookingTime." with ".$StaffName." and ".$StudentName."has been cancelled</p>
+                              <p>The Booking at ".$BookingTime." with ".$StaffName." and ".$StudentName." has been cancelled</p>
                               <p>If wish to make another booking please use the system again</p>
                               </body>
                               </html>";
@@ -244,7 +244,7 @@ class Booking{
                         $email_message = "<html>
                                             <head><title>Booking Change</title></head>
                                             <body>
-                                            <p>Booking at time with ".$_SESSION['username']." has changed to ".$Booking->getstarttime()."</p>
+                                            <p>Booking at time with ".$_SESSION['username']." has changed to ".$starttime->format('H:i:s d/m/Y')."</p>
                                             </body>
                                             </html>";
                         $sendmail = mail(implode(',', $recipients), $email_subject, $email_message, implode("\r\n", $headers));
@@ -311,6 +311,10 @@ class Booking{
         print("<p class='welcome'>List of Bookings for ".$_SESSION['username']."</p>");
         Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Start");
     }
+    //check a passed through startdate against stored bookigns in DB
+    static public function checkstartdate($STID, $StartDateTime){
+
+    }
     //for students, staff use addedit to add booking
     static public function makebooking($Staff,$Type,$Booking){
         include("schedule.class.php");
@@ -335,27 +339,31 @@ class Booking{
         $Booking->setnote("");
         $Booking->setconfirmed(0);
         $Booking->savenew();
+
         if(function_exists("mail")){
             include('user.class.php');
             $headers[] = 'MIME-Version: 1.0';
             $headers[] = 'Content-type: text/html; charset=iso-8859-1';
             $headers[] = "From: Booking System <noreply@bookingsystem.com>";
             $Link = BASEPATH."bookings.php?id=".$Booking->getid()."&confirm=1";
+            $StaffEmail = User::getstaticemail($staffid);
+            $StaffName = User::getstaticusername($staffid);
             $recipients = array(
-                $Email,
-                User::getstaticemail($staffid)
+                $_SESSION['email'],
+                $StaffEmail
             );
 
             $email_subject = "Booking Confirmation";
             $email_message = "<html>
-                                <head><title>Booking Confirmation</title></head>
-                                <body>
-                                <p>Booking at ".$startttime." with ".User::getstaticusername($staffid)." by ".$_SESSION['username']."</p>
-                                <p>To confirm the booking click this <a href='".$Link."'>link</a></p>
-                                <p>If this was not you, your email may have been hacked, changing your password is recommended.</>
-                                </body>
-                                </html>";
-            $sendmail = mail(implode(',', $recipients), $email_subject, $email_message, implode("\r\n", $headers));
+                              <head><title>Booking Confirmation</title></head>
+                              <body>
+                              <p>Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."</p>
+                              <p>To confirm the booking click this <a href='".$Link."'>link</a></p>
+                              <p>If this was not you, your email may have been hacked, changing your password is recommended.</p>
+                              </body>
+                              </html>";
+
+            $sendmail = mail(implode(",",$recipients), $email_subject, $email_message, implode("\r\n", $headers));
             if($sendmail){
                 print("<p class='alert alert-success welcome'><strong>Booking Added</strong> An email has been sent to you to confirm this booking. Please respond.</p><div class='welcome'>");
                 Forms::generatebutton("Bookings","bookings.php","book","primary"); 

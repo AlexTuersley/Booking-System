@@ -53,6 +53,10 @@ function validatedate(date)
     }
 }
 
+function validateDateTime(dateTime){
+
+}
+
 function validatetime(time)
 {
 	var error;
