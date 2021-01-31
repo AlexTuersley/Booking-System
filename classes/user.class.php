@@ -241,7 +241,15 @@ class User{
         $bio = htmlspecialchars(filter_var($_POST["bio"], FILTER_SANITIZE_STRING));
         $location = htmlspecialchars(filter_var($_POST["location"], FILTER_SANITIZE_STRING));
         $Submit = $_POST["submit"];
+
+        $UsernameError = array("usernameerror","Please enter a valid username");
+        $FullnameError = array("fullnameerror","Please enter your fullname");
+        $EmailError = array("emailerror","Please enter a valid email address");
+        $PhoneError = array("phoneerror", "Please enter a valid Phone Number");
+        $LevelError = array("levelerror", "Please select a valid User Level from the list");
+
         if($Submit){
+            if(User::checkusernameandemail($username,$email,$UID) && $username != "" && $fullname != "" && $email && $level > 0){
                 if($UID > 0){ 
                     $User = new User($UID);
                     $User->setfullname($fullname);
@@ -272,6 +280,11 @@ class User{
                     $User->savenew();
                     print("<p class='welcome alert alert-success'>".$username." has been added</p>"); 
                 }
+            }
+            else{
+                $Errors = array($UsernameError,$FullnameError,$EmailError,$LevelError,$PhoneError);
+                Forms::generateerrors("Please correct the following errors before continuing.",$Errors,true);
+            }
         }
 
         if($UID > 0){
@@ -303,11 +316,12 @@ class User{
         ));
         print("<p class='welcome alert alert-success'>The User has been activated</p>");
     }
-    static public function checkusernameandemail($Username, $Email){
+    static public function checkusernameandemail($Username, $Email, $ID = 0){
         if($Username != "" && $Email != ""){
-            $RQ = new ReadQuery("SELECT * FROM users WHERE users.username =:username OR users.email = :email",array(
+            $RQ = new ReadQuery("SELECT * FROM users WHERE (users.username =:username OR users.email = :email) AND deleted = 0 AND id != :id",array(
                 PDOConnection::sqlarray(":username",$Username,PDO::PARAM_STR),
-                PDOConnection::sqlarray(":email",$Email,PDO::PARAM_STR)
+                PDOConnection::sqlarray(":email",$Email,PDO::PARAM_STR),
+                PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
             ));
             if($row = $RQ->getnumberofresults() > 0){
                 return false;

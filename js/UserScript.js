@@ -149,7 +149,45 @@ function passcheck(val){
 }
 
 function checkuserform(form){
-    
+    var usererr = document.getElementById("usernameerror");
+    var fullnameerr = document.getElementById("fullnameerror");
+    var emailerr = document.getElementById("emailerror");
+    var phoneerr = document.getElementById("phoneerror");
+    var levelerr = document.getElementById("levelerror");
+    if(form.username.value != "" && form.fullname.value != "" && form.email.value != "" && form.userlevel.value > 0 && form.userlevel.value < 4){
+        usererr.style.display = "none";
+        fullnameerr.style.display = "none";
+        levelerr.style.display = "none" ;
+        if(validateEmail(form.email.value)){
+            if(form.phone.value > 0){
+                if(validatephone(form.phone.value)){
+                    phoneerr.style.display = "none";
+                    return true;
+                }
+                else{
+                    phoneerr.style.display = "list-item";
+                }
+                return false;
+            }
+            else{
+                emailerr.style.display = "none";
+                return false;
+            }
+        } 
+        else{
+            if(form.phone.value > 0){if(validatephone(form.phone.value)){phoneerr.style.displa2noney = "none";}else{phoneerr.style.display = "list-item";}}else{phoneerr.style.display = "none";}
+            if(form.userlevel.value > 0 && form.userlevel.value < 4){levelerr.style.display = "none";}else{levelerr.style.display = "list-item";}
+            return false;
+        }
+    }
+    else{
+        if(form.username.value != ""){usererr.style.display = "none";}else{usererr.style.display = "list-item";}
+        if(form.fullname.value != ""){fullnameerr.style.display = "none";}else{fullnameerr.style.display = "list-item";}
+        if(form.email.value != "" && validateEmail(form.email.value)){emailerr.style.display = "none";}else{emailerr.style.display = "list-item";}
+        if(form.userlevel.value > 0 && form.userlevel.value < 4){levelerr.style.display = "none";}else{levelerr.style.display = "list-item";}
+        return false;
+
+    }
 }
 
 
