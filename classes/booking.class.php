@@ -342,21 +342,27 @@ class Booking{
 
         if(function_exists("mail")){
             include('user.class.php');
+            include("ics.class.php");
+            $ID = $Booking->getid();
+            $StaffUser = new User($staffid);
             $headers[] = 'MIME-Version: 1.0';
             $headers[] = 'Content-type: text/html; charset=iso-8859-1';
             $headers[] = "From: Booking System <noreply@bookingsystem.com>";
-            $Link = BASEPATH."/bookings.php?id=".$Booking->getid()."&confirm=1";
-            $StaffEmail = User::getstaticemail($staffid);
-            $StaffName = User::getstaticusername($staffid);
+            $Link = BASEPATH."/bookings.php?id=".$ID."&confirm=1";
+            $StaffEmail = $StaffUser->getemail();
+            $StaffName = $StaffUser->getusername();
+            $Description = "<p>Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."</p>";
             $recipients = array(
                 $_SESSION['email'],
                 $StaffEmail
             );
-
+            $ics = new ICS($starttime->format('H:i:s d/m/Y'),$endtime->format('H:i:s d/m/Y'),"Booking".$ID,$Description,$StaffUser->getlocation());
+            $ics->save();
             $email_subject = "Booking Confirmation";
             $email_message = "<html>
                               <head><title>Booking Confirmation</title></head>
                               <body>
+                              ".$ics->show()."
                               <p>Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."</p>
                               <p>To confirm the booking click this <a href='".$Link."'>link</a></p>
                               <p>If this was not you, your email may have been hacked, changing your password is recommended.</p>
