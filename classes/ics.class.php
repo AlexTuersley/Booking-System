@@ -13,7 +13,7 @@ class ICS {
         file_put_contents($this->name.".ics",$this->data);
     }
     function delete(){
-        unlink($this->name."ics");
+        unlink($this->name.".ics");
     }
     function getICS() {
         return $this->name.".ics";
