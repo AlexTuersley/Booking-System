@@ -683,6 +683,7 @@ class User{
                 $_SESSION["userid"] = $UserID;
                 $_SESSION["userlevel"] = $User->getuserlevel();
                 $_SESSION['email'] = $User->getemail();
+                $_SESSION['location'] = $User->getlocation();
                 $_SESSION["loginstatus"] = 1;
                 //print("<p class='welcome'>Login Successful. You will be redirected to the main page shortly</p>");
                 header("Location: http://".BASEPATH."/index.php");

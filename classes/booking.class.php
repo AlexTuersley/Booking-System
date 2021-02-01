@@ -232,23 +232,40 @@ class Booking{
                 if($Update){
                     if(function_exists("mail")){
                         include('user.class.php');
-                        $headers[] = 'MIME-Version: 1.0';
-                        $headers[] = 'Content-type: text/html; charset=iso-8859-1';
-                        $headers[] = "From: Booking System <noreply@bookingsystem.com>";
-                        $recipients = array(
-                            $_SESSION['email'],
-                            User::getstaticemail($studentid)
-                        );
-            
-                        $email_subject = "Booking Change";
+                        include("ics.class.php");
+                        require_once("phpmailer.class.php");
+                        require_once("smtp.class.php");
+                        require_once("phpmaileroauth.class.php");
+                        require_once("phpmaileroauthgoogle.class.php");
+                        $ID = $Booking->getid();
+                        $StudentUser = new User($studentid);
+                        $StudentEmail = $StudentUser->getemail();
+                        $StudentName = $StudentUser->getusername();
+                        $Description = "Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $_SESSION['username'] ." by ".$StudentName."";
                         $email_message = "<html>
-                                            <head><title>Booking Change</title></head>
-                                            <body>
-                                            <p>Booking at time with ".$_SESSION['username']." has changed to ".$starttime->format('H:i:s d/m/Y')."</p>
-                                            </body>
-                                            </html>";
-                        $sendmail = mail(implode(',', $recipients), $email_subject, $email_message, implode("\r\n", $headers));
-                        if($sendmail){
+                                          <head><title>Booking Change</title></head>
+                                          <body>
+                                          <p>Booking at time with ".$_SESSION['username']." has changed to ".$starttime->format('H:i:s d/m/Y')."</p>
+                                          </body>
+                                          </html>";
+                        $ics = new ICS($starttime->format('H:i:s d/m/Y'),$endtime->format('H:i:s d/m/Y'),"Booking".$ID,$Description,$_SESSION['location']);
+                        $ics->save();
+                        $mail = new PHPMailer();
+                        $mail->IsSMTP();
+                        $mail->isHTML(true);
+                        $mail->SMTPAuth = true;
+                        $mail->SMTPSecure = 'tls';
+                        $mail->Host = "smtp.gmail.com";
+                        $mail->Port = 587;
+                        $mail->Username = MAILUSERNAME;
+                        $mail->Password = MAILPASS;
+                        $mail->setFrom("noreply@bookingsystem.com","Booking System");
+                        $mail->addAddress($StudentEmail,$StudentName);
+                        $mail->addCC($_SESSION['email'],$_SESSION['username']);
+                        $mail->Subject = "Booking Change";
+                        $mail->Body = $email_message;
+                        $mail->AddAttachment($ics->getICS(),$ics->name);
+                        if($mail->send()){
                             print("<p class='alert alert-success welcome'>An email has been sent to you to show the changes</p>");
                             print("</div>");
                         }
@@ -329,94 +346,76 @@ class Booking{
         $endtime = date("y-m-d H:i:s",$endtime);
         $endtime = new DateTime($endtime);
         $Meeting = $Type;
-
-        $Booking = new Booking();
-        $Booking->setstaffid($staffid);
-        $Booking->setstudentid($studentid);
-        $Booking->setstarttime($starttime->format("Y-m-d H:i:s"));
-        $Booking->setendtime($endtime->format("Y-m-d H:i:s"));
-        $Booking->setmeetingtype($Type);
-        $Booking->setnote("");
-        $Booking->setconfirmed(0);
-        $Booking->savenew();
-        
-        if(function_exists("mail")){
-            include('user.class.php');
-            include("ics.class.php");
-            require_once("phpmailer.class.php");
-            require_once("smtp.class.php");
-            require_once("phpmaileroauth.class.php");
-            require_once("phpmaileroauthgoogle.class.php");
-            $ID = $Booking->getid();
-            $StaffUser = new User($staffid);
-            // $headers[] = 'MIME-Version: 1.0';
-            // $headers[] = 'Content-type: text/html; charset=iso-8859-1';
-            // $headers[] = "From: Booking System <noreply@bookingsystem.com>";
-            $Link = BASEPATH."/bookings.php?id=".$ID."&confirm=1";
-            $StaffEmail = $StaffUser->getemail();
-            $StaffName = $StaffUser->getusername();
-            $Description = "Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."";
-            // $recipients = array(
-            //     $_SESSION['email'],
-            //     $StaffEmail
-            // );
-            $email_message = "
-                              <head><title>Booking Confirmation</title></head>
-                              <body>
-                              <p>Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."</p>
-                              <p>To confirm the booking click this <a href='".$Link."'>link</a></p>
-                              <p>If this was not you, your email may have been hacked, changing your password is recommended.</p>
-                              </body>
-                              ";
-            $ics = new ICS($starttime->format('H:i:s d/m/Y'),$endtime->format('H:i:s d/m/Y'),"Booking".$ID,$Description,$StaffUser->getlocation());
-            $ics->save();
-            $mail = new PHPMailer();
-            $mail->IsSMTP();
-            $mail->isHTML(true);
-            $mail->SMTPAuth = true;
-            $mail->SMTPSecure = 'tls';
-            $mail->Host = "smtp.gmail.com";
-            $mail->Port = 587;
-            $mail->Username = MAILUSERNAME;
-            $mail->Password = MAILPASS;
-            $mail->setFrom("noreply@bookingsystem.com","Booking System");
-            $mail->addAddress($StaffEmail,$StaffName);
-            $mail->addCC($_SESSION['email'],"Student");
-
-            $mail->Subject = "Booking Confirmation";
-            $mail->Body = $email_message;
-            $mail->AddAttachment($ics->getICS(),$ics->name);
-            if(!$mail->send()){
-                $mail->ErrorInfo;
-                print("<p class='alert alert-danger welcome'>The Booking has been added. But we are unable to send a confirmation email please contact an administrator.</p>");
-                header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
-            }else{
-                print("<p class='alert alert-success welcome'><strong>Booking Added</strong> An email has been sent to you to confirm this booking. Please respond.</p><div class='welcome'>");
-                Forms::generatebutton("Bookings","bookings.php","book","primary"); 
+        if(Booking::checkbooking($starttime->format("y-m-d H:i:s"))){
+            $Booking = new Booking();
+            $Booking->setstaffid($staffid);
+            $Booking->setstudentid($studentid);
+            $Booking->setstarttime($starttime->format("Y-m-d H:i:s"));
+            $Booking->setendtime($endtime->format("Y-m-d H:i:s"));
+            $Booking->setmeetingtype($Type);
+            $Booking->setnote("");
+            $Booking->setconfirmed(0);
+            $Booking->savenew();
+            
+            if(function_exists("mail")){
+                include('user.class.php');
+                include("ics.class.php");
+                require_once("phpmailer.class.php");
+                require_once("smtp.class.php");
+                require_once("phpmaileroauth.class.php");
+                require_once("phpmaileroauthgoogle.class.php");
+                $ID = $Booking->getid();
+                $StaffUser = new User($staffid);
+                $Link = BASEPATH."/bookings.php?id=".$ID."&confirm=1";
+                $StaffEmail = $StaffUser->getemail();
+                $StaffName = $StaffUser->getusername();
+                $Description = "Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."";
+                $email_message = "
+                                <head><title>Booking Confirmation</title></head>
+                                <body>
+                                <p>Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."</p>
+                                <p>To confirm the booking click this <a href='".$Link."'>link</a></p>
+                                <p>If this was not you, your email may have been hacked, changing your password is recommended.</p>
+                                </body>
+                                ";
+                $ics = new ICS($starttime->format('H:i:s d/m/Y'),$endtime->format('H:i:s d/m/Y'),"Booking".$ID,$Description,$StaffUser->getlocation());
+                $ics->save();
+                $mail = new PHPMailer();
+                $mail->IsSMTP();
+                $mail->isHTML(true);
+                $mail->SMTPAuth = true;
+                $mail->SMTPSecure = 'tls';
+                $mail->Host = "smtp.gmail.com";
+                $mail->Port = 587;
+                $mail->Username = MAILUSERNAME;
+                $mail->Password = MAILPASS;
+                $mail->setFrom("noreply@bookingsystem.com","Booking System");
+                $mail->addAddress($StaffEmail,$StaffName);
+                $mail->addCC($_SESSION['email'],"Student");
+                $mail->Subject = "Booking Confirmation";
+                $mail->Body = $email_message;
+                $mail->AddAttachment($ics->getICS(),$ics->name);
+                if(!$mail->send()){
+                    $mail->ErrorInfo;
+                    print("<p class='alert alert-danger welcome'>The Booking has been added. But we are unable to send a confirmation email please contact an administrator.</p>");
+                    header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
+                }else{
+                    print("<p class='alert alert-success welcome'><strong>Booking Added</strong> An email has been sent to you to confirm this booking. Please respond.</p><div class='welcome'>");
+                    Forms::generatebutton("Bookings","bookings.php","book","primary"); 
+                    print("</div>");
+                }                                
+            }
+            else{
+                print("<p class='welcome alert alert-success'>Your Booking has been added. Email has not been enabled for this server. Please contact an administrator to confirm your booking.</p><div class='welcome'>");
+                Forms::generatebutton("Bookings","bookings.php","book","primary");
                 print("</div>");
             }
-
-
-            // $email_subject = "Booking Confirmation";
-            
-
-            // $sendmail = mail(implode(",",$recipients), $email_subject, $email_message, implode("\r\n", $headers));
-            // if($sendmail){
-            //     print("<p class='alert alert-success welcome'><strong>Booking Added</strong> An email has been sent to you to confirm this booking. Please respond.</p><div class='welcome'>");
-            //     Forms::generatebutton("Bookings","bookings.php","book","primary"); 
-            //     print("</div>");
-            // }
-            // else{
-            //     print("<p class='alert alert-danger welcome'>The Booking has been added. But we are unable to send a confirmation email please contact an administrator.</p>");
-            //     header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
-            // }
-                                
         }
         else{
-            print("<p class='welcome alert alert-success'>Your Booking has been added. Email has not been enabled for this server. Please contact an administrator to confirm your booking.</p><div class='welcome'>");
-            Forms::generatebutton("Bookings","bookings.php","book","primary");
-            print("</div>");
+            print("<p class='welcome alert alert-danger'><strong>Booking Exists</strong>A booking with this time already exists</p>");
+            header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
         }
+        
     }
     static public function bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$confirmed){
         Forms::generatebutton("Bookings","bookings.php","arrow-left","secondary");

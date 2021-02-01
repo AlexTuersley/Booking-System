@@ -9,6 +9,7 @@ class ICS {
         $this->filelocation = dirname(__FILE__).$name."ics";
     }
     function save() {
+        // ideally put it in ../Bookings/filename.ics
         file_put_contents($this->name.".ics",$this->data);
     }
     function getICS() {
