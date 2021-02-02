@@ -290,9 +290,10 @@ class Schedule {
         $userslot = array();
         $slots = array();
         $holidays  = array();
-        $counter = 0;
+        $counter = 1;
         $day = 0;
         $counter3 = 0;
+        $userslots[0] = array();
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){          
             if($row["away"] > 0) {
                 $holidays[$counter3] = array($row["startdate"],$row["enddate"]);

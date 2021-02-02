@@ -30,7 +30,7 @@
             nextHtml: nextHtml,
             selectedDates: [],
             startDate: firstday,
-            weekdays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday'],
+            weekdays: ['Sunday','Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         };
         var settings = $.extend({}, defaults, opts);
         var html = ``;
@@ -39,7 +39,7 @@
         var onClickNavigator = settings.onClickNavigator;
         var instance = this;
 
-        // kuhanin ang buwan
+        // Get the name of the Month
         this.getMonthName = function(idx) {
             return settings.months[idx];
         };
@@ -57,7 +57,6 @@
             return date + '/' + month + '/' + year;
         };
 
-        // Eto ang controller para lumipat ng linggo
         // Controller to change 
         this.getNavControl = function() {
             var previousWeekHtml = ``;
@@ -93,7 +92,6 @@
             return navHtml;
         };
 
-        // kuhanin at ipakita ang mga araw
         this.getDatesHeader = function() {
             var tmp = ``;
             for (i = 0; i < 7; i++) {
@@ -109,16 +107,13 @@
             return ret;
         }
 
-        // kuhanin ang mga pwedeng oras sa bawat araw ng kasalukuyang linggo
         this.getAvailableTimes = function() {
             var tmp = ``;
             var curr = new Date(); // get current date
-            //console.log(Date.parse(curr));
             for (i = 0; i < 7; i++) {
                 var tmpAvailTimes = ``;
                 $.each(settings.availability[i], function() {
                     var date = new Date(settings.startDate.addDays(i));
-                    //console.log(date.getTime());
                     if(date.getTime() > curr.getTime()){
                         tmpAvailTimes += `
                         <a href="javascript:;" class="myc-available-time" data-time="` + this + `" data-date="` + formatDate(settings.startDate.addDays(i)) + `">
@@ -138,18 +133,15 @@
             return tmp
         }
 
-        // i-set ang mga oras na pwedeng ilaan
         this.setAvailability = function(arr) {
             settings.availability = arr;
             render();
         }
 
-        // clear
         this.clearAvailability = function() {
             settings.availability = [[], [], [], [], [], [], []];
         }
 
-        // pag napindot ang nakaraang linggo
         this.on('click', '#myc-prev-week', function() {
             settings.startDate = settings.startDate.addDays(-7);
             instance.clearAvailability();
@@ -160,7 +152,6 @@
             }
         });
 
-        // pag napindot ang susunod na linggo
         this.on('click', '#myc-next-week', function() {
             settings.startDate = settings.startDate.addDays(7);
             instance.clearAvailability();
@@ -171,7 +162,6 @@
             }
         });
 
-        // pag namili ng oras
         this.on('click', '.myc-available-time', function() {
             var date = $(this).data('date');
             var time = $(this).data('time');

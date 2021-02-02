@@ -173,17 +173,10 @@ class Booking{
         );
     }
 
-    //edit booking note
-    static public function editnote($BID,$note){
-        $WQ = new WriteQuery("UPDATE bookings SET note = :note WHERE id = :id",
-            array(PDOConnection::sqlarray(":note",$note,PDO::PARAM_STR)),
-            array(PDOConnection::sqlarray(":id",$BID,PDO::PARAM_INT))
-        );
-    }
-    static public function checkbooking($Starttime){
-        $RQ = new ReadQuery("SELECT * FROM bookings WHERE start_time = :starttime AND deleted = 0",
-            PDOConnection::sqlarray(":starttime",$Starttime,PDO::PARAM_STR)
-        );
+    static public function checkbooking($starttime){
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE start_time = :starttime AND deleted = 0",array(
+            PDOConnection::sqlarray(":starttime",$starttime,PDO::PARAM_STR)
+        ));
         if($row = $RQ->getnumberofresults() > 0){
             return false;
         }
@@ -232,6 +225,7 @@ class Booking{
                 if($Update){
                     if(function_exists("mail")){
                         include('user.class.php');
+                        include('meetingtype.class.php');
                         include("ics.class.php");
                         require_once("phpmailer.class.php");
                         require_once("smtp.class.php");
@@ -248,7 +242,7 @@ class Booking{
                                           <p>Booking at time with ".$_SESSION['username']." has changed to ".$starttime->format('H:i:s d/m/Y')."</p>
                                           </body>
                                           </html>";
-                        $ics = new ICS($starttime->format('H:i:s d/m/Y'),$endtime->format('H:i:s d/m/Y'),"Booking".$ID,$Description,$_SESSION['location']);
+                        $ics = new ICS($starttime->format('Ymd\THis\Z'),$endtime->format('Ymd\THis\Z'),"Booking".$ID,$Description,$_SESSION['location'],MeetingType::getmeetingnamestatic($meeting));
                         $ics->save();
                         $mail = new PHPMailer();
                         $mail->IsSMTP();
@@ -264,7 +258,7 @@ class Booking{
                         $mail->addCC($_SESSION['email'],$_SESSION['username']);
                         $mail->Subject = "Booking Change";
                         $mail->Body = $email_message;
-                        $mail->AddAttachment($ics->getICS(),$ics->name);
+                        $mail->AddAttachment($ics->getICS(),$ics->getICS());
                         if($mail->send()){
                             print("<p class='alert alert-success welcome'>An email has been sent to you to show the changes</p>");
                             print("</div>");
@@ -346,7 +340,7 @@ class Booking{
         $endtime = date("y-m-d H:i:s",$endtime);
         $endtime = new DateTime($endtime);
         $Meeting = $Type;
-        if(Booking::checkbooking($starttime->format("y-m-d H:i:s"))){
+        if(Booking::checkbooking($starttime->format("Y-m-d H:i:s"))){
             $Booking = new Booking();
             $Booking->setstaffid($staffid);
             $Booking->setstudentid($studentid);
@@ -359,6 +353,7 @@ class Booking{
             
             if(function_exists("mail")){
                 include('user.class.php');
+                include("meetingtype.class.php");
                 include("ics.class.php");
                 require_once("phpmailer.class.php");
                 require_once("smtp.class.php");
@@ -378,7 +373,7 @@ class Booking{
                                 <p>If this was not you, your email may have been hacked, changing your password is recommended.</p>
                                 </body>
                                 ";
-                $ics = new ICS($starttime->format('H:i:s d/m/Y'),$endtime->format('H:i:s d/m/Y'),"Booking".$ID,$Description,$StaffUser->getlocation());
+                $ics = new ICS($starttime->format('Ymd\THis\Z'),$endtime->format('Ymd\THis\Z'),"Booking".$ID,$Description,$StaffUser->getlocation(),MeetingType::getmeetingnamestatic($Type));
                 $ics->save();
                 $mail = new PHPMailer();
                 $mail->IsSMTP();
@@ -394,7 +389,7 @@ class Booking{
                 $mail->addCC($_SESSION['email'],"Student");
                 $mail->Subject = "Booking Confirmation";
                 $mail->Body = $email_message;
-                $mail->AddAttachment($ics->getICS(),$ics->name);
+                $mail->AddAttachment($ics->getICS(),$ics->getICS());
                 if(!$mail->send()){
                     $mail->ErrorInfo;
                     print("<p class='alert alert-danger welcome'>The Booking has been added. But we are unable to send a confirmation email please contact an administrator.</p>");
@@ -412,7 +407,7 @@ class Booking{
             }
         }
         else{
-            print("<p class='welcome alert alert-danger'><strong>Booking Exists</strong>A booking with this time already exists</p>");
+            print("<p class='welcome alert alert-danger'><strong>Booking Exists</strong> A booking with this time already exists</p>");
             header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
         }
         
