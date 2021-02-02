@@ -5,7 +5,6 @@
  */
 
 (function($) {
-    // https://stackoverflow.com/questions/563406/add-days-to-javascript-date
     Date.prototype.addDays = function(days) {
         var date = new Date(this.valueOf());
         date.setDate(date.getDate() + days);
@@ -43,7 +42,7 @@
         this.getMonthName = function(idx) {
             return settings.months[idx];
         };
-
+        //Make the date display in a certain way
         var formatDate = function(d) {
             var date = '' + d.getDate();
             var month = '' + (d.getMonth() + 1);
@@ -60,10 +59,11 @@
         // Controller to change 
         this.getNavControl = function() {
             var previousWeekHtml = ``;
-            var nextWeekHtml = `<div id="myc-prev-week-container">` + settings.nextHtml + `</div>`;
+            var nextWeekHtml = ``;
             var curr = new Date(); // get current date
             var first = curr.getDate() - curr.getDay();
             var firstDay = new Date(curr.setDate(first));
+            var nextDay = new Date(settings.startDate.addDays(1));
             var monthYearHtml = `
                 <div id="myc-current-month-year-container">
                     ` + this.getMonthName(settings.startDate.getMonth()) + ' ' + settings.startDate.getFullYear() + `
@@ -75,12 +75,14 @@
             else{
                 previousWeekHtml = `<div id='myc-prev-week-container'></div>`;
             }
-            // if(firstDay.getTime() > usersetTimestamp){
-            //     nextWeekHtml = `<div id="myc-prev-week-container">` + settings.nextHtml + `</div>`;
-            // }
-            // else{
-            //     nextWeekHtml = `<div id='myc-prev-week-container'></div>`;
-            // }
+            
+            if(firstDay.addDays(30).getTime() > nextDay.getTime()){
+                nextWeekHtml = `<div id="myc-next-week-container">` + settings.nextHtml + `</div>`;
+            }
+            else{
+                nextWeekHtml = `<div id="myc-next-week-container"></div>`;
+            }
+
             var navHtml = `
                 <div id="myc-nav-container">
                     ` + previousWeekHtml + `
@@ -109,7 +111,6 @@
 
         this.getAvailableTimes = function() {
             var tmp = ``;
-            var curr = new Date(); // get current date
             for (i = 0; i < 7; i++) {
                 var tmpAvailTimes = ``;
                 $.each(settings.availability[i], function() {
@@ -123,13 +124,14 @@
                     }
                 
                 });
+               
                 tmp += `
                     <div class="myc-day-time-container" id="myc-day-time-container-` + i + `">
                         ` + tmpAvailTimes + `
                         <div style="clear:both;"></div>
                     </div>
                 `;
-            }
+            }    
             return tmp
         }
 
@@ -156,7 +158,6 @@
             settings.startDate = settings.startDate.addDays(7);
             instance.clearAvailability();
             render(instance);
-
             if ($.isFunction(onClickNavigator)) {
                 onClickNavigator.call(this, ...arguments, instance);
             }
@@ -201,8 +202,9 @@
                 </div>
             `;
             instance.html(ret);
+           
         };
-
+        
         render();
     };
 })(jQuery);
