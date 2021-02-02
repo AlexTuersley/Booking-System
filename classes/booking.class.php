@@ -173,9 +173,10 @@ class Booking{
         );
     }
 
-    static public function checkbooking($starttime){
-        $RQ = new ReadQuery("SELECT * FROM bookings WHERE start_time = :starttime AND deleted = 0",array(
-            PDOConnection::sqlarray(":starttime",$starttime,PDO::PARAM_STR)
+    static public function checkbooking($starttime,$STID){
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE start_time = :starttime AND staffuserid = :staff AND deleted = 0",array(
+            PDOConnection::sqlarray(":starttime",$starttime,PDO::PARAM_STR),
+            PDOConnection::sqlarray(":staff",$STID,PDO::PARAM_INT)
         ));
         if($row = $RQ->getnumberofresults() > 0){
             return false;
@@ -322,10 +323,7 @@ class Booking{
         print("<p class='welcome'>List of Bookings for ".$_SESSION['username']."</p>");
         Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Start");
     }
-    //check a passed through startdate against stored bookigns in DB
-    static public function checkstartdate($STID, $StartDateTime){
-
-    }
+   
     //for students, staff use addedit to add booking
     static public function makebooking($Staff,$Type,$Booking){
         include("schedule.class.php");
@@ -340,7 +338,7 @@ class Booking{
         $endtime = date("y-m-d H:i:s",$endtime);
         $endtime = new DateTime($endtime);
         $Meeting = $Type;
-        if(Booking::checkbooking($starttime->format("Y-m-d H:i:s"))){
+        if(Booking::checkbooking($starttime->format("Y-m-d H:i:s"),$staffid)){
             $Booking = new Booking();
             $Booking->setstaffid($staffid);
             $Booking->setstudentid($studentid);
