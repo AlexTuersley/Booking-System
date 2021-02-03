@@ -5,50 +5,59 @@ function checkscheduleform(form){
     var endtimeerr = document.getElementById("endtimeerror");
     var timeerr = document.getElementById("timeerror");
     var err = setuperrvar();
+   
 
-    if(form.active.value > 0 && form.staff.value > 0 && validatetime(form.starttime.value) && validatetime(form.endtime.value) && form.endtime.value > form.starttime.value && form.day.value > 0 && form.day.value <= 7){
-        return true;
+    if(form.staff.value > 0 && form.starttime.value != "" && form.endtime.value != "" && form.endtime.value > form.starttime.value && form.day.value > 0 && form.day.value <= 7){
+        if(validatetime(form.starttime.value) && validatetime(form.endtime.value)){
+            return true;
+        }
+        else{
+            if(validatetime(form.starttime.value)){starttimeerr.style.display = "none";}else{starttimeerr.style.display = "list-item";}
+            if(validatetime(form.endtime.value)){endtimeerr.style.display = "none";}{endtimeerr.style.display = "list-item";}
+            return false;
+        }
+       
+      
     } else {
-        setuperr(null,err);
-        value.style.display = "list-item";
-        if(form.day.value > 0 && form.day.value <= 7){dayerr.style.display = "none";}
-        if(form.staff.value > 0){stafferr.style.display = "none";}
-        if(validatetime(form.starttime.value)){starttimeerr.style.display = "none";}
-        if(validatetime(form.endtime.value)){endtimeerr.style.display = "none";}
-        if(form.endtime.value > form.starttime.value){timeerr.style.display = "none";}
-                
+        if(form.endtime.value > form.starttime.value){
+            setuperr(null,err);
+        }
+        else{
+            setuperr(timeerr,err);
+        }
+        if(form.day.value > 0 && form.day.value <= 7){dayerr.style.display = "none";}else{dayerr.style.display = "list-item";}
+        if(form.staff.value > 0){stafferr.style.display = "none";}else{stafferr.style.display = "list-item";}
+        if(form.starttime.value != ""){if(validatetime(form.starttime.value)){starttimeerr.style.display = "none";}else{starttimeerr.style.display = "list-item";}}else{starttimeerr.style.display = "list-item";}
+        if(form.endtime.value != ""){if(validatetime(form.endtime.value)){endtimeerr.style.display = "none";}{endtimeerr.style.display = "list-item";}}else{endtimeerr.style.display = "list-item";}
         return false;
     }
 }
-function validatetime(time){
-    var isValid = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/.test(time);
-    if (isValid) {
-      return true
-    }
-    return false;
-}
-function validatedate(date){
-    var re = /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/;
-    var flag = re.test(date);
-    if(flag){
-        return true;
-    }
-    return false;
-}
 function checkholidayform(form){
     var stafferr = document.getElementById("stafferror");
-    var startdateerr = document.getElementById("starterror");
-    var enddateerr = document.getElementById("enderror");
+    var startdateerr = document.getElementById("startdateerror");
+    var enddateerr = document.getElementById("enddateerror");
     var dateerr = document.getElementById('dateerror');
+    var err = setuperrvar();
+    var parts = form.startdate.value.split(/[/]/);
+    var parts2 = form.enddate.value.split(/[/]/);
+    var startdate = `${parts[1]}/${parts[0]}/${parts[2]}`;
+    var enddate = `${parts2[1]}/${parts2[0]}/${parts2[2]}`;
 
-    if(form.staff.value > 0 && validatedate(form.startdate.value) && validatedate(form.enddate.value) && form.enddate.value > form.startdate.value){
+    if(form.staff.value > 0 && validatedate(startdate) && validatedate(enddate) && form.enddate.value > form.startdate.value){
         return true;
     }
     else{
-        if(form.staff.value > 0){stafferr.style.display = "none";}
-        if(validatedate(form.startdate.value)){startdateerr.style.display = "none";}
-        if(validatedate(form.enddate.value)){enddateerr.style.display = "none";}
-        if(form.enddate.value > form.startdate.value){dateerr.style.display = "none";}
+        if(form.enddate.value > form.startdate.value){
+            setuperr(dateerr,err);
+        }
+        else{
+            setuperr(null,err);
+        }
+       
+        if(form.staff.value > 0){stafferr.style.display = "none";}else{stafferr.style.display = "list-item";}
+        if(validatedate(startdate)){startdateerr.style.display = "none";}else{startdateerr.style.display = "list-item";}
+        if(validatedate(enddate)){enddateerr.style.display = "none";}else{enddateerr.style.display = "list-item";}
+        if(form.enddate.value > form.startdate.value){dateerr.style.display = "none";}else{dateerr.style.display = "list-item";}
 
         return false;
     }

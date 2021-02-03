@@ -1,4 +1,4 @@
-.navbar-expand-lg { background-color: #2e2e2e; }
+.navbar-expand-lg { background-color: #030303; }
 .nav-item {list-style: none;}
 .nav-item a { color: #fff; }
 .nav-item a:hover { color: #26b9dd; }
@@ -12,12 +12,12 @@
 .item{
     border-radius: 8px;
     box-shadow: 0 2px 8px rgb(89 90 91 / 74%);
-    background-color: #080808;
+    background-color: #030303;
     color: rgb(255, 255, 255);
     margin-bottom: 20px;
     position: relative;
     z-index: 1;
-    background: #2e2e2e;
+    background: #030303;
     padding: 20px 55px;
 }
 .item a{

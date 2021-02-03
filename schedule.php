@@ -14,8 +14,8 @@ $Script[0] = "js/jquery.tablesorter.min.js";
 $Script[1] = "js/jquery-ui.min.js";
 $Script[2] = "js/CalendarPicker.js";
 $Script[3] = "js/mark-your-calendar.js";
-//$Script[4] = "js/ValidationScript.js";
-//$Script[5] = "js/ScheduleScript.js";
+$Script[4] = "js/ValidationScript.js";
+$Script[5] = "js/ScheduleScript.js";
 WebPage::headerandnav("Home",$Level,$CSS,$Script);
 
 if($Level > 0){

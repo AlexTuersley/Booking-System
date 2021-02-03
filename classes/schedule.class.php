@@ -186,8 +186,8 @@ class Schedule {
         $startdate = $_POST["startdate"];
         $enddate = $_POST["enddate"];
         $Submit = $_POST["submit"];
-
-        if($Submit){
+    
+        if($Submit){      
             if($startdate != NULL){
                 if(!is_object($startdate)){
                     $startdate = new DateTime($startdate);
@@ -197,33 +197,52 @@ class Schedule {
                 if(!is_object($enddate)){
                     $enddate = new DateTime($enddate);
                 }
-            }
-           
+            } 
             if($SID > 0){
-                $Schedule = new Schedule($SID);         
-               
+                $Schedule = new Schedule($SID);               
                 if($away > 0){
-                    $startdate = $startdate->format('Y-m-d');
-                    $enddate = $enddate->format('Y-m-d');
-                    $Schedule->setday(0);
-                    $Schedule->setaway(1);
-                    $Schedule->setactive(0);
-                    $Schedule->setstartdate($startdate);
-                    $Schedule->setenddate($enddate);
-                    if(Schedule::checkholidayslot($SID,$startdate,$enddate,$staffid)){
-                        $Schedule->save();
-                        print("<p class='alert alert-success'>Holiday has successfully been edited</p>");
-                    }             
+                    if($staffid > 0 && $enddate != "" && $startdate != ""){
+                        $startdate = $startdate->format('Y-m-d');
+                        $enddate = $enddate->format('Y-m-d');
+                        $Schedule->setday(0);
+                        $Schedule->setaway(1);
+                        $Schedule->setactive(0);
+                        $Schedule->setstartdate($startdate);
+                        $Schedule->setenddate($enddate);
+                        if(Schedule::checkholidayslot($SID,$startdate,$enddate,$staffid)){
+                            $Schedule->save();
+                            print("<p class='alert alert-success'>Holiday has successfully been edited</p>");
+                        }  
+                    }   
+                    else{
+                        $DefaultError = array("dateerror","Make sure End Date is later than Start Date");
+                        $StartdateError = array("startdateerror","Invalid Start Date");
+                        $EnddateError = array("enddateerror","Invalid End Date");
+                        $StaffError = array("stafferror","Invalid Staff Id");
+                        $Errors = array($DefaultError,$StartdateError,$EnddateError,$StaffError);
+                        Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
+                    }
                 }
                 else{
-                    $Schedule->setstarttime($starttime);
-                    $Schedule->setendtime($endtime);
-                    $Schedule->setday($day);
-                    $Schedule->setaway(0);
-                    $Schedule->setactive(1);
-                    if(Schedule::checkstaffdayslot($SID,$day,$starttime,$endtime,$staffid)){
-                        $Schedule->save();
-                        print("<p class='alert alert-success'>Schedule has successfully been edited</p>");
+                    if($day > 0 && $day <= 7 && $staffid > 0 && $endtime != "" && $starttime != ""){
+                        $Schedule->setstarttime($starttime);
+                        $Schedule->setendtime($endtime);
+                        $Schedule->setday($day);
+                        $Schedule->setaway(0);
+                        $Schedule->setactive(1);
+                        if(Schedule::checkstaffdayslot($SID,$day,$starttime,$endtime,$staffid)){
+                            $Schedule->save();
+                            print("<p class='alert alert-success'>Schedule has successfully been edited</p>");
+                        }
+                    }
+                    else{
+                        $DefaultError = array("timeerror","Make sure the End Time is later than the Start Time");
+                        $DayError = array("dayerror","Please select a valid Day");
+                        $StarttimeError = array("starttimeerror","Invalid Start Time"); 
+                        $EndtimeError = array("endtimeerror","Invalid End Time");
+                        $StaffError = array("stafferror","Invalid Staff Id");
+                        $Errors = array($DefaultError,$DayError,$StarttimeError,$EndtimeError,$StaffError);
+                        Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
                     }
                 }
                
@@ -233,29 +252,50 @@ class Schedule {
                 $Schedule->setstaffid($staffid);      
               
                 if($away > 0){
-                    $startdate = $startdate->format('Y-m-d');
-                    $enddate = $enddate->format('Y-m-d');
-                    $Schedule->setday(0);
-                    $Schedule->setaway(1);
-                    $Schedule->setactive(0);
-                    $Schedule->setstartdate($startdate);
-                    $Schedule->setenddate($enddate);
-                    $Schedule->setdeleted(0);
-                    if(Schedule::checkholidayslot(-1,$startdate,$enddate,$staffid)){
-                        $Schedule->savenew();
-                        print("<p class='alert alert-success'>Holiday has successfully been added</p>");
-                    }     
+                    if($staffid > 0 && $enddate != "" && $startdate != ""){
+                        $startdate = $startdate->format('Y-m-d');
+                        $enddate = $enddate->format('Y-m-d');
+                        $Schedule->setday(0);
+                        $Schedule->setaway(1);
+                        $Schedule->setactive(0);
+                        $Schedule->setstartdate($startdate);
+                        $Schedule->setenddate($enddate);
+                        $Schedule->setdeleted(0);
+                        if(Schedule::checkholidayslot(-1,$startdate,$enddate,$staffid)){
+                            $Schedule->savenew();
+                            print("<p class='alert alert-success'>Holiday has successfully been added</p>");
+                        }   
+                    }  
+                    else{
+                        $DefaultError = array("dateerror","Make sure End Date is later than Start Date");
+                        $StartdateError = array("startdateerror","Invalid Start Date");
+                        $EnddateError = array("enddateerror","Invalid End Date");
+                        $StaffError = array("stafferror","Invalid Staff Id");
+                        $Errors = array($DefaultError,$StartdateError,$EnddateError,$StaffError);
+                        Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
+                    }
                 }
                 else{
-                    $Schedule->setstarttime($starttime);
-                    $Schedule->setendtime($endtime);
-                    $Schedule->setday($day);
-                    $Schedule->setaway(0);
-                    $Schedule->setactive(1);
-                    if(Schedule::checkstaffdayslot(-1,$day,$starttime,$endtime,$staffid)){
-                        $Schedule->setdeleted(0);
-                        $Schedule->savenew();
-                        print("<p class='alert alert-success'>Schedule has successfully been added</p>");
+                    if($day > 0 && $day <= 7 && $staffid > 0 && $endtime != "" && $starttime != ""){
+                        $Schedule->setstarttime($starttime);
+                        $Schedule->setendtime($endtime);
+                        $Schedule->setday($day);
+                        $Schedule->setaway(0);
+                        $Schedule->setactive(1);
+                        if(Schedule::checkstaffdayslot(-1,$day,$starttime,$endtime,$staffid)){
+                            $Schedule->setdeleted(0);
+                            $Schedule->savenew();
+                            print("<p class='alert alert-success'>Schedule has successfully been added</p>");
+                        }
+                    }
+                    else{
+                        $DefaultError = array("timeerror","Make sure the End Time is later than the Start Time");
+                        $DayError = array("dayerror","Please select a valid Day");
+                        $StarttimeError = array("starttimeerror","Invalid Start Time"); 
+                        $EndtimeError = array("endtimeerror","Invalid End Time");
+                        $StaffError = array("stafferror","Invalid Staff Id");
+                        $Errors = array($DefaultError,$DayError,$StarttimeError,$EndtimeError,$StaffError);
+                        Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
                     }
                 }               
             }
@@ -661,7 +701,7 @@ class Schedule {
             $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"","","","","Select the End Date");
             $Fields = array($StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
             $Path = "schedule.php?edit=".$SID."&away=1";
-            $Script = "return checkholidayfrom(this)";
+            $Script = "return checkholidayform(this)";
         }
         else{
             $DayArray = array(array(1,"Monday"),array(2,"Tuesday"),array(3,"Wednesday"),array(4,"Thursday"),array(5,"Friday"));
@@ -677,7 +717,7 @@ class Schedule {
                 $Button = "Add Schedule";
             }
             $Path = "schedule.php?edit=".$SID."&active=1";
-            $Script = "return checkschedulefrom(this)";
+            $Script = "return checkscheduleform(this)";
         }
       
         Forms::generateform("Schedule",$Path,$Script,$Fields,$Button);

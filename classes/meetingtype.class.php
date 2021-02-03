@@ -100,28 +100,39 @@ Class MeetingType{
         $Submit = $_POST["submit"];
 
         if($Submit){
-            if($MID > 0){
-                $MeetingType = new MeetingType($MID);
-                $MeetingType->setname($name);
-                $MeetingType->setdescription($description);
-                $MeetingType->setstaffid($staffid);
-                $MeetingType->setduration($duration);
-                if(MeetingType::checkmeetingname($MID,$name,$staffid)){
-                    $MeetingType->save();
-                    print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been edited</p>");
+            if($name != "" && $staffid > 0 && $duration > 0 && $duration < 121){
+                if($MID > 0){
+                    $MeetingType = new MeetingType($MID);
+                    $MeetingType->setname($name);
+                    $MeetingType->setdescription($description);
+                    $MeetingType->setstaffid($staffid);
+                    $MeetingType->setduration($duration);
+                    if(MeetingType::checkmeetingname($MID,$name,$staffid)){
+                        $MeetingType->save();
+                        print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been edited</p>");
+                    }
+                }
+                else{
+                    $MeetingType = new MeetingType();
+                    $MeetingType->setname($name);
+                    $MeetingType->setdescription($description);
+                    $MeetingType->setstaffid($staffid);
+                    $MeetingType->setduration($duration);
+                    if(MeetingType::checkmeetingname(0,$name,$staffid)){
+                        $MeetingType->savenew();
+                        print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been added</p>");
+                    }         
                 }
             }
+
             else{
-                $MeetingType = new MeetingType();
-                $MeetingType->setname($name);
-                $MeetingType->setdescription($description);
-                $MeetingType->setstaffid($staffid);
-                $MeetingType->setduration($duration);
-                if(MeetingType::checkmeetingname(0,$name,$staffid)){
-                    $MeetingType->savenew();
-                    print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been added</p>");
-                }         
+                $StaffError = array("stafferror", "Please select a valid Staff Member");
+                $DurationError = array("durationerror","Please enter a valid Duration");
+                $NameError = array("nameerror","Please enter a valid Name for the Meeting");
+                $Errors = array($StaffError,$NameError,$DurationError);
+                Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
             }
+           
         }
         if($MID > 0){
             $Meeting = new MeetingType($MID);

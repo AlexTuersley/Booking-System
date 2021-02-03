@@ -5,7 +5,7 @@ Class Display{
         print("<input id='dynamictable' class='form-control' onkeyup='searchFunction()' placeholder='Type Here to Filter ".$Name."' type='text' style='margin-top:10px;'/>");
         print("<table class=\"table table-hover sorted_table\" id=\"" . $ID . "\">\n");
         print("<thead>");
-            print("<tr style='color:#fff; background-color:#2e2e2e;'>\n");
+            print("<tr style='color:#fff; background-color:#030303;'>\n");
 
             foreach($Cols as $Col)
             {

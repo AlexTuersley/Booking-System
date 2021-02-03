@@ -10,6 +10,7 @@ else{
 
 $Script[0] = "js/MeetingScript.js";
 $Script[1] = "js/jquery.tablesorter.min.js";
+$Script[2] = "js/ValidationScript.js";
 WebPage::headerandnav("Home",$Level,"",$Script);
 if($_GET["signout"] && $Level > 0){
     User::signout();

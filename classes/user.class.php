@@ -505,7 +505,7 @@ class User{
                                       <body>
                                       <p>A user has signed up to the booking system with this email ".$Email."</p>
                                       <p>to confirm your registration click this <a href='".$Link."'>link</a></p>
-                                      <p>If this was not you, your email may have been hacked, changing your password is recommended.</>
+                                      <p>If this was not you, your account may have been hacked, changing your password is recommended.</>
                                       </body>
                                       </html>";
                     $sendmail = mail($Email, $email_subject, $email_message, implode("\r\n", $headers));

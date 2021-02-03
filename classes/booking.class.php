@@ -368,7 +368,7 @@ class Booking{
                                 <body>
                                 <p>Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."</p>
                                 <p>To confirm the booking click this <a href='".$Link."'>link</a></p>
-                                <p>If this was not you, your email may have been hacked, changing your password is recommended.</p>
+                                <p>If this was not you, your account may have been hacked, changing your password is recommended.</p>
                                 </body>
                                 ";
                 $ics = new ICS($starttime->format('Ymd\THis\Z'),$endtime->format('Ymd\THis\Z'),"Booking".$ID,$Description,$StaffUser->getlocation(),MeetingType::getmeetingnamestatic($Type));
