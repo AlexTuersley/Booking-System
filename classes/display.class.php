@@ -1,6 +1,14 @@
 <?php
 Class Display{
 
+    /**
+     * Function generates a Dynamic Display to display data
+     * @param int $ID - ID of the Display
+     * @param array $Cols - array of Column Names
+     * @param array $Rows - array of Data to b inputted into the Display
+     * @param string $Name - name of the Display
+     * @param int $SearchColumn - the column that will be searched at the top of the display
+     */
     static public function generatedynamiclistdisplay($ID,$Cols,$Rows,$Name = "",$SearchColumn = 0){
         print("<input id='dynamictable' class='form-control' onkeyup='searchFunction()' placeholder='Type Here to Filter ".$Name."' type='text' style='margin-top:10px;'/>");
         print("<table class=\"table table-hover sorted_table\" id=\"" . $ID . "\">\n");
@@ -82,6 +90,13 @@ Class Display{
                     });
                 </script>");
     }
+
+    /**
+     * Function generates a table Display to display data
+     * @param int $ID - ID of the Display
+     * @param array $Cols - array of Column Names
+     * @param array $Rows - array of Data to b inputted into the Display
+     */
     static public function generatetabledisplay($ID,$Cols,$Rows)
     {
         print("<table class='table table-hover sorted_table' id='" . $ID . "'>\n");

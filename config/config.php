@@ -1,4 +1,9 @@
 <?php
+
+/**
+* This file handles errors and sets the paths to different files and routes based on .ini files
+* @author Alex Tuersley
+*/
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
 /**
@@ -19,10 +24,7 @@ define('DEFAULTPICTURE',$ini['config']['user']['defaultphoto']);
 define("LOGO",$ini["config"]["paths"]['logo']);
 define('MAILUSERNAME',$ini['config']['mail']['username']);
 define('MAILPASS',$ini['config']['mail']['password']);
-/**
-* This file handles errors and sets the paths to different files and routes based on .ini files
-* @author Alex Tuersley
-*/
+
 /**
  * This function handles exceptions, logging the detailed exception to a file and displaying a basic message to the user
  */

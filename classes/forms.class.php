@@ -1,5 +1,13 @@
 <?php
 Class Forms{
+    /**
+     * Generates a HTML Form based on inputted parameters
+     * @param string $FormName - naem of the Form
+     * @param string $Action - where the form submits to 
+     * @param string $OnSubmit - JavaScript to be called when the Form is submitted
+     * @param array $Fields - an array of the Fields to be used in the form
+     * @param string Name of the Submit Button
+     */
     static public function generateform($FormName, $Action, $OnSubmit, $Fields, $Button){
         if($OnSubmit){$OnSubmit = " onsubmit='" . $OnSubmit . "'";}
         print("<form class='form-horizontal form-group' role='form' name='" . $FormName . "' id='" . $FormName . "' method='post' action='" . $Action . "'" . $OnSubmit . ">");
@@ -39,6 +47,11 @@ Class Forms{
             print("</form>");
           
     }
+
+    /**
+     * Function Generates a HTML Form Field based on the array passed to it
+     * @param array $Field - an array of information used to create the Form Fields
+     */
     static public function generatefield($Field){
         $Description = $Field[0];
         $Type = $Field[1];

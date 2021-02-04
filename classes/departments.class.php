@@ -6,7 +6,7 @@ Class Departments{
     private $name;
     private $deleted;
 
-    //getter and setter functions
+    //get and set functions
     function getid(){
         return $this->id;
     }
@@ -26,6 +26,7 @@ Class Departments{
         $this->deleted = $Val;
     }
 
+    //Gets information about the Department if an $ID passed through is > 0 
     function __construct($ID = 0){
         if($ID > 0){
 
@@ -41,18 +42,26 @@ Class Departments{
             $this->setdeleted(false);
         }
     }
+
+    //Saves a new Department into the DB using get functions
     function savenew(){
         $WQ = new WriteQuery("INSERT INTO departments(departmentname,deleted)VALUES(:departmentname,0)",array(
                                 PDOConnection::sqlarray(":departmentname",$this->getname(),PDO::PARAM_STR)
                             ));
     }
 
+    //Updates a Department in the DB using get functions
     function save(){
         $WQ = new WriteQuery("UPDATE departments SET departmentname = :departmentname WHERE id = :id",array(
                 PDOConnection::sqlarray(":departmentname",$this->getname(),PDO::PARAM_STR),
                 PDOConnection::sqlarray(":id",$this->getid(),PDO::PARAM_INT)
     ));
     }
+
+    /**
+     * Function sets the Department to Deleted - can be recovered by an Admin in the DB
+     * @param int $DID - Id of the Department
+     */
     static public function delete($DID){
         $RQ = new ReadQuery("SELECT * FROM userinformation WHERE department = :department",array(
             PDOConnection::sqlarray(":department",$DID,PDO::PARAM_INT)
@@ -70,6 +79,11 @@ Class Departments{
         return true;
 
     }
+
+    /**
+     * Function adds and edits Departments in the DB based on form input
+     * @param int $DID - ID of the Department
+     */
     static public function addedit($DID){
         $name = htmlspecialchars(filter_var($_POST["departmentname"], FILTER_SANITIZE_STRING));
         $Submit = $_POST["submit"];
@@ -103,6 +117,8 @@ Class Departments{
         }
      
     }
+
+    //If the User is logged in displays a List of clickable Departments
     static public function listdepartments(){
         if($_SESSION["userlevel"] >= 1){
             $RQ = new ReadQuery("SELECT id FROM departments WHERE deleted = 0", null);
@@ -122,6 +138,8 @@ Class Departments{
             print("<p class='welcome'>You do not have permission to view this page. Redirecting to home</p>");
         }
     }
+
+    //Displays all the Departments in the DB in a table if the User's level is Admin
     static public function listdepartmentsadmin(){
            if($_SESSION["userlevel"] >= 3){
             $RQ = new ReadQuery("SELECT * FROM departments WHERE deleted = 0", null);
@@ -144,6 +162,11 @@ Class Departments{
             print("<p class='welcome'>You do not have permission to view this page. Redirecting to home</p>");
         }
     }
+
+    /**
+     * Generates an array of all the Departments in the DB
+     * @return array $ReturnArray - array of all the Departments in the DB
+     */
     static public function getdepartmentsarray(){
        
             $RQ = new ReadQuery("SELECT id, departmentname FROM departments WHERE deleted = 0", null);
@@ -159,6 +182,11 @@ Class Departments{
 
             return $ReturnArray;     
     }
+    /**
+     * Uses the Forms class and variables to generate a HTML form
+     * @param int $DID - ID of the Department
+     * @param string $name - name of the Department
+     */
     static public function departmentform($DID,$name){
         Forms::generatebutton("Departments","department.php","arrow-left","secondary");
         $NameField = array("Name: ","Text","departmentname",30,$name,"Enter the name of the Department","","","","Name of the Department e.g. Business");

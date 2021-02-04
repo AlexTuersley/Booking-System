@@ -12,6 +12,7 @@ class Booking{
     private $note;
     private $deleted;
 
+    //get and set functions
     function getid(){
         return $this->id;
     }
@@ -67,6 +68,10 @@ class Booking{
         $this->deleted = $Val;
     }
 
+    /**
+     * When an ID is passed to the Class, date is gathered based on this ID
+     * @param int $ID - Booking ID
+     */
     function __construct($ID = 0){
         if($ID > 0){
             $RQ = new ReadQuery("SELECT * FROM bookings WHERE id = :bookingid", array(
@@ -88,6 +93,8 @@ class Booking{
         }
         
     }
+
+    //Gets booking data using the get function and pushes the data onto the database
     function savenew(){
         $WQ = new WriteQuery("INSERT INTO bookings
         (studentuserid,staffuserid,start_time,end_time,meetingtype,confirmed,notes,deleted)
@@ -104,6 +111,8 @@ class Booking{
 
         $this->id = $WQ->getinsertid();
     }
+
+    //Updates a Booking in the database using the get functions
     function save(){
        $WQ = new WriteQuery("UPDATE bookings SET
             studentuserid = :studentid,
@@ -126,7 +135,10 @@ class Booking{
         ));
     }
 
-    //cancel the Booking
+    /**
+     * cancels a booking and sends both users an email to confirm this
+     * @param int $BID - the ID of the booking to be deleted
+     */
     static public function cancelbooking($BID){
         $Booking = new Booking($BID);
         $WQ = new WriteQuery("UPDATE bookings SET deleted = 1 WHERE id = :id",
@@ -166,13 +178,20 @@ class Booking{
             }
         }
     }
-    //used by staff to confirm that the booking will go ahead
+    /**
+     * Confirms the booking will go ahead 
+     * @param int $BID - the ID of a Booking
+     */
     static public function confirmbooking($BID){
         $WQ = new WriteQuery("UPDATE bookings SET confirmed = 1 WHERE id = :id",
             array(PDOConnection::sqlarray(":id",$BID,PDO::PARAM_INT))
         );
     }
-
+    /**
+     * Checks the starttime of a Booking for a Staff Member to see if it exists already
+     * @param string $starttime - the time of a potential booking
+     * @param int $STID - Staff Id
+     */
     static public function checkbooking($starttime,$STID){
         $RQ = new ReadQuery("SELECT * FROM bookings WHERE start_time = :starttime AND staffuserid = :staff AND deleted = 0",array(
             PDOConnection::sqlarray(":starttime",$starttime,PDO::PARAM_STR),
@@ -184,7 +203,10 @@ class Booking{
         return true;
 
     }
-    //User inputted data from a from is passed to this function, which then updates or adds the data to the database
+    /**
+     * User inputted data from a from is passed to this function, which then updates or adds the data to the database
+     * @param int $BID - ID of the Booking
+     */  
     static public function addedit($BID){
         include('schedule.class.php');
         $studentid = filter_var($_POST["student"], FILTER_SANITIZE_NUMBER_INT);
@@ -290,41 +312,13 @@ class Booking{
         }
         
     }
-    static public function showbookings($ID){
-        include('meetingtype.class.php');
-        include('user.class.php');
-        $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND staffuserid = :id OR studentuserid = :id ORDER BY id",
-            array(
-                PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
-            ));
-        $Cols = array(array("Student", "student",1),array("Staff Member","staff",1),array("Status","status",1),array("Start", "start",1),array("End","end",1),array("Meeting Type","meetingtype",1), array("","functions",2));
-        $Rows = array();
-        $RowCounter = 0;
-        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-            if($row["confirmed"] == 1){
-                $status = "<i class='fas fa-check-circle' style='color:green;' aria-hidden='true' title='booking confirmed'></i>";
-            }
-            else{
-                $status = "<i class='fas fa-times-circle' style='color:red;' aria-hidden='true' title='booking not confirmed'></i>";
-            }
-            $starttime = new DateTime($row['start_time']);
-            $endtime = new DateTime($row['end_time']);
-            $Row1 = array(User::getstaticusername($row["studentuserid"]));
-            $Row2 = array(User::getstaticusername($row["staffuserid"]));
-            $Row3 = array($status);
-            $Row4 = array($starttime->format("H:i:s d/m/Y"));
-            $Row5 = array($endtime->format("H:i:s d/m/Y"));
-            $Row6 = array(MeetingType::getmeetingnamestatic($row["meetingtype"]));
-            $Row7 = array("<a href='?edit=". $row["id"] ."' alt='Edit Booking'><i class='fas fa-edit' aria-hidden='true' title='Edit Booking' alt='Edit'></i></a>","button");
-            $Row8 = array("<a href='?remove=". $row["id"] ."' alt='Delete Booking'><i class='fas fa-trash-alt' title='Delete Booking' alt='Delete'></i></a>","button");
-            $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
-            $RowCounter++;
-        }
-        print("<p class='welcome'>List of Bookings for ".$_SESSION['username']."</p>");
-        Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Start");
-    }
-   
-    //for students, staff use addedit to add booking
+    /**
+     * Function that makes a Booking for Students based on their selections and saves it in the database
+     * If successful an email is sent to both users with an ICS file and booking details
+     * @param int $Staff - ID of the member of staff the booking will be with
+     * @param int $Type - The Meeting Type of the Booking, based on User selection
+     * @param string $Booking - The time and date of the Booking
+     */
     static public function makebooking($Staff,$Type,$Booking){
         include("schedule.class.php");
         $studentid = $_SESSION['userid'];
@@ -410,6 +404,55 @@ class Booking{
         }
         
     }
+
+    /**
+     * Function displays all Bookings based on the User ID passed through
+     * @param int $ID - A User ID used too show all the related bookings
+     */
+    static public function showbookings($ID){
+        include('meetingtype.class.php');
+        include('user.class.php');
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND staffuserid = :id OR studentuserid = :id ORDER BY id",
+            array(
+                PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+            ));
+        $Cols = array(array("Student", "student",1),array("Staff Member","staff",1),array("Status","status",1),array("Start", "start",1),array("End","end",1),array("Meeting Type","meetingtype",1), array("","functions",2));
+        $Rows = array();
+        $RowCounter = 0;
+        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            if($row["confirmed"] == 1){
+                $status = "<i class='fas fa-check-circle' style='color:green;' aria-hidden='true' title='booking confirmed'></i>";
+            }
+            else{
+                $status = "<i class='fas fa-times-circle' style='color:red;' aria-hidden='true' title='booking not confirmed'></i>";
+            }
+            $starttime = new DateTime($row['start_time']);
+            $endtime = new DateTime($row['end_time']);
+            $Row1 = array(User::getstaticusername($row["studentuserid"]));
+            $Row2 = array(User::getstaticusername($row["staffuserid"]));
+            $Row3 = array($status);
+            $Row4 = array($starttime->format("H:i:s d/m/Y"));
+            $Row5 = array($endtime->format("H:i:s d/m/Y"));
+            $Row6 = array(MeetingType::getmeetingnamestatic($row["meetingtype"]));
+            $Row7 = array("<a href='?edit=". $row["id"] ."' alt='Edit Booking'><i class='fas fa-edit' aria-hidden='true' title='Edit Booking' alt='Edit'></i></a>","button");
+            $Row8 = array("<a href='?remove=". $row["id"] ."' alt='Delete Booking'><i class='fas fa-trash-alt' title='Delete Booking' alt='Delete'></i></a>","button");
+            $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
+            $RowCounter++;
+        }
+        print("<p class='welcome'>List of Bookings for ".$_SESSION['username']."</p>");
+        Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Start");
+    }
+   
+    /**
+     * Creates a Booking form using data passed through to it and displays it on a page
+     * @param int $BID - ID of a Booking
+     * @param int $studentid - ID of a student
+     * @param int $staffid - ID of a staff member
+     * @param string $starttime - start time of the booking
+     * @param int $meeting - ID of the meeting type associated
+     * @param string $note - note to go with the booking
+     * @param int $confirmed - variable for whether the meeting is confirmed or not
+     */
     static public function bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$confirmed){
         Forms::generatebutton("Bookings","bookings.php","arrow-left","secondary");
         include("user.class.php");
@@ -432,7 +475,7 @@ class Booking{
         }
         $StudentField = array("Student: ","Select","student",30,$studentid,"Staff Member associated with the schedule",$StudentArray,"","readonly");
         $StaffField = array("Staff: ","Select","staff",30,$staffid,"Staff Member associated with the schedule",$StaffArray,"","readonly");
-        //need a function to get starttime aand dates for a few weeks if they arent already booked
+        //need a function to get starttime and dates for a few weeks if they arent already booked
         $StartField = array("Start Time: ","Text","starttime",30,$starttime,"","","","readonly","");
         $MeetingField = array("Meeting Type","Select","meeting",30,$meeting,"The Type of Meeting e.g. Half an Hour Meeting",$MeetingArray,"","readonly");
         $NoteField = array("Note: ","TextArea","note",4,$note,"Enter some information about the Meeting(optional)","","","","Information about the meeting e.g. Reason for the meeting");

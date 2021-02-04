@@ -1,6 +1,13 @@
 <?php
 Class WebPage{
 
+    /**
+     * Creates a HTML Header and Nav Bar based on the parameters
+     * @param string $pageTitle - The name of the selected page
+     * @param int $level - the level of the user
+     * @param array $css - CSS files to be added to the header
+     * @param array $scripts - JavaScript files to be added to the header
+     */
     static public function headerandnav($pageTitle,$level,$css ="",$scripts=""){
         print("<!DOCTYPE html>
                <html lang='en'>
@@ -76,6 +83,7 @@ Class WebPage{
 
     }
 
+    //Ends the HTML page by closing all the tags
     static public function pageend(){
         print("</div>
                </main>

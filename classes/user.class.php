@@ -19,7 +19,7 @@ class User{
     private $bio;
     private $location;
     
-    //getter and setter functions
+    //get and set functions
     function getid(){
         return $this->id;
     }
@@ -210,7 +210,10 @@ class User{
             ));
         }
 
-    //delete user
+    /**
+     * Deletes a User based on the ID passed through
+     * @param int $UID - the ID of the User to be deleteds
+     */
     static public function deleteuser($UID){
         $RQ = new ReadQuery("SELECT * FROM bookings WHERE studentuserid = :id OR staffuserid = :id",array(
             PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
@@ -297,7 +300,11 @@ class User{
         
     }
 
-    //checks the level of the user id passed through
+    /**
+     * checks the level of the user
+     * @param int $UID - ID of the User
+     * @return int The integer level of the User
+     */
     static public function checkuserlevel($UID){
         if($UID > 0){
             $RQ = new ReadQuery("SELECT userlevel FROM users WHERE id = :id",
@@ -310,12 +317,55 @@ class User{
         }
         return 0;
     }
+
+    /**
+     * Static way to get a User's Username
+     * @param int $ID - ID of the User
+     * @return string  Username if found, if not return User not found message
+     */
+    static public function getstaticusername($ID){
+        $RQ = new ReadQuery("SELECT username FROM users WHERE id = :id",array(
+            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+        ));
+        if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            return $row["username"];
+          }
+        return "user not found";
+    }
+
+    /**
+     * Static way to get a User's Email
+     * @param int $ID - ID of the User
+     * @return string  Email if found, if not return false
+     */
+    static public function getstaticemail($ID){
+        $RQ = new ReadQuery("SELECT email FROM users WHERE id = :id",array(
+            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+        ));
+        if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            return $row["email"];
+          }
+        return false;
+    }
+
+    /**
+     * Activate a User by updating the DB
+     * @param int $UID - ID of the User
+     */
     static public function activateuser($UID){
         $WQ = new WriteQuery("UPDATE users SET activated = 1 WHERE id = :id AND activated != 1",array(
             PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
         ));
         print("<p class='welcome alert alert-success'>The User has been activated</p>");
     }
+
+    /**
+     * Checks if a username or email exist alreadt
+     * @param string $Username - name of the User
+     * @param string $Email - email of the user
+     * @param string optional $ID - ID of the User, used when editing a User
+     * @return bool true if query has no results, false if it does
+     */
     static public function checkusernameandemail($Username, $Email, $ID = 0){
         if($Username != "" && $Email != ""){
             $RQ = new ReadQuery("SELECT * FROM users WHERE (users.username =:username OR users.email = :email) AND deleted = 0 AND id != :id",array(
@@ -331,6 +381,7 @@ class User{
         return false;
     }
 
+    //Function creates a password form for too be displayed using the Forms class
     static public function changepasswordform(){
         $CurrentPasswordField = array("Current Password: ","Password","currentpassword",30,"","Enter your current Password","","","","");
         $NewPasswordField = array("New Password: ","Password","newpassword",30,"","Enter your new Password","","","","Password you will use to login to the System, must be at least 8 characters long");
@@ -341,6 +392,8 @@ class User{
        $Button = "Change Password";
        Forms::generateform("changepasswordform","user.php?password=true"," return checkpasswordform(this)",$Fields,$Button);
     }
+
+    //When the password form is used checks the submitted data and either updates a User's password or returns an Error
     static public function changepassword(){
         $CurrentPassword = htmlspecialchars(filter_var($_POST["currentpassword"], FILTER_SANITIZE_STRING));
         $NewPassword = htmlspecialchars(filter_var($_POST["newpassword"], FILTER_SANITIZE_STRING));
@@ -374,33 +427,18 @@ class User{
         }
 
     }
-    static public function getstaticusername($ID){
-        $RQ = new ReadQuery("SELECT username FROM users WHERE id = :id",array(
-            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
-        ));
-        if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-            return $row["username"];
-          }
-        return "user not found";
-    }
-    static public function getstaticemail($ID){
-        $RQ = new ReadQuery("SELECT email FROM users WHERE id = :id",array(
-            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
-        ));
-        if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-            return $row["email"];
-          }
-        return false;
-    }
 
-    static public function forgotpasswordform(){
+    //Uses the Forms class to generate a Forgotten password form
+    static public function forgotpasswordform($Email = ""){
         $EmailField = array("Email:","Email","email",30,$Email,"Enter your Email","","","","User Email e.g. john.example.com");
         $Button = "Forgotten Password";
         print("<p class='welcome'>If you have forgotten your password please complete this form and your password will be sent to your email.</p>");
         $Fields = array($EmailField);
         Forms::generateform("forgotpasswordform","signin.php?forgot=true","return checkforgottenpasswordform(this)",$Fields,$Button);
     }
-    static public function forgotpassword($Email = ""){
+
+    //Takes submitted data from forgottenpassword form, creates a new password in the DB and emails it to the User
+    static public function forgotpassword(){
         $Email = htmlspecialchars(filter_var($_POST["email"], FILTER_SANITIZE_EMAIL));
 
         $EmailError = array("emailerror","Please enter a valid email address");
@@ -447,7 +485,65 @@ class User{
             User::forgotpasswordform($Email);
         }
     }
-    //Data from Sign Up form is passed to this function to use in a Query
+
+    /**
+     * Creates a Sign Up form using the forms class
+     * @param string $Email - New User's Email address
+     * @param string $Username - Username of the New User
+     * @param string $Password - Password of the New User
+     * @param string $Fullname - Full name of the New User
+     * @param int optional $Phone - Phone Number of the New User
+     * @param string optional $Bio - Information about the New User
+     * @param int $Department - The ID of the Department the User is in, 0 for anyone who isn't a Staff Member
+     * @param string $location - Where the New User is based - only for staff
+     */
+    static public function signupform($Email = "", $Username = "", $Password = "", $Fullname = "", $Phone = "", $Bio = "", $Department = 0, $Location = ""){
+        $Departments = array();
+        $Departments = Departments::getdepartmentsarray();
+        $EmailField = array("Email:","Email","email",30,$Email,"Enter your Email","","","","User Email e.g. john.example.com");
+        $UsernameField = array("Username: ","Text","username",30,$Username,"Enter your Username","","","","Username used to login to the system e.g. User1");
+        $PasswordField = array("Password: ","Password","password",30,$Password,"Enter your Password","","","","Password you will use to login to the System, must be at least 8 characters long");
+        $FullnameField = array("Fullname: ","Text","fullname",30,$Fullname,"Enter your Fullname","","","","Fullname of the User e.g. John Smith");
+        $PhoneField = array("Phone: ","Text","phone",30,$Phone,"Enter your phone number(optional)","","","","Phone Number of the User");
+        $BioField = array("Bio: ","TextArea","bio",4,$Bio,"Enter some information about yourself and your area of study(optional)","","","","Information about the User e.g. Field of Study");
+        $UsercheckboxField = array("Staff:","Checkbox","usercheckbox",0,$Check,"Select if you are a member of staff","","","","Tickbox for members of staff");
+        $DepartmentField = array("Department: ","Select","department",30,$Department,"Select your Department",$Departments,"","","The Department the User is in at University e.g. Computer Science");
+        $LocationField = array("Location: ","Text","location",30,$Location,"Enter your location at University(optional)","","","","Where the User is on the University Campus e.g. Building 1");
+
+        $Fields = array($EmailField,$UsernameField,$PasswordField,$FullnameField,$PhoneField,$BioField,$UsercheckboxField,$DepartmentField,$LocationField);
+        $Button = "Sign Up";
+        Forms::generateform("Sign Up Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1)," return checksignupform(this)",$Fields,$Button);
+
+        ?>
+
+		<script>
+			let checkbox = $("#usercheckbox");
+			
+			$(function(){
+				StaffCheckbox();
+			});
+
+			checkbox.click(function(){
+				StaffCheckbox();
+			});
+
+			function StaffCheckbox(){
+				let checked = checkbox.is(':checked');
+				if(!checked){
+					$('#department').parent().hide();
+                    $('#location').parent().hide();
+				}else{
+					$('#department').parent().show();
+                    $('#location').parent().show();
+				}
+			}
+		</script>
+
+		<?
+    }
+
+    //Data from Sign Up form is passed to this function to use in a Query, if details are correct the User is added to the DB 
+    //and an Email is sent to their address
     static public function signup(){
         $Username = htmlspecialchars(filter_var($_POST["username"], FILTER_SANITIZE_STRING));
         $Fullname = htmlspecialchars(filter_var($_POST["fullname"], FILTER_SANITIZE_STRING));
@@ -514,7 +610,7 @@ class User{
                     }
                     else{
                         print("<p class='warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
-                        User::signupform($Email,$Username,$_POST["password"],$Fullname,$Phone,$Bio,$Check,$Department,$Location);
+                        User::signupform($Email,$Username,$Password,$Fullname,$Phone,$Bio,$Department,$Location);
                     }
                 }
                 else{
@@ -524,7 +620,7 @@ class User{
             else{
                 $Errors = array($UsernameError,$PasswordError,$FullnameError,$EmailError,$DepartmentError);
                 Forms::generateerrors("Please correct the following errors before continuing.",$Errors,true);
-                User::signupform();     
+                User::signupform($Email,$Username,$Password,$Fullname,$Phone,$Bio,$Department,$Location);     
             }
                        
         }
@@ -534,6 +630,10 @@ class User{
 
     }
 
+    /**
+     * Function generates a HTML About Me Page with User Details
+     * @param int $ID - ID of the User
+     */
     static public function aboutmepage($ID){
         include("schedule.class.php");
         if($ID > 0){
@@ -620,54 +720,9 @@ class User{
                
             }
         }
-        //use default photo atm
     }
-    //Sign up form
-    static public function signupform($Email = "",$Username = "",$Password = "", $Fullname = "",$Phone = "", $Bio = "", $Check = 0,$Department = 0, $Location = ""){
-        $Departments = array();
-        $Departments = Departments::getdepartmentsarray();
-        $EmailField = array("Email:","Email","email",30,$Email,"Enter your Email","","","","User Email e.g. john.example.com");
-        $UsernameField = array("Username: ","Text","username",30,$Username,"Enter your Username","","","","Username used to login to the system e.g. User1");
-        $PasswordField = array("Password: ","Password","password",30,$Password,"Enter your Password","","","","Password you will use to login to the System, must be at least 8 characters long");
-        $FullnameField = array("Fullname: ","Text","fullname",30,$Fullname,"Enter your Fullname","","","","Fullname of the User e.g. John Smith");
-        $PhoneField = array("Phone: ","Text","phone",30,$Phone,"Enter your phone number(optional)","","","","Phone Number of the User");
-        $BioField = array("Bio: ","TextArea","bio",4,$Bio,"Enter some information about yourself and your area of study(optional)","","","","Information about the User e.g. Field of Study");
-        $UsercheckboxField = array("Staff:","Checkbox","usercheckbox",0,$Check,"Select if you are a member of staff","","","","Tickbox for members of staff");
-        $DepartmentField = array("Department: ","Select","department",30,$Department,"Select your Department",$Departments,"","","The Department the User is in at University e.g. Computer Science");
-        $LocationField = array("Location: ","Text","location",30,$Location,"Enter your location at University(optional)","","","","Where the User is on the University Campus e.g. Building 1");
-
-        $Fields = array($EmailField,$UsernameField,$PasswordField,$FullnameField,$PhoneField,$BioField,$UsercheckboxField,$DepartmentField,$LocationField);
-        $Button = "Sign Up";
-        Forms::generateform("Sign Up Form",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1)," return checksignupform(this)",$Fields,$Button);
-
-        ?>
-
-		<script>
-			let checkbox = $("#usercheckbox");
-			
-			$(function(){
-				StaffCheckbox();
-			});
-
-			checkbox.click(function(){
-				StaffCheckbox();
-			});
-
-			function StaffCheckbox(){
-				let checked = checkbox.is(':checked');
-				if(!checked){
-					$('#department').parent().hide();
-                    $('#location').parent().hide();
-				}else{
-					$('#department').parent().show();
-                    $('#location').parent().show();
-				}
-			}
-		</script>
-
-		<?
-    }
-    //Data form
+  
+    //Users signinform submitted data to either Sign the User in or reject their credentials
     static public function signin(){
         if($_SESSION["userid"] > 0){
             return true;
@@ -715,6 +770,12 @@ class User{
         return false;
 
     }
+
+    /**
+     * Uses the Forms Class to generate a HTML Form
+     * @param string $Username
+     * @param string $Password
+     */
     static public function signinform($Username = "", $Password=""){
         $UsernameField = array("Username: ","Text","username",30,$Username,"Enter Your Username","","","","Username e.g. User1");
         $PasswordField = array("Password: ","Password","password",30,$Password,"Enter Your Password","","","","Password used when signing up to the System");
@@ -723,6 +784,7 @@ class User{
         Forms::generateform("signinform",substr($_SERVER["REQUEST_URI"],strrpos($_SERVER["REQUEST_URI"],"/")+1),"return checksigninform(this)",$Fields,$Button);
 
     }
+
     /**
      * function checks the username and password passed from the sign in form to verify if
      * @return int User ID
@@ -756,10 +818,13 @@ class User{
         }
         return 0;
     }
+
+    //Signs User out by destroying the session
     static public function signout(){
         session_destroy();
     }
    
+    //Creates a HTML Display using the Display class to show all Users 
     static public function listusers(){
         $RQ = new ReadQuery("SELECT id, username, fullname, userlevel,activated FROM users JOIN userinformation on users.id = userinformation.userid WHERE deleted = 0", null);
         $Cols = array(array("Username","username",1),array("Fullname","fullname",1),array("User Level","userlevel",1),array("","functions",3));
@@ -784,8 +849,13 @@ class User{
        
         Display::generatedynamiclistdisplay("userstable",$Cols,$Rows,"Username",0);
     }
-     //return the User type as a String value
-     static public function getuserleveltype($userlevel){
+     
+    /**
+     * Gets the Name of the User Level
+     * @param int $userlevel - interger value of the User Level
+     * @return string string name of the User Level
+     */
+    static public function getuserleveltype($userlevel){
         switch ($userlevel) {
             case 1:
                 return "Student";
@@ -801,12 +871,28 @@ class User{
                 break;
         }
     }
+
+    //Creates an array of the User Levels with their name and value
     static public function getuserlevelarray(){
         $UserlevelArray[0] = array(1,"Student");
         $UserlevelArray[1] = array(2,"Staff");
         $UserlevelArray[3] = array(3,"Admin");
         return $UserlevelArray;
     }
+
+    /**
+     * Creates a Sign Up form using the forms class
+     * @param int $UID - ID of the User
+     * @param string $email
+     * @param string $fullname - Full name of the User
+     * @param string $username
+     * @param int $level - level of the User
+     * @param int optional $phone - Phone Number of the New User
+     * @param string NOT IMPLEMENTED optional $photo - string to the file location of the User uploaded photo
+     * @param string optional $bio - Information about the New User
+     * @param int $department - The ID of the Department the User is in, 0 for anyone who isn't a Staff Member
+     * @param string $location - Where the New User is based - only for staff
+     */
     static public function edituserform($UID,$fullname,$username,$email,$level,$phone,$photo,$department,$bio,$location){
         
         if(strpos($_SERVER['REQUEST_URI'],'users.php')){
