@@ -934,7 +934,7 @@ class User{
 
 		<script>	
 			$(function(){
-                if($("#userlevel option:selected").val() === 2){
+                if($("#userlevel option:selected").val() == 2){
                   ShowFields();
                 }
                 else{
@@ -943,7 +943,8 @@ class User{
 			});
 
 			$("#userlevel").change(function(){
-                if($("#userlevel option:selected").val() === 2){
+                console.log($("#userlevel option:selected").val());
+                if($("#userlevel option:selected").val() == 2){
                   ShowFields();
                 }
                 else{
