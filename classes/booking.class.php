@@ -416,7 +416,7 @@ class Booking{
             array(
                 PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
             ));
-        $Cols = array(array("Student", "student",1),array("Staff Member","staff",1),array("Status","status",1),array("Start", "start",1),array("End","end",1),array("Meeting Type","meetingtype",1), array("","functions",2));
+        $Cols = array(array("Student", "student",1),array("Staff Member","staff",1),array("Recurring","recurring",1),array("Start", "start",1),array("End","end",1),array("Meeting Type","meetingtype",1), array("","functions",2));
         $Rows = array();
         $RowCounter = 0;
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
