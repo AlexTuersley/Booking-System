@@ -160,7 +160,7 @@ class Booking{
             $headers[] = 'Content-type: text/html; charset=iso-8859-1';
             $headers[] = "From: Booking System <noreply@bookingsystem.com>";
             $NewPassword = $row["password"];
-            $email_subject = "Booking Cancelation";
+            $email_subject = "Booking Cancellation";
             $email_message = "<html>
                               <head><title>Booking Cancelled</title></head>
                               <body>

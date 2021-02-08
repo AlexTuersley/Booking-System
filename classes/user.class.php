@@ -252,36 +252,41 @@ class User{
         $LevelError = array("levelerror", "Please select a valid User Level from the list");
 
         if($Submit){
-            if(User::checkusernameandemail($username,$email,$UID) && $username != "" && $fullname != "" && $email && $level > 0){
-                if($UID > 0){ 
-                    $User = new User($UID);
-                    $User->setfullname($fullname);
-                    $User->setusername($username);
-                    $User->setemail($email);
-                    $User->setuserlevel($level);
-                    $User->setphone($phone);
-                    $User->setphoto($photo);
-                    $User->setdepartment($department);
-                    $User->setbio($bio);
-                    $User->setlocation($location);
-                    $User->save();
-                    print("<p class='welcome alert alert-success'>".$username." has been edited</p>"); 
+            if($username != "" && $fullname != "" && $email && $level > 0){
+                if(User::checkusernameandemail($username,$email,$UID)){
+                    if($UID > 0){ 
+                        $User = new User($UID);
+                        $User->setfullname($fullname);
+                        $User->setusername($username);
+                        $User->setemail($email);
+                        $User->setuserlevel($level);
+                        $User->setphone($phone);
+                        $User->setphoto($photo);
+                        $User->setdepartment($department);
+                        $User->setbio($bio);
+                        $User->setlocation($location);
+                        $User->save();
+                        print("<p class='welcome alert alert-success'>".$username." has been edited</p>"); 
+                    }
+                    else{
+                        $User = new User();
+                        $User->setfullname($fullname);
+                        $User->setusername($username);
+                        $User->setemail($email);
+                        $User->setuserlevel($level);
+                        $User->setphone($phone);
+                        $User->setphoto($photo);
+                        $User->setdepartment($department);
+                        $User->setbio($bio);
+                        $User->setlocation($location);
+                        $User->setlogin(0);
+                        $User->setdeleted(0);
+                        $User->savenew();
+                        print("<p class='welcome alert alert-success'>".$username." has been added</p>"); 
+                    }
                 }
                 else{
-                    $User = new User();
-                    $User->setfullname($fullname);
-                    $User->setusername($username);
-                    $User->setemail($email);
-                    $User->setuserlevel($level);
-                    $User->setphone($phone);
-                    $User->setphoto($photo);
-                    $User->setdepartment($department);
-                    $User->setbio($bio);
-                    $User->setlocation($location);
-                    $User->setlogin(0);
-                    $User->setdeleted(0);
-                    $User->savenew();
-                    print("<p class='welcome alert alert-success'>".$username." has been added</p>"); 
+                    print("<p class='welcome alert alert-danger'><strong>Email or Username in Use</strong> The Email or Username is linked to another account please enter another</p>");
                 }
             }
             else{
@@ -457,7 +462,7 @@ class User{
                     $NewPassword = $row["password"];
                     $email_subject = "Forgotten Password";
                     $email_message = "<html>
-                                      <head><title>New User Registration</title></head>
+                                      <head><title>Fogotten Password</title></head>
                                       <body>
                                       <p>The Forgotten Form has been completed. Your password is: ".$NewPassword.".</p>
                                       <p>If you did not request this please login with this password and change it to your preferred password.</p>
@@ -566,51 +571,56 @@ class User{
         //add this back in to check the email of the user 
         //&& str_pos($Email,EMAILCHECK)
         if($Submit){
-            if(User::checkusernameandemail($Username,$Email) && $Username != "" && $Fullname != "" && strlen($Password) > 7 &&  $Email){
-                $User = new User();
-                $User->setusername($Username);
-                $User->setfullname($Fullname);
-                $User->setemail($Email);
-                $User->setpassword($Password);
-                if($Department > 0){
-                    $User->setuserlevel(2);
-                    $User->setdepartment($Department);
-                    $Check = 1;
-                }
-                else{
-                    $User->setuserlevel(1);
-                    $User->setdepartment(0);
-                    $Check = 0;
-                }
-                $User->setphone($Phone);
-                $User->setbio($Bio);
-                $User->setlocation($Location);
-                $User->savenew();
-
-                
-              
-                if(function_exists("mail")){
-                    $headers[] = 'MIME-Version: 1.0';
-                    $headers[] = 'Content-type: text/html; charset=iso-8859-1';
-                    $headers[] = "From: Booking System <noreply@bookingsystem.com>";
-                    $Link = BASEPATH."user.php?activate=".$User->getid();
-
-                    $email_subject = "New User Registration";
-                    $email_message = "<html>
-                                      <head><title>New User Registration</title></head>
-                                      <body>
-                                      <p>A user has signed up to the booking system with this email ".$Email."</p>
-                                      <p>to confirm your registration click this <a href='".$Link."'>link</a></p>
-                                      <p>If this was not you, your account may have been hacked, changing your password is recommended.</>
-                                      </body>
-                                      </html>";
-                    $sendmail = mail($Email, $email_subject, $email_message, implode("\r\n", $headers));
-                    if($sendmail){
-                        print("<p class='welcome alert alert-success'>A message has been sent to your email, to activate your account please click the link send with the message</p>");
+            if($Username != "" && $Fullname != "" && strlen($Password) > 7 && $Email){
+                if(User::checkusernameandemail($Username,$Email)){
+                    $User = new User();
+                    $User->setusername($Username);
+                    $User->setfullname($Fullname);
+                    $User->setemail($Email);
+                    $User->setpassword($Password);
+                    if($Department > 0){
+                        $User->setuserlevel(2);
+                        $User->setdepartment($Department);
+                        $Check = 1;
                     }
                     else{
-                        print("<p class='warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
-                        User::signupform($Email,$Username,$Password,$Fullname,$Phone,$Bio,$Department,$Location);
+                        $User->setuserlevel(1);
+                        $User->setdepartment(0);
+                        $Check = 0;
+                    }
+                    $User->setphone($Phone);
+                    $User->setbio($Bio);
+                    $User->setlocation($Location);
+                    $User->savenew();
+
+                    
+                
+                    if(function_exists("mail")){
+                        $headers[] = 'MIME-Version: 1.0';
+                        $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+                        $headers[] = "From: Booking System <noreply@bookingsystem.com>";
+                        $Link = BASEPATH."/user.php?activate=".$User->getid();
+
+                        $email_subject = "New User Registration";
+                        $email_message = "<html>
+                                        <head><title>New User Registration</title></head>
+                                        <body>
+                                        <p>A user has signed up to the booking system with this email ".$Email."</p>
+                                        <p>to confirm your registration click this <a href='".$Link."'>link</a></p>
+                                        <p>If this was not you, your account may have been hacked, changing your password is recommended.</>
+                                        </body>
+                                        </html>";
+                        $sendmail = mail($Email, $email_subject, $email_message, implode("\r\n", $headers));
+                        if($sendmail){
+                            print("<p class='welcome alert alert-success'>A message has been sent to your email, to activate your account please click the link send with the message</p>");
+                        }
+                        else{
+                            print("<p class='warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
+                            User::signupform($Email,$Username,$Password,$Fullname,$Phone,$Bio,$Department,$Location);
+                        }
+                    }
+                    else{
+                        print("<p class='welcome alert alert-danger'><strong>Email or Username in Use</strong> The Email or Username is linked to another account please enter another</p>");
                     }
                 }
                 else{
