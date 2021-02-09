@@ -35,7 +35,7 @@ Class WebPage{
                </head> 
                
                <nav class='navbar navbar-expand-lg'>
-               <img style='width:5%; max-height:60px;' src='".LOGO."' alt='logo'> 
+               <img style='width:5%; max-height:60px;' class='logo' src='".LOGO."' alt='logo'> 
                </img> 
                <div class='container'>
                ");

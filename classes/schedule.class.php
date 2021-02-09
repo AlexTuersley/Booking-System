@@ -87,7 +87,7 @@ class Schedule {
             $row = $RQ->getresults()->fetch(PDO::FETCH_BOTH);
             $this->id = $ID;
             $this->staffid = $row["staffid"];
-            $this->day = $row["day"];
+            $this->day = $row["staffday"];
             $this->start_time = $row["starttime"];
             $this->end_time = $row["endtime"];
             $this->active = $row["active"];
@@ -173,10 +173,10 @@ class Schedule {
         $active = $_GET['active'];
         $staffid = filter_var($_POST["staff"], FILTER_SANITIZE_NUMBER_INT);
         $day = filter_var($_POST["day"], FILTER_SANITIZE_NUMBER_INT);
-        $starttime = filter_var($_POST["starttime"], FILTER_SANITIZE_STRING);
-        $endtime = filter_var($_POST["endtime"], FILTER_SANITIZE_STRING);
-        $startdate = filter_var($_POST["startdate"], FILTER_SANITIZE_STRING);
-        $enddate = filter_var($_POST["enddate"], FILTER_SANITIZE_STRING);
+        $starttime = htmlspecialchars(filter_var($_POST["starttime"], FILTER_SANITIZE_STRING));
+        $endtime = htmlspecialchars(filter_var($_POST["endtime"], FILTER_SANITIZE_STRING));
+        $startdate = htmlspecialchars(filter_var($_POST["startdate"], FILTER_SANITIZE_STRING));
+        $enddate = htmlspecialchars(filter_var($_POST["enddate"], FILTER_SANITIZE_STRING));
         $Submit = $_POST["submit"];
     
         if($Submit){      
@@ -215,7 +215,10 @@ class Schedule {
                             $Errors = array($DefaultError,$StartdateError,$EnddateError,$StaffError);
                             Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
                         }
-                    }           
+                    }    
+                    else{
+                        print("<p class='welcome alert alert-danger><strong>Start or End Date invalid</strong>Please check that the format user is correct</p>");
+                    }       
                 }
                 else{
                     if(Schedule::validatetime($starttime) && Schedule::validatetime($endtime)){
@@ -420,9 +423,17 @@ class Schedule {
      * @return bool - true if valid, false if not
      */
     static public function validatetime($time){
-        $test = preg_match("/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/", $time);
-        if($test){
-            return true;
+        if(strlen($time) > 5){
+            $test = preg_match("/^(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/", $time);
+            if($test){
+                return true;
+            }
+        }
+        else{
+            $test = preg_match("/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/", $time);
+            if($test){
+                return true;
+            }
         }
         return false;
     }
@@ -433,8 +444,15 @@ class Schedule {
      * @return bool true if the date time is valid, false if not
      */
     static public function validatedate($date, $format = "m/d/Y"): bool{
-        $dateObj = DateTime::createFromFormat($format, $date);
-        return $dateObj && $dateObj->format($format) == $date;
+        if(is_object($date)){
+            $dateObj = DateTime::createFromFormat($format, $date->format($format));
+            return $dateObj && $dateObj->format($format) == $date->format($format);
+        }
+        else{
+            $dateObj = DateTime::createFromFormat($format, $date);
+            return $dateObj && $dateObj->format($format) == $date;
+        }
+      
     }
 
     static public function checkstaffdayslot($id,$day,$starttime,$endtime,$userid){

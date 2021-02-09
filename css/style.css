@@ -24,3 +24,12 @@
     text-decoration: none;
     color: inherit;
 }
+@media only screen and (max-width: 768px) {
+    .logo{
+        display: none;
+    }
+    .nav-item {
+        font-size: 0.6rem;
+    }
+    
+}

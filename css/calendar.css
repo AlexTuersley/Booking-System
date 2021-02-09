@@ -145,7 +145,11 @@
     .myc-date-header, .myc-day-time-container {
         width: 13.5%;
     }
+    .myc-date-display{
+        font-size: 0.5rem;
+    }
     /*.myc-date-header:last-of-type, .myc-day-time-container:last-of-type {
         width: 12%;
     }*/
 }
+

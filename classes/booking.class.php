@@ -211,7 +211,7 @@ class Booking{
         include('schedule.class.php');
         $studentid = filter_var($_POST["student"], FILTER_SANITIZE_NUMBER_INT);
         $staffid = filter_var($_POST["staff"], FILTER_SANITIZE_NUMBER_INT);
-        $starttime = $_POST["starttime"];
+        $starttime = htmlspecialchars(filter_var($_POST["starttime"], FILTER_SANITIZE_STRING));
         $meeting = filter_var($_POST["meeting"], FILTER_SANITIZE_NUMBER_INT);
         $note = htmlspecialchars(filter_var($_POST["note"], FILTER_SANITIZE_STRING));
         $Submit = $_POST['submit'];
@@ -236,7 +236,7 @@ class Booking{
             if($BID > 0){
                 $Booking = new Booking($BID);
                 if($starttime != $Booking->getstarttime()->format('y-m-d H:i:s')){
-                    $Update =1;
+                    $Update = 1;
                 }
                 $Booking->setstudentid($studentid);
                 $Booking->setstaffid($staffid);
@@ -286,6 +286,7 @@ class Booking{
                             print("<p class='alert alert-success welcome'>An email has been sent to you to show the changes</p>");
                             print("</div>");
                         }
+                        $ics->delete();
                     }
                 }
                 print("<p class='welcome alert alert-success'>The Booking has been edited.</p>");
@@ -391,7 +392,8 @@ class Booking{
                         print("<p class='alert alert-success welcome'><strong>Booking Added</strong> An email has been sent to you to confirm this booking. Please respond.</p><div class='welcome'>");
                         Forms::generatebutton("Bookings","bookings.php","book","primary"); 
                         print("</div>");
-                    }                                
+                    }   
+                    $ics->delete();                             
                 }
                 else{
                     print("<p class='welcome alert alert-success'>Your Booking has been added. Email has not been enabled for this server. Please contact an administrator to confirm your booking.</p><div class='welcome'>");
