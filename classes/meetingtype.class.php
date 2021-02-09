@@ -65,6 +65,7 @@ Class MeetingType{
             $this->setdeleted(false);
         }
     }
+    
     function savenew(){
         $WQ = new WriteQuery("INSERT INTO meetingtype(meetingname,meetingdescription,staffid,duration,deleted)
                             VALUES(:meetingname,:meetingdescription,:staffid,:duration,0)",
@@ -76,6 +77,7 @@ Class MeetingType{
                             ));
         $this->id = $WQ->getinsertid();
     }
+
     function save(){
         $WQ = new WriteQuery("UPDATE meetingtype SET
                               meetingname = :meetingname,
@@ -92,6 +94,9 @@ Class MeetingType{
                             ));
     }
 
+    /**
+     * 
+     */
     static public function addedit($MID){
         $name = htmlspecialchars(filter_var($_POST["name"], FILTER_SANITIZE_STRING));
         $staffid = htmlspecialchars(filter_var($_POST["staff"], FILTER_SANITIZE_NUMBER_INT));
@@ -142,6 +147,10 @@ Class MeetingType{
             MeetingType::meetingform($MID,$name,$staffid,$description,$duration);
         }
     }
+
+    /**
+     * 
+     */
     static public function checkmeetingname($MID, $name, $STID){
         $RQ = new ReadQuery("SELECT meetingname FROM meetingtype WHERE meetingname = :meetingname AND deleted = 0 AND id != :id AND staffid = :staffid",array(
             PDOConnection::sqlarray(":meetingname",$name,PDO::PARAM_STR),
@@ -155,6 +164,9 @@ Class MeetingType{
         return true;
     }
 
+    /**
+     * 
+     */
     static public function getmeetingnamestatic($ID){
         $RQ = new ReadQuery("SELECT meetingname FROM meetingtype WHERE id = :id AND deleted = 0",array(
             PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
@@ -165,7 +177,9 @@ Class MeetingType{
         return "Meeting Type doesn't exist";
     }
     
-    //Display selectable meeting types for student users
+    /**
+     * 
+     */
     static public function showmeetingtypes($STID,$DID){
         $RQ = new ReadQuery("SELECT id,meetingname,meetingdescription,duration FROM meetingtype WHERE staffid = :stid AND deleted = 0 ORDER BY meetingname",
                     array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
@@ -229,6 +243,10 @@ Class MeetingType{
         }
     
     }
+
+    /**
+     * 
+     */
     static public function listmeetingtypes($STID){
         if($STID){
                 Forms::generatebutton("Add Meeting Type","meetingtype.php?edit=-1","plus","primary","","","Click this button to add a new Meeting Type");
@@ -253,12 +271,20 @@ Class MeetingType{
                 Display::generatedynamiclistdisplay("staffmeetingstable",$Cols,$Rows,"name",0);
         } 
     }
+
+    /**
+     * 
+     */
     static public function deletemeetingtype($ID){
         $WQ = new WriteQuery("UPDATE meetingtype SET deleted = 1 WHERE id = :id",array(
             PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
         ));
         print("<p class='alert alert-success'>Meeting Type has successfully been deleted</p>");
     }
+
+    /**
+     * 
+     */
     static public function meetingform($MID,$name,$staffid,$description,$duration){
         Forms::generatebutton("Meeting Types","meetingtype.php","arrow-left","secondary");
         $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));

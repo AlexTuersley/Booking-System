@@ -163,28 +163,20 @@ class Schedule {
         ));
                                
     }
-    // function getdatabasedate(){
 
-    // }
-
-    //make item a holiday(away)
-    public function makescheduleholiday(){
-
-    }
-    //make item active(show on timetable)
-    public function activatescheduleitem(){
-        
-    }
-    //User inputted data from a from is passed to this function, which then updates or adds the data to the database
+    /**
+     * User inputted data from a form is passed to this function, which then updates or adds the data to the database
+     * @param int $SID - ID of the Schedule Item
+     */ 
     public function addedit($SID){
         $away = $_GET['away'];
         $active = $_GET['active'];
         $staffid = filter_var($_POST["staff"], FILTER_SANITIZE_NUMBER_INT);
         $day = filter_var($_POST["day"], FILTER_SANITIZE_NUMBER_INT);
-        $starttime = $_POST["starttime"];
-        $endtime = $_POST["endtime"];
-        $startdate = $_POST["startdate"];
-        $enddate = $_POST["enddate"];
+        $starttime = filter_var($_POST["starttime"], FILTER_SANITIZE_STRING);
+        $endtime = filter_var($_POST["endtime"], FILTER_SANITIZE_STRING);
+        $startdate = filter_var($_POST["startdate"], FILTER_SANITIZE_STRING);
+        $enddate = filter_var($_POST["enddate"], FILTER_SANITIZE_STRING);
         $Submit = $_POST["submit"];
     
         if($Submit){      
@@ -201,49 +193,57 @@ class Schedule {
             if($SID > 0){
                 $Schedule = new Schedule($SID);               
                 if($away > 0){
-                    if($staffid > 0 && $enddate != "" && $startdate != ""){
-                        $startdate = $startdate->format('Y-m-d');
-                        $enddate = $enddate->format('Y-m-d');
-                        $Schedule->setday(0);
-                        $Schedule->setaway(1);
-                        $Schedule->setactive(0);
-                        $Schedule->setstartdate($startdate);
-                        $Schedule->setenddate($enddate);
-                        if(Schedule::checkholidayslot($SID,$startdate,$enddate,$staffid)){
-                            $Schedule->save();
-                            print("<p class='alert alert-success'>Holiday has successfully been edited</p>");
-                        }  
-                    }   
-                    else{
-                        $DefaultError = array("dateerror","Make sure End Date is later than Start Date");
-                        $StartdateError = array("startdateerror","Invalid Start Date");
-                        $EnddateError = array("enddateerror","Invalid End Date");
-                        $StaffError = array("stafferror","Invalid Staff Id");
-                        $Errors = array($DefaultError,$StartdateError,$EnddateError,$StaffError);
-                        Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
-                    }
+                    if(Schedule::validatedate($startdate) && Schedule::validatedate($enddate)){
+                        if($staffid > 0 && $enddate != "" && $startdate != ""){
+                            $startdate = $startdate->format('Y-m-d');
+                            $enddate = $enddate->format('Y-m-d');
+                            $Schedule->setday(0);
+                            $Schedule->setaway(1);
+                            $Schedule->setactive(0);
+                            $Schedule->setstartdate($startdate);
+                            $Schedule->setenddate($enddate);
+                            if(Schedule::checkholidayslot($SID,$startdate,$enddate,$staffid)){
+                                $Schedule->save();
+                                print("<p class='alert alert-success'>Holiday has successfully been edited</p>");
+                            }  
+                        }   
+                        else{
+                            $DefaultError = array("dateerror","Make sure End Date is later than Start Date");
+                            $StartdateError = array("startdateerror","Invalid Start Date");
+                            $EnddateError = array("enddateerror","Invalid End Date");
+                            $StaffError = array("stafferror","Invalid Staff Id");
+                            $Errors = array($DefaultError,$StartdateError,$EnddateError,$StaffError);
+                            Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
+                        }
+                    }           
                 }
                 else{
-                    if($day > 0 && $day <= 7 && $staffid > 0 && $endtime != "" && $starttime != ""){
-                        $Schedule->setstarttime($starttime);
-                        $Schedule->setendtime($endtime);
-                        $Schedule->setday($day);
-                        $Schedule->setaway(0);
-                        $Schedule->setactive(1);
-                        if(Schedule::checkstaffdayslot($SID,$day,$starttime,$endtime,$staffid)){
-                            $Schedule->save();
-                            print("<p class='alert alert-success'>Schedule has successfully been edited</p>");
+                    if(Schedule::validatetime($starttime) && Schedule::validatetime($endtime)){
+                        if($day > 0 && $day <= 7 && $staffid > 0 && $endtime != "" && $starttime != ""){
+                            $Schedule->setstarttime($starttime);
+                            $Schedule->setendtime($endtime);
+                            $Schedule->setday($day);
+                            $Schedule->setaway(0);
+                            $Schedule->setactive(1);
+                            if(Schedule::checkstaffdayslot($SID,$day,$starttime,$endtime,$staffid)){
+                                $Schedule->save();
+                                print("<p class='alert alert-success'>Schedule has successfully been edited</p>");
+                            }
+                        }
+                        else{
+                            $DefaultError = array("timeerror","Make sure the End Time is later than the Start Time");
+                            $DayError = array("dayerror","Please select a valid Day");
+                            $StarttimeError = array("starttimeerror","Invalid Start Time"); 
+                            $EndtimeError = array("endtimeerror","Invalid End Time");
+                            $StaffError = array("stafferror","Invalid Staff Id");
+                            $Errors = array($DefaultError,$DayError,$StarttimeError,$EndtimeError,$StaffError);
+                            Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
                         }
                     }
                     else{
-                        $DefaultError = array("timeerror","Make sure the End Time is later than the Start Time");
-                        $DayError = array("dayerror","Please select a valid Day");
-                        $StarttimeError = array("starttimeerror","Invalid Start Time"); 
-                        $EndtimeError = array("endtimeerror","Invalid End Time");
-                        $StaffError = array("stafferror","Invalid Staff Id");
-                        $Errors = array($DefaultError,$DayError,$StarttimeError,$EndtimeError,$StaffError);
-                        Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
+                        print("<p class='alert alert-danger>Enter valid start and end times to create the schedule</p>");
                     }
+                   
                 }
                
             }
@@ -317,12 +317,19 @@ class Schedule {
         }
 
     }
+
+    /**
+     * sets a schedule item to be deleted
+     * @param int $SID - ID of the Schedule Item
+     */
     static public function deleteschedule($SID){
         $WQ = new WriteQuery("UPDATE staffschedule SET deleted = 1 WHERE id = :id",
             array(PDOConnection::sqlarray(":id",$SID,PDO::PARAM_INT))
         );
         print("<p class='alert alert-success'>Schedule has successfully been deleted</p>");
     }
+
+    
     static public function listuserslots($STID,$Duration){
         $RQ = new ReadQuery("SELECT staffday, starttime, endtime, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0 ORDER BY staffday",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
@@ -371,6 +378,12 @@ class Schedule {
         $slots = array($userslot,$holidays);
         return $slots;
     }
+
+    /**
+     * function returns a string of a day from an integer input
+     * @param int $day
+     * @return string name of the day associated with the integer
+     */
     static public function getstaffday($day){
         switch($day){
             case 1:
@@ -400,6 +413,30 @@ class Schedule {
         }
 
     }
+
+    /**
+     * function to check if a time is valid - uses regex to test the time
+     * @param string $time - the time to be tested
+     * @return bool - true if valid, false if not
+     */
+    static public function validatetime($time){
+        $test = preg_match("/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/", $time);
+        if($test){
+            return true;
+        }
+        return false;
+    }
+    /**
+     * function to check if the date is valid
+     * @param string $date - date to be tested
+     * @param string $format - format to test the date time against, if none are sent a default format is used
+     * @return bool true if the date time is valid, false if not
+     */
+    static public function validatedate($date, $format = "m/d/Y"): bool{
+        $dateObj = DateTime::createFromFormat($format, $date);
+        return $dateObj && $dateObj->format($format) == $date;
+    }
+
     static public function checkstaffdayslot($id,$day,$starttime,$endtime,$userid){
         $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE staffday = :staffday AND id != :id AND staffid = :staff AND deleted = 0 AND (starttime BETWEEN :starttime AND :endtime OR endtime BETWEEN :starttime AND :endtime)",array(
             PDOConnection::sqlarray(':staffday',$day,PDO::PARAM_INT),
