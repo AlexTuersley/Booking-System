@@ -35,7 +35,6 @@ if($Level > 0){
     }
     elseif($_GET['remove']){
         Booking::cancelbooking($_GET['remove']);
-        Booking::showbookings($_SESSION["userid"]);
     }
     else{
         Booking::showbookings($_SESSION["userid"]);

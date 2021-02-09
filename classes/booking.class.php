@@ -8,7 +8,7 @@ class Booking{
     private $start_time;
     private $end_time;
     private $meetingtype;
-    private $confirmed;
+    private $recurring;
     private $note;
     private $deleted;
 
@@ -49,11 +49,11 @@ class Booking{
     function setmeetingtype($Val){
         $this->meetingtype = $Val;
     }
-    function getconfirmed(){
-        return $this->confirmed;
+    function getrecurring(){
+        return $this->recurring;
     }
-    function setconfirmed($Val){
-        $this->confirmed = $Val;
+    function setrecurring($Val){
+        $this->recurring = $Val;
     }
     function getnote(){
         return $this->note;
@@ -84,7 +84,7 @@ class Booking{
             $this->start_time = $row["start_time"];
             $this->end_time = $row["end_time"];
             $this->meetingtype = $row["meetingtype"];
-            $this->confirmed = $row["confirmed"];
+            $this->recurring = $row["recurring"];
             $this->note = $row["notes"];
             $this->deleted = $row["deleted"];
         }
@@ -97,15 +97,15 @@ class Booking{
     //Gets booking data using the get function and pushes the data onto the database
     function savenew(){
         $WQ = new WriteQuery("INSERT INTO bookings
-        (studentuserid,staffuserid,start_time,end_time,meetingtype,confirmed,notes,deleted)
-        VALUES(:studentid,:staffid,:starttime,:endtime,:meetingid,:confirmed,:note,0)",
+        (studentuserid,staffuserid,start_time,end_time,meetingtype,recurring,notes,deleted)
+        VALUES(:studentid,:staffid,:starttime,:endtime,:meetingid,:recurring,:note,0)",
         array(
             PDOConnection::sqlarray(":studentid",$this->getstudentid(),PDO::PARAM_INT),
             PDOConnection::sqlarray(":staffid",$this->getstaffid(),PDO::PARAM_INT),
             PDOConnection::sqlarray(":starttime",$this->getstarttime(), PDO::PARAM_STR),
             PDOConnection::sqlarray(":endtime",$this->getendtime(), PDO::PARAM_STR),
             PDOConnection::sqlarray(":meetingid",$this->getmeetingtype(), PDO::PARAM_INT),
-            PDOConnection::sqlarray(":confirmed",$this->getconfirmed(), PDO::PARAM_INT),
+            PDOConnection::sqlarray(":recurring",$this->getrecurring(), PDO::PARAM_INT),
             PDOConnection::sqlarray(":note",$this->getnote(),PDO::PARAM_STR)
         ));
 
@@ -120,7 +120,7 @@ class Booking{
             start_time = :starttime,
             end_time = :endtime,
             meetingtype = :meetingid,
-            confirmed = :confirmed,
+            recurring = :recurring,
             notes = :note
             WHERE id = :id",
                 array(
@@ -129,7 +129,7 @@ class Booking{
                 PDOConnection::sqlarray(":starttime",$this->getstarttime(), PDO::PARAM_STR),
                 PDOConnection::sqlarray(":endtime",$this->getendtime(), PDO::PARAM_STR),
                 PDOConnection::sqlarray(":meetingid",$this->getmeetingtype(), PDO::PARAM_INT),
-                PDOConnection::sqlarray(":confirmed",$this->getconfirmed(), PDO::PARAM_INT),
+                PDOConnection::sqlarray(":recurring",$this->getrecurring(), PDO::PARAM_INT),
                 PDOConnection::sqlarray(":note",$this->getnote(),PDO::PARAM_STR),
                 PDOConnection::sqlarray(":id",$this->getid(),PDO::PARAM_INT)
         ));
@@ -171,19 +171,20 @@ class Booking{
             $sendmail = mail(implode(",",$recipients), $email_subject, $email_message, implode("\r\n", $headers));
             
             if($sendmail){
-                print("<p class='alert alert-success'><strong>Booking Deleted</strong>An Email has been sent to your address wiht details</p>");
+                print("<p class='welcome alert alert-success'><strong>Booking Deleted</strong> An Email has been sent to your address with details</p>");
             }
             else{
                 print("<p class='welcome alert alert-warning'>The Booking has been cancelled. But an email was unable to be sent to your address</p>");
             }
         }
+        header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
     }
     /**
      * Confirms the booking will go ahead 
      * @param int $BID - the ID of a Booking
      */
     static public function confirmbooking($BID){
-        $WQ = new WriteQuery("UPDATE bookings SET confirmed = 1 WHERE id = :id",
+        $WQ = new WriteQuery("UPDATE bookings SET recurring = 1 WHERE id = :id",
             array(PDOConnection::sqlarray(":id",$BID,PDO::PARAM_INT))
         );
     }
@@ -299,17 +300,17 @@ class Booking{
                 $Booking->setendtime($endtime);
                 $Booking->setmeetingtype($meeting);
                 $Booking->setnote($note);
-                $Booking->setconfirmed(0);
+                $Booking->setrecurring(0);
                 $Booking->savenew();
                 print("<p class='welcome alert alert-success'>The Booking has been added. Please wait for confirmation from the member of staff</p>");
             }
         }
         if($BID > 0){
             $Booking = new Booking($BID);
-            Booking::bookingsform($BID,$Booking->getstudentid(),$Booking->getstaffid(),$Booking->getstarttime(),$Booking->getmeetingtype(),$Booking->getnote(),$Booking->getconfirmed());
+            Booking::bookingsform($BID,$Booking->getstudentid(),$Booking->getstaffid(),$Booking->getstarttime(),$Booking->getmeetingtype(),$Booking->getnote(),$Booking->getrecurring());
         }
         else{
-            Booking::bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$confirmed);
+            Booking::bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$recurring);
         }
         
     }
@@ -342,7 +343,7 @@ class Booking{
                 $Booking->setendtime($endtime->format("Y-m-d H:i:s"));
                 $Booking->setmeetingtype($Type);
                 $Booking->setnote("");
-                $Booking->setconfirmed(0);
+                $Booking->setrecurring(0);
                 $Booking->savenew();
                 
                 if(function_exists("mail")){
@@ -419,7 +420,7 @@ class Booking{
     static public function showbookings($ID){
         include('meetingtype.class.php');
         include('user.class.php');
-        $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND staffuserid = :id OR studentuserid = :id ORDER BY id",
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND (staffuserid = :id OR studentuserid = :id) ORDER BY id",
             array(
                 PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
             ));
@@ -427,11 +428,11 @@ class Booking{
         $Rows = array();
         $RowCounter = 0;
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-            if($row["confirmed"] == 1){
-                $status = "<i class='fas fa-check-circle' style='color:green;' aria-hidden='true' title='booking confirmed'></i>";
+            if($row["recurring"] == 1){
+                $status = "<i class='fas fa-sync' style='color:green;' aria-hidden='true' title='booking recurring'></i>";
             }
             else{
-                $status = "<i class='fas fa-times-circle' style='color:red;' aria-hidden='true' title='booking not confirmed'></i>";
+                $status = "<i class='fas fa-circle' style='color:green;' aria-hidden='true' title='booking not recurring'></i>";
             }
             $starttime = new DateTime($row['start_time']);
             $endtime = new DateTime($row['end_time']);
@@ -458,9 +459,9 @@ class Booking{
      * @param string $starttime - start time of the booking
      * @param int $meeting - ID of the meeting type associated
      * @param string $note - note to go with the booking
-     * @param int $confirmed - variable for whether the meeting is confirmed or not
+     * @param int $recurring - variable for whether the meeting is recurring or not
      */
-    static public function bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$confirmed){
+    static public function bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$recurring){
         Forms::generatebutton("Bookings","bookings.php","arrow-left","secondary");
         include("user.class.php");
         include("meetingtype.class.php");
@@ -487,7 +488,7 @@ class Booking{
         $MeetingField = array("Meeting Type","Select","meeting",30,$meeting,"The Type of Meeting e.g. Half an Hour Meeting",$MeetingArray,"","readonly");
         $NoteField = array("Note: ","TextArea","note",4,$note,"Enter some information about the Meeting(optional)","","","","Information about the meeting e.g. Reason for the meeting");
         // if(User::checkuserlevel($_SESSION["userid"] >= 2)){
-        //     $ConfirmedField = array();
+        //     $recurringField = array();
         // }
         $Fields = array($StudentField,$StaffField,$StartField,$MeetingField,$NoteField);
         if($BID > 0){
