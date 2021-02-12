@@ -333,8 +333,8 @@ class Schedule {
     }
 
     
-    static public function listuserslots($STID,$Duration){
-        $RQ = new ReadQuery("SELECT staffday, starttime, endtime, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0 ORDER BY staffday",
+    static public function liststaffslots($STID,$Duration){
+        $RQ = new ReadQuery("SELECT staffday, starttime, endtime, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0 AND (startdate > NOW() OR startdate IS NULL) ORDER BY staffday",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                             ));
         $userslot = array();
@@ -346,7 +346,7 @@ class Schedule {
         $userslots[0] = array();
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){          
             if($row["away"] > 0) {
-                $holidays[$counter3] = array($row["startdate"],$row["enddate"]);
+                $holidays[$counter3] = array(strtotime($row["startdate"]),strtotime($row["enddate"]));
                 $counter2++;
             }
             else{
@@ -527,10 +527,9 @@ class Schedule {
         if($ID && $Type){
             $Duration = Schedule::getstaticduration($Type);
             if($Duration > 0){
-                $schedule = Schedule::listuserslots($ID,$Duration);
+                $schedule = Schedule::liststaffslots($ID,$Duration);
                 $bookings = Schedule::staffbookingstimestamp($ID);
                 if($schedule){
-                    //print_r($schedule[0]);
                     $name = Schedule::getstaffname($ID);
                     if($name){
                         print("<p class='welcome'>Availability for ".$name."</p>
@@ -550,7 +549,8 @@ class Schedule {
                         (function($) {
                             var availabilityArray = <?echo json_encode($schedule[0]);?>;
                             var bookingsArray = <?echo json_encode($bookings);?>;
-                            //console.log(availabilityArray);
+                            var holidaysArray = <?echo json_encode($schedule[1]);?>;
+                            console.log(holidaysArray);
                             $('#book-button').attr("disabled", true);
                             $('#tickbox').hide();
                             $('#book-button').click(function (e) {
@@ -561,7 +561,6 @@ class Schedule {
                                 else
                                     window.location.href = $(this).attr('href');
                             });
-                            console.log(bookingsArray);
                             $('#picker').markyourcalendar({
                                 availability: availabilityArray,
                                 bookings: bookingsArray,
