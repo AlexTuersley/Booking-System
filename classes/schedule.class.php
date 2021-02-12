@@ -618,7 +618,7 @@ class Schedule {
                 Forms::generatebutton("Show Schedule","schedule.php","calendar-alt","primary","","","Click this button to show the time slots in your schedule");
                 Forms::generatebutton("Show Meeting Types","meetingtype.php","handshake","primary","","","Click this button to show your meeting types");
                
-                $RQ = new ReadQuery("SELECT id, starttime, endtime, startdate, enddate FROM staffschedule WHERE staffid = :stid AND away = 1 AND deleted = 0",
+                $RQ = new ReadQuery("SELECT id, starttime, endtime, startdate, enddate FROM staffschedule WHERE staffid = :stid AND away = 1 AND deleted = 0 AND (startdate > NOW() OR startdate IS NULL)",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                 ));
                 $Rows = array();
