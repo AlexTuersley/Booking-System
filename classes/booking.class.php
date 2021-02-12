@@ -409,7 +409,7 @@ class Booking{
         }
         else{
             print("<p class='welcome alert alert-danger'><strong>Booking Time Invalid</strong> The booking selected is of an invalid format</p>");
-            header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
+            //header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
         }     
     }
 
@@ -432,7 +432,7 @@ class Booking{
                 $status = "<i class='fas fa-sync' style='color:green;' aria-hidden='true' title='booking recurring'></i>";
             }
             else{
-                $status = "<i class='fas fa-circle' style='color:green;' aria-hidden='true' title='booking not recurring'></i>";
+                $status = "<i class='fas fa-circle' style='color:red;' aria-hidden='true' title='booking not recurring'></i>";
             }
             $starttime = new DateTime($row['start_time']);
             $endtime = new DateTime($row['end_time']);
@@ -507,8 +507,8 @@ class Booking{
      * @return bool true if the date time is valid, false if not
      */
     static public function validatetimedate($datetime, $format = "Y-m-d h:i:s"): bool{
-        $dateObj = DateTime::createFromFormat($format, $date);
-        return $dateObj && $dateObj->format($format) == $date;
+        $dateObj = DateTime::createFromFormat($format, $datetime);
+        return $dateObj && $dateObj->format($format) == $datetime;
     }
 }
 ?>

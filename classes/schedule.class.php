@@ -506,12 +506,29 @@ class Schedule {
         }
         return 0;
     }
+
+    static public function staffbookingstimestamp($SID){
+        $currentTime = date('Y-m-d H:i:s');
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND staffuserid = :id AND start_time > :currenttime ORDER BY id",
+            array(
+                PDOConnection::sqlarray(":id",$SID,PDO::PARAM_INT),
+                PDOConnection::sqlarray(":currenttime",$currentTime,PDO::PARAM_INT)
+            ));
+        $i = 0;
+        $bookingsArray = array();
+        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            $bookingsArray[$i] = array(strtotime($row["start_time"]." GMT"),strtotime($row["end_time"])." GMT");
+            $i++;
+        }
+        return $bookingsArray;
+    }
     static public function liststaffavailability($ID,$Type,$DID){
         Forms::generatebutton("Meetings","schedule.php?department=".$DID."&staff=".$ID,"arrow-left","secondary");
         if($ID && $Type){
             $Duration = Schedule::getstaticduration($Type);
             if($Duration > 0){
                 $schedule = Schedule::listuserslots($ID,$Duration);
+                $bookings = Schedule::staffbookingstimestamp($ID);
                 if($schedule){
                     //print_r($schedule[0]);
                     $name = Schedule::getstaffname($ID);
@@ -519,18 +536,23 @@ class Schedule {
                         print("<p class='welcome'>Availability for ".$name."</p>
                         <div id='picker'></div>");
                         print("<p>Selected Time: <span id='selected-time'></span></p>
-                               <p>Selected Date: <span id='selected-date'></span></p>");
+                               <p>Selected Date: <span id='selected-date'></span></p>
+                               <div id='tickbox'>
+                               <label for='recurring'>Recurring</label>
+                               <input type='checkbox' id='recurring' name='recurring' value=0>
+                               </div>");
                         Forms::generatebutton("Make Booking","bookings.php?edit=-1&staff=".$ID."&type=".$Type."&booking=","book","primary","","","","","book-button");
                         
-                        //Make sure can only go forward in dates and not backwards
                         //Availability should only show if does not interfere with a booking
                         //
                         ?>
                         <script type="text/javascript">
                         (function($) {
                             var availabilityArray = <?echo json_encode($schedule[0]);?>;
+                            var bookingsArray = <?echo json_encode($bookings);?>;
                             //console.log(availabilityArray);
                             $('#book-button').attr("disabled", true);
+                            $('#tickbox').hide();
                             $('#book-button').click(function (e) {
                                 e.preventDefault();
                                 if ($(this).attr('disabled'))
@@ -539,31 +561,37 @@ class Schedule {
                                 else
                                     window.location.href = $(this).attr('href');
                             });
-
-                        $('#picker').markyourcalendar({
-                            availability: availabilityArray
-                            ,
-                            onClick: function(ev, data) {
-                            // data is a list of datetimes
-                            var d = data[0].split(' ')[0];
-                            var t = data[0].split(' ')[1];
-                            $('#selected-date').html(d);
-                            $('#selected-time').html(t);
-                            
-                            
-                            var href = $("#book-button").attr("href");
-                            var point = href.substring(0, href.lastIndexOf('booking='));
-                            point += "booking="+t+":00-"+ d;
-                            href = point;
-                            $('#book-button').attr("disabled", false);
-                            $("#book-button").attr("href", href);
-                            },
-                            onClickNavigator: function(ev, instance) {
-                                instance.setAvailability(availabilityArray);
+                            console.log(bookingsArray);
+                            $('#picker').markyourcalendar({
+                                availability: availabilityArray,
+                                bookings: bookingsArray,
+                                onClick: function(ev, data) {
+                                // data is a list of datetimes
+                                var d = data[0].split(' ')[0];
+                                var t = data[0].split(' ')[1];
+                                $('#selected-date').html(d);
+                                $('#selected-time').html(t);
                                 
-                            }
-                        });
-                        })(jQuery);
+                                var href = $("#book-button").attr("href");
+                                var point = href.substring(0, href.lastIndexOf('booking='));
+                                point += "booking="+t+":00-"+ d;
+                                href = point;
+                                $('#book-button').attr("disabled", false);
+                                $("#book-button").attr("href", href);
+                                if($('#selected-date').html() != "" && $('#selected-time').html()!= ""){
+                                    $('#tickbox').show();
+                                }
+                                else{
+                                    $('#tickbox').hide();
+                                }
+                                    
+                                },
+                                onClickNavigator: function(ev, instance) {
+                                    instance.setAvailability(availabilityArray); 
+                                    //instance.setBookings(bookingsArray);
+                                }
+                            });
+                            })(jQuery);
                         </script>
                         <?
                     }

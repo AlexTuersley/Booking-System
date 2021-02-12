@@ -23,6 +23,7 @@
         var nextHtml = `<div id="myc-next-week">></div>`;
         var defaults = {
             availability: [[], [], [], [], [], [], []],
+            bookings:[],
             isMultiple: false,
             months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             prevHtml: prevHtml,
@@ -111,18 +112,33 @@
 
         this.getAvailableTimes = function() {
             var tmp = ``;
+            var today = new Date();    
+           
+           
+                     
+
             for (i = 0; i < 7; i++) {
                 var tmpAvailTimes = ``;
-                $.each(settings.availability[i], function() {
-                    var date = new Date(settings.startDate.addDays(i));
-                    if(date.getTime() > curr.getTime()){
+                
+                $.each(settings.availability[i], function() {  
+                    var booked = 0;
+                    var newDate = new Date(settings.startDate.addDays(i).toDateString()+" "+ this);
+                    
+                    
+                   
+                    
+                    for(j = 0; j < settings.bookings.length; j++){                        
+                        if(newDate.getTime() / 1000 >= parseInt(settings.bookings[j][0]) && newDate.getTime() / 1000 < parseInt(settings.bookings[j][1])){
+                            booked = 1;
+                        }
+                    }
+                    if(newDate.getTime() > today.getTime() && booked == 0){
                         tmpAvailTimes += `
                         <a href="javascript:;" class="myc-available-time" data-time="` + this + `" data-date="` + formatDate(settings.startDate.addDays(i)) + `">
                             ` + this + `
                         </a>
                     `;
-                    }
-                
+                    }                
                 });
                
                 tmp += `
@@ -137,6 +153,11 @@
 
         this.setAvailability = function(arr) {
             settings.availability = arr;
+            render();
+        }
+
+        this.setBookings = function(arr) {
+            settings.bookings = arr;
             render();
         }
 
