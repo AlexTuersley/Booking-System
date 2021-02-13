@@ -24,6 +24,7 @@
         var defaults = {
             availability: [[], [], [], [], [], [], []],
             bookings:[],
+            holidays:[],
             isMultiple: false,
             months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             prevHtml: prevHtml,
@@ -112,27 +113,28 @@
 
         this.getAvailableTimes = function() {
             var tmp = ``;
-            var today = new Date();    
-           
-           
-                     
+            var today = new Date();          
 
             for (i = 0; i < 7; i++) {
                 var tmpAvailTimes = ``;
-                
                 $.each(settings.availability[i], function() {  
                     var booked = 0;
+                    var holiday = 0;
                     var newDate = new Date(settings.startDate.addDays(i).toDateString()+" "+ this);
+                    var timestamp = newDate.getTime() / 1000; 
                     
-                    
-                   
+                    for(k = 0; k < settings.holidays.length; k++){
+                        if(timestamp > settings.holidays[k][0] && timestamp < settings.holidays[k][1]){
+                            holiday = 1;
+                        }
+                    }
                     
                     for(j = 0; j < settings.bookings.length; j++){                        
-                        if(newDate.getTime() / 1000 >= parseInt(settings.bookings[j][0]) && newDate.getTime() / 1000 < parseInt(settings.bookings[j][1])){
+                        if(timestamp >= parseInt(settings.bookings[j][0]) && timestamp < parseInt(settings.bookings[j][1])){
                             booked = 1;
                         }
                     }
-                    if(newDate.getTime() > today.getTime() && booked == 0){
+                    if(newDate.getTime() > today.getTime() && booked == 0 && holiday == 0){
                         tmpAvailTimes += `
                         <a href="javascript:;" class="myc-available-time" data-time="` + this + `" data-date="` + formatDate(settings.startDate.addDays(i)) + `">
                             ` + this + `
@@ -153,11 +155,6 @@
 
         this.setAvailability = function(arr) {
             settings.availability = arr;
-            render();
-        }
-
-        this.setBookings = function(arr) {
-            settings.bookings = arr;
             render();
         }
 

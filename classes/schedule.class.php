@@ -342,11 +342,11 @@ class Schedule {
         $holidays  = array();
         $counter = 1;
         $day = 0;
-        $counter3 = 0;
+        $counter2 = 0;
         $userslots[0] = array();
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){          
             if($row["away"] > 0) {
-                $holidays[$counter3] = array(strtotime($row["startdate"]),strtotime($row["enddate"]));
+                $holidays[$counter2] = array(strtotime("06:00:00 ".$row["startdate"]),strtotime("17:00:00 ".$row["enddate"]));
                 $counter2++;
             }
             else{
@@ -550,7 +550,6 @@ class Schedule {
                             var availabilityArray = <?echo json_encode($schedule[0]);?>;
                             var bookingsArray = <?echo json_encode($bookings);?>;
                             var holidaysArray = <?echo json_encode($schedule[1]);?>;
-                            console.log(holidaysArray);
                             $('#book-button').attr("disabled", true);
                             $('#tickbox').hide();
                             $('#book-button').click(function (e) {
@@ -564,6 +563,7 @@ class Schedule {
                             $('#picker').markyourcalendar({
                                 availability: availabilityArray,
                                 bookings: bookingsArray,
+                                holidays: holidaysArray,
                                 onClick: function(ev, data) {
                                 // data is a list of datetimes
                                 var d = data[0].split(' ')[0];
@@ -586,8 +586,7 @@ class Schedule {
                                     
                                 },
                                 onClickNavigator: function(ev, instance) {
-                                    instance.setAvailability(availabilityArray); 
-                                    //instance.setBookings(bookingsArray);
+                                    instance.setAvailability(availabilityArray);
                                 }
                             });
                             })(jQuery);
