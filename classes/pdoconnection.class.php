@@ -2,13 +2,14 @@
 
   class PDOConnection
   {
-    
+    //Variables to store global variables locally, set in the config.ini
     var $c_server = DBSERVER;
     var $c_username = DBUSER;
     var $c_password = DBPASS;
     var $c_dbname = DBNAME;
     var $c_connection;
     
+    //Tries to connect to a MySQL server using the variables
     function PDOConnection()
     {      
       try{      
@@ -23,15 +24,13 @@
             
     }
     
-    public function query($sql,$params,$debug){            
-      if($debug){
-        echo($sql . "<br />");
-        echo"Params: ";
-        echo$params;
-        print_r($params);
-        echo("<br />" . sizeof($params));
-        echo("<br />");
-      }
+    /**
+     * Using parameters passed through attempts too query the DB
+     * @param $sql
+     * @param array $params - an array of parameters to be used in the query
+     * @param $debug - 
+     */
+    public function query($sql,$params){            
       $conn = $this->c_connection;
       $stmt = $conn->prepare($sql);
       
@@ -47,10 +46,17 @@
       
     }
     
+    //returns the ID of the last database query
     public function getLastInsertId(){
       return $this->c_connection->lastInsertId();
     }
     
+    /**
+     * creates an sqlarray from the variables entered
+     * @param string $Label - used to identify the Value in the query
+     * @param $Value - variable to be put into the Database
+     * @param $Type - defines the Type of the Value e.g. string, int etc
+     */
     static public function sqlarray($Label,$Value,$Type){
       $Arr = array("Label"=>$Label,"Value"=>$Value,"Type"=>$Type);
       return $Arr;

@@ -78,6 +78,10 @@ class Schedule {
         $this->deleted = $Val;
     }
 
+    /**
+     * If ID is passed to the Class then information is gathered from the server
+     * @param int $ID
+     */
     function __construct($ID = 0){
         if($ID > 0){
 
@@ -100,6 +104,10 @@ class Schedule {
             $this->setdeleted(false);
         }
     }
+
+    /**
+     * Puts new data into the database, using the get functions to gather the data
+     */
     function savenew(){
         if(!$this->getstartdate()){
             $SD = NULL;
@@ -126,6 +134,10 @@ class Schedule {
                                 PDOConnection::sqlarray(":enddate",$ED,PDO::PARAM_STR)
         ));
     }
+
+    /**
+     * Updates a database row using the get functions to get the data and ID of the row
+     */
     function save(){
         if(!$this->getstartdate()){
             $SD = NULL;
@@ -332,7 +344,12 @@ class Schedule {
         print("<p class='alert alert-success'>Schedule has successfully been deleted</p>");
     }
 
-    
+    /**
+     * Creates two arrays one with all the staff slots for the Staff member and one for the Staff members holidays and returns them
+     * @param int $STID - Id of the Staff member
+     * @param int $Duration - From a meeting type defines the number of staff slots created
+     * @return array $slots - array containing the array of holidays and staff slots
+     */
     static public function liststaffslots($STID,$Duration){
         $RQ = new ReadQuery("SELECT staffday, starttime, endtime, active, away, startdate, enddate FROM staffschedule WHERE staffid = :stid AND deleted = 0 AND (startdate > NOW() OR startdate IS NULL) ORDER BY staffday",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
@@ -455,6 +472,15 @@ class Schedule {
       
     }
 
+    /**
+     * Checks whether a Slot exists already for a Staff member
+     * @param int $id - id of the slot
+     * @param int $day - integer representation of the day
+     * @param string $starttime - string start time for the slot 
+     * @param string $endtime - string end time for the slot
+     * @param int $userid - Id of the user associated with teh slot
+     * @return bool false if a slot exists, false if not
+     */
     static public function checkstaffdayslot($id,$day,$starttime,$endtime,$userid){
         $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE staffday = :staffday AND id != :id AND staffid = :staff AND deleted = 0 AND (starttime BETWEEN :starttime AND :endtime OR endtime BETWEEN :starttime AND :endtime)",array(
             PDOConnection::sqlarray(':staffday',$day,PDO::PARAM_INT),
@@ -471,6 +497,14 @@ class Schedule {
 
     }
 
+    /**
+     * Checks whether a Holiday exists already for a Staff member
+     * @param int $id - id of the holiday
+     * @param string $startdate - string start date for the Holiday
+     * @param string $endtime - string end time for the Holiday
+     * @param int $userid - Id of the user associated with the Holiday
+     * @return bool false if a slot exists, false if not
+     */
     static public function checkholidayslot($id,$startdate,$enddate,$userid){
         $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 AND id != :id AND staffid = :staff AND (startdate BETWEEN :startdate AND :enddate OR enddate BETWEEN :startdate AND :enddate)",array(
             PDOConnection::sqlarray(':id',$id,PDO::PARAM_INT),
@@ -484,6 +518,12 @@ class Schedule {
         }
         return true;
     }
+
+    /**
+     * Gets the Full name of a Staff Member based on the ID given
+     * @param int $ID - Id of the Staff member
+     * @return string Full name of the user, or false if no name is found
+     */
     static public function getstaffname($ID){
         $RQ = new ReadQuery("SELECT fullname FROM userinformation WHERE userid = :id",
         array(
@@ -494,6 +534,12 @@ class Schedule {
         }
         return false;
     }
+
+    /**
+     * Get the duration of a Meeting Type based on an ID passed through
+     * @param int $ID - Id of the Meeting Type
+     * @return int duration of the Meeting or false if it doesn't exist
+     */
     static public function getstaticduration($ID){
         if($ID > 0){
             $RQ = new ReadQuery("SELECT duration FROM meetingtype WHERE id = :id",
@@ -507,6 +553,11 @@ class Schedule {
         return 0;
     }
 
+    /**
+     * Get an array of start and end times of bookings in timestamp format
+     * @param int $SID - Id of the Staff Member
+     * @return array $bookingsArray - array of bookings in timestamp format
+     */
     static public function staffbookingstimestamp($SID){
         $currentTime = date('Y-m-d H:i:s');
         $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND staffuserid = :id AND start_time > :currenttime ORDER BY id",
@@ -522,15 +573,22 @@ class Schedule {
         }
         return $bookingsArray;
     }
-    static public function liststaffavailability($ID,$Type,$DID){
-        Forms::generatebutton("Meetings","schedule.php?department=".$DID."&staff=".$ID,"arrow-left","secondary");
+
+    /**
+     * Uses the Calendar Plugin to create an interactive Booking Calendar to make a Booking with a Staff Member
+     * @param int $SID - Id of the Staff Member
+     * @param int $Type - Meeting Type of the Booking
+     * @param int $DID - Id of the Department associated with the Booking
+     */
+    static public function liststaffavailability($SID,$Type,$DID){
+        Forms::generatebutton("Meetings","schedule.php?department=".$DID."&staff=".$SID,"arrow-left","secondary");
         if($ID && $Type){
             $Duration = Schedule::getstaticduration($Type);
             if($Duration > 0){
-                $schedule = Schedule::liststaffslots($ID,$Duration);
-                $bookings = Schedule::staffbookingstimestamp($ID);
+                $schedule = Schedule::liststaffslots($SID,$Duration);
+                $bookings = Schedule::staffbookingstimestamp($SID);
                 if($schedule){
-                    $name = Schedule::getstaffname($ID);
+                    $name = Schedule::getstaffname($SID);
                     if($name){
                         print("<p class='welcome'>Availability for ".$name."</p>
                         <div id='picker'></div>");
@@ -540,10 +598,7 @@ class Schedule {
                                <label for='recurring'>Recurring</label>
                                <input type='checkbox' id='recurring' name='recurring' value=0>
                                </div>");
-                        Forms::generatebutton("Make Booking","bookings.php?edit=-1&staff=".$ID."&type=".$Type."&booking=","book","primary","","","","","book-button");
-                        
-                        //Availability should only show if does not interfere with a booking
-                        //
+                        Forms::generatebutton("Make Booking","bookings.php?edit=-1&staff=".$SID."&type=".$Type."&booking=","book","primary","","","","","book-button");
                         ?>
                         <script type="text/javascript">
                         (function($) {
@@ -610,6 +665,11 @@ class Schedule {
         }
     }
 
+    /**
+     * Lists the Slots or Holidays a Staff Member currently has with the ability to add, edit and delete them
+     * @param int $STID - Id of the Staff member
+     * @param int $holiday - defines whether holidays of slots are displayed
+     */
     static public function liststaffschedule($STID, $holiday = 0){
         if($STID){
             if($holiday){
@@ -665,26 +725,12 @@ class Schedule {
 
         }
     }
-    static public function jsonstaffschedule($UID){
-        if($UID > 0){
-            $RQ = new ReadQuery("SELECT id, staffday, starttime, endtime FROM staffschedule WHERE staffid = :id AND active = 1 AND deleted = 0 ORDER BY staffday, starttime",array(
-                PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
-            ));
-            $schedule_json = array();
-            $i = 0;
-            while ($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-                $schedule_json[$i] = array(
-                    'id' => $row['id'],
-                    'staffday' => $row['staffday'],
-                    'start' => $row['starttime'],
-                    'end' => $row['endtime']
-                );
-                $i++;
-            }
-            print_r(json_encode($schedule_json));
-        }
-    }
-   
+
+    
+    /**
+     * Creates a table of Staff members within a department with clickable links
+     * @param int $DID - Id of the department
+     */
     static public function listdepartmentstaff($DID){
         if($_SESSION["userlevel"] == 1){
             print("<p class='welcome'>The list below shows all Staff within this Department. Click on a Staff member to see their schedule.</p>");
@@ -710,8 +756,11 @@ class Schedule {
             header("refresh:5;url=http://".BASEPATH."/index.php");
         }
     }
-    static public function listdepartments(){
-        
+
+    /**
+     * Creates a table of Departments with clickable links
+     */
+    static public function listdepartments(){  
         if($_SESSION["userlevel"] == 1){
             print("<p class='welcome'>The list below shows all departments. Click on a Department to see the Staff members.</p>");
             $RQ = new ReadQuery("SELECT id,departmentname,(SELECT COUNT(*) FROM users JOIN userinformation ON users.id = userinformation.userid WHERE userinformation.department = departments.id) as staffcount FROM departments WHERE deleted = 0", null);
@@ -733,12 +782,24 @@ class Schedule {
             header("refresh:5;url=http://".BASEPATH."/index.php");
         }
     }
+
+     /**
+     * Creates a Booking form using data passed through to it and displays it on a page
+     * @param int $SID - ID of a Schedule or Holiday
+     * @param int $staff - ID of a Staff member
+     * @param string $starttime - start time of the slot
+     * @param string $endtime - end time of the slot
+     * @param int $active - is 1 if the Item is a Slot
+     * @param int $away - is 1 if Item is a holiday
+     * @param string $startdate - start date of the holiday
+     * @param string $enddate - end date of the holiday
+     */
     static public function scheduleform($SID,$staff,$day,$starttime,$endtime,$active,$away,$startdate,$enddate){
         if($active == 1){
-            Forms::generatebutton("Schedule","schedule.php","arrow-left","secondary");
+            Forms::generatebutton("Schedule",$_SERVER['HTTP_REFERER'],"arrow-left","secondary");
         }
         else{
-            Forms::generatebutton("Holidays","schedule.php?away=1","arrow-left","secondary");
+            Forms::generatebutton("Holidays",$_SERVER['HTTP_REFERER'],"arrow-left","secondary");
         }
        
        $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));

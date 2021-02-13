@@ -40,7 +40,6 @@ Class MeetingType{
     function setduration($Val){
         $this->duration = $Val;
     }
- 
     function getdeleted(){
         return $this->deleted;
     }
@@ -48,6 +47,10 @@ Class MeetingType{
         $this->deleted = $Val;
     }
 
+    /**
+     * If ID is passed to the Class then information is gathered from the server
+     * @param int $ID
+     */
     function __construct($ID = 0){
         if($ID > 0){
             $RQ = new ReadQuery("SELECT * FROM meetingtype WHERE id = :meetingid", array(
@@ -66,6 +69,9 @@ Class MeetingType{
         }
     }
     
+    /**
+     * Puts new data into the database, using the get functions to gather the data
+     */
     function savenew(){
         $WQ = new WriteQuery("INSERT INTO meetingtype(meetingname,meetingdescription,staffid,duration,deleted)
                             VALUES(:meetingname,:meetingdescription,:staffid,:duration,0)",
@@ -78,6 +84,9 @@ Class MeetingType{
         $this->id = $WQ->getinsertid();
     }
 
+    /**
+     * Updates a database row using the get functions to get the data and ID of the row
+     */
     function save(){
         $WQ = new WriteQuery("UPDATE meetingtype SET
                               meetingname = :meetingname,
@@ -95,7 +104,8 @@ Class MeetingType{
     }
 
     /**
-     * 
+     * Checks form input, preventing invalid data from being added to the DB and calss the Form display function
+     * @param int $MID - ID of a Meeting Type
      */
     static public function addedit($MID){
         $name = htmlspecialchars(filter_var($_POST["name"], FILTER_SANITIZE_STRING));
@@ -149,7 +159,11 @@ Class MeetingType{
     }
 
     /**
-     * 
+     * Checks if a Meeting exists with a Name already, if so returns false
+     * @param int $MID - Id of the Meeting Type
+     * @param string $name - Name of the Meeting Type
+     * @param int $STID -  Id of the staff member associated with the Meeting Type
+     * @return bool 
      */
     static public function checkmeetingname($MID, $name, $STID){
         $RQ = new ReadQuery("SELECT meetingname FROM meetingtype WHERE meetingname = :meetingname AND deleted = 0 AND id != :id AND staffid = :staffid",array(
@@ -165,11 +179,13 @@ Class MeetingType{
     }
 
     /**
-     * 
+     * Returns the name of Meeting Type
+     * @param int $MID - Id of the Meeting Type
+     * @return string The name of the Meeting Type or a string saying it doesn't exist
      */
-    static public function getmeetingnamestatic($ID){
+    static public function getmeetingnamestatic($MID){
         $RQ = new ReadQuery("SELECT meetingname FROM meetingtype WHERE id = :id AND deleted = 0",array(
-            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+            PDOConnection::sqlarray(":id",$MID,PDO::PARAM_INT)
         ));
         if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
             return $row["meetingname"];
@@ -178,7 +194,9 @@ Class MeetingType{
     }
     
     /**
-     * 
+     * Displays Meetings Types associated with a Staff Member for Students, each one contains a link to the Booking Calendar
+     * @param int $STID - Id of the Staff Member
+     * @param int $DID - Id of the Department the Staff Member is associated with
      */
     static public function showmeetingtypes($STID,$DID){
         $RQ = new ReadQuery("SELECT id,meetingname,meetingdescription,duration FROM meetingtype WHERE staffid = :stid AND deleted = 0 ORDER BY meetingname",
@@ -245,7 +263,9 @@ Class MeetingType{
     }
 
     /**
-     * 
+     * Displays all of the Meeting Types associated with a Staff member in a table format. 
+     * This allows the user to add, edit and delete Meeting Types
+     * @param int $STID - Id of the Staff Member
      */
     static public function listmeetingtypes($STID){
         if($STID){
@@ -273,7 +293,7 @@ Class MeetingType{
     }
 
     /**
-     * 
+     * Set a Meeting Type to Deleted - remains in the DB but can't be edited or deleted
      */
     static public function deletemeetingtype($ID){
         $WQ = new WriteQuery("UPDATE meetingtype SET deleted = 1 WHERE id = :id",array(
@@ -283,7 +303,12 @@ Class MeetingType{
     }
 
     /**
-     * 
+     * Displays a Form with inputs to do set up or edit a Meeting Type
+     * @param int $MID - Id of the Meeting Type
+     * @param string $name - Name of the Meeting Type
+     * @param int $staffid - Id of the Staff member
+     * @param string $description - Description of the Meeting Type
+     * @param int - $duration - how long the Meeting will be
      */
     static public function meetingform($MID,$name,$staffid,$description,$duration){
         Forms::generatebutton("Meeting Types","meetingtype.php","arrow-left","secondary");

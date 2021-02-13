@@ -33,6 +33,7 @@
         {
             return $this->c_query;
         }
+
         //Gets the id of a new row after a query is ran
         function getinsertid()
         {
@@ -51,6 +52,7 @@
             return $this->c_database;
         }
 
+        //checks the number of arguments in passed to the query
         function __construct(){
           $argv = func_get_args();
           switch( func_num_args() ) {
@@ -65,14 +67,22 @@
            }
         }
 
-        //Write Query Constrcutor
+        /**
+         * Function to create a Connection and run an SQL Query
+         * @param string $Query - string SQL query
+         */
         function SQLIWriteQuery($Query)
         {
             $this->c_connection = new Connection();
             $this->runquery($Query);
 
         }
-        //Write Query with Parameters
+
+        /**
+         * Function to create a Connection and run a PDO SQL Query
+         * @param string $Query - string SQL query
+         * @param array $Params - Array of parameters used 
+         */
         function PDOWriteQuery($Query,$Params,$Debug = false)
         {
             $this->c_connection = new PDOConnection();
@@ -80,7 +90,10 @@
 
         }
 
-        //Run Query
+        /**
+         * Run the query and store the results and number of results in variables
+         * @param string $query - string SQL query
+         */
         function runquery($query)
         {
             $this->c_query = $query;
@@ -89,7 +102,13 @@
                  $this->c_insertid = mysqli_insert_id($this->c_connection->getconnection());
             }
         }
-        //Run Query with Parameters
+
+        
+        /**
+         * Run the query and store the results and number of results in variables
+         * @param string $query - string PDO SQL query
+         * @param array $params - Array of parameters used
+         */
         function runpdoquery($query,$Params,$debug)
         {
             $this->c_query = $query;
