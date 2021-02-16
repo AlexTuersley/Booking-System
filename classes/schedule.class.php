@@ -582,7 +582,7 @@ class Schedule {
      */
     static public function liststaffavailability($SID,$Type,$DID){
         Forms::generatebutton("Meetings","schedule.php?department=".$DID."&staff=".$SID,"arrow-left","secondary");
-        if($ID && $Type){
+        if($SID && $Type){
             $Duration = Schedule::getstaticduration($Type);
             if($Duration > 0){
                 $schedule = Schedule::liststaffslots($SID,$Duration);
@@ -796,10 +796,10 @@ class Schedule {
      */
     static public function scheduleform($SID,$staff,$day,$starttime,$endtime,$active,$away,$startdate,$enddate){
         if($active == 1){
-            Forms::generatebutton("Schedule",$_SERVER['HTTP_REFERER'],"arrow-left","secondary");
+            Forms::generatebutton("Schedule","schedule.php","arrow-left","secondary");
         }
         else{
-            Forms::generatebutton("Holidays",$_SERVER['HTTP_REFERER'],"arrow-left","secondary");
+            Forms::generatebutton("Holidays","schedule.php?away=1","arrow-left","secondary");
         }
        
        $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
