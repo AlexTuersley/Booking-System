@@ -360,6 +360,7 @@ class Schedule {
         $counter = 1;
         $day = 0;
         $counter2 = 0;
+        $counter3 = 0;
         $userslots[0] = array();
         while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){          
             if($row["away"] > 0) {
@@ -375,17 +376,24 @@ class Schedule {
                     $timeslot = strtotime($row['starttime']);
                     while($timeslot < strtotime($row['endtime'])){
                         $timeslots[] = date('H:i',$timeslot);
-                        //echo "slot: ". date('H:i',$timeslot)."\n";
-
                         $timeslot = $timeslot + $duration;
                     }
-                    $days[] = $row['staffday'];
+                    if($counter3 != 0){
+                        if($days[$counter3-1] != $row['staffday']){
+                            $days[$counter3] = $row['staffday'];
+                        }
+                    }
+                    else{
+                        $days[$counter3] = $row['staffday'];
+                    }
+
                     $userslot[$counter] = $timeslots;
                 }
                 else{
                     unset($timeslots);
                     $timeslots = array();
                     $counter++;
+                    $counter3++;
                     $day++;
                     $duration = strval($Duration * 60);
                     $timeslot = strtotime($row['starttime']);
@@ -394,7 +402,9 @@ class Schedule {
                         $timeslot = $timeslot + $duration;
                     }
                     $userslot[$counter] = $timeslots;
-                    $days[] = $row['staffday'];
+                    if($days[$counter3-1] != $row['staffday']){
+                        $days[$counter3] = $row['staffday'];
+                    }
                 }   
             }
         }
@@ -618,7 +628,6 @@ class Schedule {
                             $('#book-button').click(function (e) {
                                 e.preventDefault();
                                 if ($(this).attr('disabled'))
-
                                     return false; // Do something else in here if required
                                 else
                                     window.location.href = $(this).attr('href');
