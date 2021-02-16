@@ -113,7 +113,8 @@
 
         this.getAvailableTimes = function() {
             var tmp = ``;
-            var today = new Date();          
+            var today = new Date();     
+            console.log(settings.availability);
 
             for (i = 0; i < 7; i++) {
                 var tmpAvailTimes = ``;

@@ -376,8 +376,10 @@ class Schedule {
                     while($timeslot < strtotime($row['endtime'])){
                         $timeslots[] = date('H:i',$timeslot);
                         //echo "slot: ". date('H:i',$timeslot)."\n";
+
                         $timeslot = $timeslot + $duration;
                     }
+                    $days[] = $row['staffday'];
                     $userslot[$counter] = $timeslots;
                 }
                 else{
@@ -392,10 +394,11 @@ class Schedule {
                         $timeslot = $timeslot + $duration;
                     }
                     $userslot[$counter] = $timeslots;
+                    $days[] = $row['staffday'];
                 }   
             }
         }
-        $slots = array($userslot,$holidays);
+        $slots = array($userslot,$holidays,$days);
         return $slots;
     }
 
@@ -605,6 +608,11 @@ class Schedule {
                             var availabilityArray = <?echo json_encode($schedule[0]);?>;
                             var bookingsArray = <?echo json_encode($bookings);?>;
                             var holidaysArray = <?echo json_encode($schedule[1]);?>;
+                            var daysArray = <?echo json_encode($schedule[2]);?>;
+                            var slotsArray = [[],[],[],[],[],[],[]];
+                            for(i = 0; i < Object.keys(availabilityArray).length; i++){
+                                 slotsArray[daysArray[i]] = availabilityArray[i+1];
+                            }
                             $('#book-button').attr("disabled", true);
                             $('#tickbox').hide();
                             $('#book-button').click(function (e) {
@@ -616,7 +624,7 @@ class Schedule {
                                     window.location.href = $(this).attr('href');
                             });
                             $('#picker').markyourcalendar({
-                                availability: availabilityArray,
+                                availability: slotsArray,
                                 bookings: bookingsArray,
                                 holidays: holidaysArray,
                                 onClick: function(ev, data) {
@@ -641,7 +649,7 @@ class Schedule {
                                     
                                 },
                                 onClickNavigator: function(ev, instance) {
-                                    instance.setAvailability(availabilityArray);
+                                    instance.setAvailability(slotsArray);
                                 }
                             });
                             })(jQuery);
