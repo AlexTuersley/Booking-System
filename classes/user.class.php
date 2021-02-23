@@ -201,6 +201,7 @@ class User{
             $options = [
                 'cost' => 12
             ];
+
             $password = SALT . $this->getpassword();
             $password = password_hash(md5($password), PASSWORD_BCRYPT, $options);
 
@@ -402,6 +403,7 @@ class User{
     static public function changepassword(){
         $CurrentPassword = htmlspecialchars(filter_var($_POST["currentpassword"], FILTER_SANITIZE_STRING));
         $NewPassword = htmlspecialchars(filter_var($_POST["newpassword"], FILTER_SANITIZE_STRING));
+        $ConfirmPassword = htmlspecialchars(filter_var($_POST["confirmpassword"], FILTER_SANITIZE_STRING));
 
         $Submit = $_POST["submit"];
 
@@ -412,19 +414,28 @@ class User{
         $BadPWError = array("badpwerror","You cannot use this password! Choose a more secure one.");
         $DefaultError = array("defaulterror","Your current password does not match the system.");
 
-        if($Submit && $CurrentPassword && $NewPassword){
+        if($Submit && $CurrentPassword && $NewPassword && $ConfirmPassword){
             $User = new User($_SESSION["userid"]);
-            if(password_verify(md5(SALT.$CurrentPassword), $User->getpassword())){
-                $User->setpassword($NewPassword);
-                $User->savepassword();
-                print("<p class='welcome alert alert-success'>Your password has been changed. Use the new password next time you login.</p>");
+            if($ConfirmPassword == $NewPassword){
+                if(password_verify(md5(SALT.$CurrentPassword), $User->getpassword())){
+                    $User->setpassword($NewPassword);
+                    $User->savepassword();
+                    print("<p class='welcome alert alert-success'>Your password has been changed. Use the new password next time you login.</p>");
+                }
+                else{
+                    print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
+                    $Errors = array($DefaultError);
+                    Forms::generateerrors("Correct the following errors before you can continue.",$Errors,false);
+                    User::changepasswordform();
+                }
             }
             else{
                 print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
-                $Errors = array($OldError,$NewError,$New1Error,$MatchError,$BadPWError);
+                $Errors = array($MatchError);
                 Forms::generateerrors("Correct the following errors before you can continue.",$Errors,false);
                 User::changepasswordform();
             }
+           
         }
         else{
             print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
@@ -442,49 +453,98 @@ class User{
         Forms::generateform("forgotpasswordform","signin.php?forgot=true","return checkforgottenpasswordform(this)",$Fields,$Button);
     }
 
+    /**
+     * generates a 10 character random password 
+     * @return string $password - 10 character random password
+     */
+    static public function generatepassword()
+        {
+        	// start with a blank password
+ 			$password = "";
+
+  			// define possible characters
+  			$possible = "123456789bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ";
+
+  			// set up a counter
+  			$i = 0;
+  			$length = 10;
+
+  			// add random characters to $password until $length is reached
+ 			while ($i < $length) {
+
+    			// pick a random character from the possible ones
+   				 $char = substr($possible, mt_rand(0, strlen($possible)-1), 1);
+
+                //if character is already in $password do not add it
+    			if (!strstr($password, $char)) {
+     				$password .= $char;
+      				$i++;
+ 			   }
+
+ 			}
+
+  			return $password;
+
+    }
+
     //Takes submitted data from forgottenpassword form, creates a new password in the DB and emails it to the User
     static public function forgotpassword(){
         $Email = htmlspecialchars(filter_var($_POST["email"], FILTER_SANITIZE_EMAIL));
 
         $EmailError = array("emailerror","Please enter a valid email address");
+        $DefaultError = array("emailerror","The Email entered is not registered for the System");
 
         $Submit = $_POST["submit"];
 
         if($Submit){
-            $RQ = new ReadQuery("SELECT id,email,userpassword FROM users WHERE email = :email",array(
-                PDOConnection::sqlarray(":email",$Email,PDO::PARAM_STR)
-            ));
-            if($row = $RQ->getnumberofresults() > 0){
-                if(function_exists("mail")){
-                    $headers[] = 'MIME-Version: 1.0';
-                    $headers[] = 'Content-type: text/html; charset=iso-8859-1';
-                    $headers[] = "From: Booking System <noreply@bookingsystem.com>";
-                    $NewPassword = $row["password"];
-                    $email_subject = "Forgotten Password";
-                    $email_message = "<html>
-                                      <head><title>Fogotten Password</title></head>
-                                      <body>
-                                      <p>The Forgotten Form has been completed. Your password is: ".$NewPassword.".</p>
-                                      <p>If you did not request this please login with this password and change it to your preferred password.</p>
-                                      </body>
-                                      </html>";
-                    $sendmail = mail($Email, $email_subject, $email_message, implode("\r\n", $headers));
-                    
-                    if($sendmail){
-                        print("<p class='alert alert-success'>A message has been sent to your email, to activate your account please click the link send with the message</p>");
+            if($Email){
+                $RQ = new ReadQuery("SELECT id,email,userpassword FROM users WHERE email = :email",array(
+                    PDOConnection::sqlarray(":email",$Email,PDO::PARAM_STR)
+                ));
+                if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                    $User = new User($row['id']);
+                    $NewPassword = User::generatepassword();
+                    //echo $NewPassword;
+                    $User->setpassword($NewPassword);
+                    $User->savepassword();
+                    if(function_exists("mail")){
+                        $headers[] = 'MIME-Version: 1.0';
+                        $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+                        $headers[] = "From: Booking System <noreply@bookingsystem.com>";
+                        $email_subject = "Forgotten Password";
+                        $email_message = "<html>
+                                          <head><title>Forgotten Password</title></head>
+                                          <body>
+                                          <p>The Forgotten Form has been completed. Your password is: ".$NewPassword."</p>
+                                          <p>If you did not request this please login with this password and change it to your preferred password.</p>
+                                          </body>
+                                          </html>";
+                        $sendmail = mail($Email, $email_subject, $email_message, implode("\r\n", $headers));
+                        
+                        if($sendmail){
+                            print("<p class='alert alert-success'>A message has been sent to your email, to activate your account please click the link send with the message</p>");
+                        }
+                        else{
+                            print("<p class='welcome alert alert-warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
+                            User::forgotpasswordform($Email);
+                        }
                     }
                     else{
-                        print("<p class='welcome alert alert-warning'>Unable to send to this Email. Please check your email in the form and try again</p>");
-                        User::forgotpasswordform($Email);
+                        print("Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.");
                     }
                 }
                 else{
-                    print("Email has not been enabled for this server. Please contact the administrator ".ADMIN." to activate your account.");
+                    $Errors = array($DefaultError);
+                    Forms::generateerrors("Please correct the following errors before continuing.",$Errors);
+                    User::forgotpasswordform($Email);
                 }
             }
             else{
+                $Errors = array($EmailError);
+                Forms::generateerrors("Please correct the following errors before continuing.",$Errors);
                 User::forgotpasswordform($Email);
             }
+          
         }
         else{
             User::forgotpasswordform($Email);
@@ -657,7 +717,7 @@ class User{
             $row = $RQ->getresults()->fetch(PDO::FETCH_ASSOC);
             if($row){
                 if($row["userlevel"] == 2){
-                    $schedule = Schedule::listuserslots($ID,30);
+                    $schedule = Schedule::liststaffslots($ID,30);
                 }
                 else{
                     $schedule = array();

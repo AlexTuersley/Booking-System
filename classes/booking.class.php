@@ -420,6 +420,9 @@ class Booking{
     static public function showbookings($ID){
         include('meetingtype.class.php');
         include('user.class.php');
+        if($_SESSION['userlevel'] == 2){
+            Forms::generatebutton("Add Bookings","bookings.php","plus","primary");
+        }
         $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND (staffuserid = :id OR studentuserid = :id) ORDER BY id",
             array(
                 PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)

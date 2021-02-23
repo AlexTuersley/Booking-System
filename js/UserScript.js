@@ -104,7 +104,7 @@ function checkchangepasswordform(form)
 	
 	var err = setuperrvar();
 	
-	if(form.currentpassword.value != "" && passcheck(form.newpassword.value) == 0 && form.confirmpassword.value != "")
+	if(form.currentpassword.value != "" && passcheck(form.newpassword.value) == 0 && form.confirmpassword.value != "" && form.confirmpassword.value == form.newpassword.value)
 	{
 		if(form.currentpassword.value != form.newpassword.value){
 			//Match Error
@@ -124,10 +124,10 @@ function checkchangepasswordform(form)
 	} else {
 		setuperr(deferr, err);
 		
-		if(form.currentpassword.value != ""){olderr.style.display = "none";}
-		if(form.newpassword.value != "" && form.newpassword.length >= 8){newerr.style.display = "none";}
-		if(form.confirmpassword.value != ""){new1err.style.display = "none";}
-        if(passcheck(form.newpassword.value) != 2){badpwerr.style.display = "none";}
+		if(form.currentpassword.value != ""){olderr.style.display = "none";}else{olderr.style.display = "list-item";}
+		if(form.newpassword.value != "" && form.newpassword.length >= 8){newerr.style.display = "none";}else{newerr.style.display = "list-item";}
+		if(form.confirmpassword.value != "" && form.confirmpassword.value == form.newpassword.value){new1err.style.display = "none";}else{new1err.style.display = "list-item";}
+        if(passcheck(form.newpassword.value) != 2){badpwerr.style.display = "none";}else{badpwerr.style.display = "list-item";}
 		
 		matcherr.style.display = "none";
 		
