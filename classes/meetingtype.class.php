@@ -158,6 +158,19 @@ Class MeetingType{
         }
     }
 
+    static public function meetingtypesarray($UID){
+        $RQ = new ReadQuery("SELECT id, meetingname FROM meetingtype WHERE staffid = :id",array(
+            PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
+        ));
+        $MeetingArray = array();
+        $i = 0;
+        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            $MeetingArray[$i] = array($row["id"],$row["meetingname"]);
+            $i++;
+        }
+        return $MeetingArray;
+    }
+
     /**
      * Checks if a Meeting exists with a Name already, if so returns false
      * @param int $MID - Id of the Meeting Type

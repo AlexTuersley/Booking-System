@@ -246,6 +246,7 @@ class Booking{
                 $Booking->setmeetingtype($meeting);
                 $Booking->setnote($note);
                 $Booking->save();
+                print("<p class='welcome alert alert-success'>The Booking has been edited.</p>");
                 if($Update){
                     if(function_exists("mail")){
                         include('user.class.php');
@@ -284,13 +285,13 @@ class Booking{
                         $mail->Body = $email_message;
                         $mail->AddAttachment($ics->getICS(),$ics->getICS());
                         if($mail->send()){
-                            print("<p class='alert alert-success welcome'>An email has been sent to you to show the changes</p>");
+                            print("<p class='welcome alert alert-success welcome'>An email has been sent to you to show the changes</p>");
                             print("</div>");
                         }
                         $ics->delete();
                     }
                 }
-                print("<p class='welcome alert alert-success'>The Booking has been edited.</p>");
+               
             }
             else{
                 $Booking = new Booking();
@@ -302,7 +303,49 @@ class Booking{
                 $Booking->setnote($note);
                 $Booking->setrecurring(0);
                 $Booking->savenew();
-                print("<p class='welcome alert alert-success'>The Booking has been added. Please wait for confirmation from the member of staff</p>");
+                print("<p class='welcome alert alert-success'>The Booking has been added. </p>");
+                if(function_exists("mail")){
+                    include('user.class.php');
+                    include('meetingtype.class.php');
+                    include("ics.class.php");
+                    require_once("phpmailer.class.php");
+                    require_once("smtp.class.php");
+                    require_once("phpmaileroauth.class.php");
+                    require_once("phpmaileroauthgoogle.class.php");
+                    $ID = $Booking->getid();
+                    $StudentUser = new User($studentid);
+                    $StudentEmail = $StudentUser->getemail();
+                    $StudentName = $StudentUser->getusername();
+                    $Description = "Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $_SESSION['username'] ." by ".$StudentName."";
+                    $email_message = "<html>
+                                      <head><title>Booking Change</title></head>
+                                      <body>
+                                      <p>Booking at time with ".$_SESSION['username']." has changed to ".$starttime->format('H:i:s d/m/Y')."</p>
+                                      </body>
+                                      </html>";
+                    $ics = new ICS($starttime->format('Ymd\THis\Z'),$endtime->format('Ymd\THis\Z'),"Booking".$ID,$Description,$_SESSION['location'],MeetingType::getmeetingnamestatic($meeting));
+                    $ics->save();
+                    $mail = new PHPMailer();
+                    $mail->IsSMTP();
+                    $mail->isHTML(true);
+                    $mail->SMTPAuth = true;
+                    $mail->SMTPSecure = 'tls';
+                    $mail->Host = "smtp.gmail.com";
+                    $mail->Port = 587;
+                    $mail->Username = MAILUSERNAME;
+                    $mail->Password = MAILPASS;
+                    $mail->setFrom("noreply@bookingsystem.com","Booking System");
+                    $mail->addAddress($StudentEmail,$StudentName);
+                    $mail->addCC($_SESSION['email'],$_SESSION['username']);
+                    $mail->Subject = "New Booking";
+                    $mail->Body = $email_message;
+                    $mail->AddAttachment($ics->getICS(),$ics->getICS());
+                    if($mail->send()){
+                        print("<p class='welcome alert alert-success welcome'>An email has been sent to you and the student with details</p>");
+                        print("</div>");
+                    }
+                    $ics->delete();
+                }
             }
         }
         if($BID > 0){
@@ -356,15 +399,13 @@ class Booking{
                     require_once("phpmaileroauthgoogle.class.php");
                     $ID = $Booking->getid();
                     $StaffUser = new User($staffid);
-                    $Link = BASEPATH."/bookings.php?id=".$ID."&confirm=1";
                     $StaffEmail = $StaffUser->getemail();
                     $StaffName = $StaffUser->getusername();
                     $Description = "Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."";
                     $email_message = "
-                                    <head><title>Booking Confirmation</title></head>
+                                    <head><title>New Booking</title></head>
                                     <body>
                                     <p>Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StaffName ." by ".$_SESSION['username']."</p>
-                                    <p>To confirm the booking click this <a href='".$Link."'>link</a></p>
                                     <p>If this was not you, your account may have been hacked, changing your password is recommended.</p>
                                     </body>
                                     ";
@@ -382,7 +423,7 @@ class Booking{
                     $mail->setFrom("noreply@bookingsystem.com","Booking System");
                     $mail->addAddress($StaffEmail,$StaffName);
                     $mail->addCC($_SESSION['email'],"Student");
-                    $mail->Subject = "Booking Confirmation";
+                    $mail->Subject = "New Booking";
                     $mail->Body = $email_message;
                     $mail->AddAttachment($ics->getICS(),$ics->getICS());
                     if(!$mail->send()){
@@ -390,7 +431,7 @@ class Booking{
                         print("<p class='alert alert-danger welcome'>The Booking has been added. But we are unable to send a confirmation email please contact an administrator.</p>");
                         header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
                     }else{
-                        print("<p class='alert alert-success welcome'><strong>Booking Added</strong> An email has been sent to you to confirm this booking. Please respond.</p><div class='welcome'>");
+                        print("<p class='alert alert-success welcome'><strong>Booking Added</strong> An email has been sent to you to you and the staff member with details.</p><div class='welcome'>");
                         Forms::generatebutton("Bookings","bookings.php","book","primary"); 
                         print("</div>");
                     }   
@@ -409,8 +450,35 @@ class Booking{
         }
         else{
             print("<p class='welcome alert alert-danger'><strong>Booking Time Invalid</strong> The booking selected is of an invalid format</p>");
-            //header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
+            header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
         }     
+    }
+
+    /**
+     * Creates a Table of Staff and Student Users with clickable links to change their Bookings
+     */
+    static public function listbookingusers(){
+        if($_SESSION["userlevel"] == 3){
+            print("<p class='welcome'>The list below shows all Student and Staff users. Click on a User to edit their Bookings.</p>");
+            $RQ = new ReadQuery("SELECT users.id, users.username, users.userlevel, userinformation.fullname FROM users JOIN userinformation ON users.id = userinformation.userid WHERE users.deleted = 0 AND users.userlevel < 3 ORDER BY users.userlevel");
+            $Rows = array();
+            $RowCounter = 0;
+            while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                $Row1 = array("<a href=?uid=".$row["id"].">".$row["username"]."</a>","button");
+                $Row3 = array($row["fullname"]);
+                $Row3 = array(User::getuserleveltype($row["userlevel"]));
+                $Rows[$RowCounter] = array($Row1,$Row2,$Row3);
+                $RowCounter++;
+            }
+            $Cols = array(array("Username","user",1),array("Full name","fullname",1),array("Userlevel","level",1));
+
+            Display::generatedynamiclistdisplay("userbookingstable",$Cols,$Rows,"Username",0);
+                
+        }
+        else{
+            print("<p class='banner-warning'>You are an administrator. As such you do not have permission for this page, you will be redirected shortly.</p>");
+            header("refresh:5;url=http://".BASEPATH."/index.php");
+        }
     }
 
     /**
@@ -421,7 +489,10 @@ class Booking{
         include('meetingtype.class.php');
         include('user.class.php');
         if($_SESSION['userlevel'] == 2){
-            Forms::generatebutton("Add Bookings","bookings.php","plus","primary");
+            Forms::generatebutton("Add Bookings","bookings.php?edit=-1","plus","primary");
+        }
+        if($_SESSION['userlevel' == 3]){
+            Forms::generatebutton("Users","bookings.php","arrow-left","secondary");
         }
         $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND (staffuserid = :id OR studentuserid = :id) ORDER BY id",
             array(
@@ -468,39 +539,72 @@ class Booking{
         Forms::generatebutton("Bookings","bookings.php","arrow-left","secondary");
         include("user.class.php");
         include("meetingtype.class.php");
-        if($starttime != NULL){
-            if(!is_object($starttime)){
-                $starttime = new DateTime($starttime);
-            }           
-            $starttime = $starttime->format('H:i:s d/m/Y');                   
-        }
-        if($staffid === $_SESSION['userid']){
-            $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
-            $StudentArray = array(array($studentid,User::getstaticusername($studentid)));
-            $MeetingArray = array(array($meeting,MeetingType::getmeetingnamestatic($meeting)));
+
+        $MeetingArray = MeetingType::meetingtypesarray($_SESSION['userid']);
+
+        if(empty($MeetingArray)){
+            print("<p><strong>Meeting Types are not setup</strong> Make sure a Staff Member has setup their Meeting Types before making a Booking</p>");
         }
         else{
-            $StudentArray = array(array($_SESSION['userid'],$_SESSION['username']));
-            $StaffArray = array(array($staffid,User::getstaticusername($staffid)));
-            $MeetingArray = array(array($meeting,MeetingType::getmeetingnamestatic($meeting)));
+            if($BID > 0){
+                if($starttime != NULL){
+                    if(!is_object($starttime)){
+                        $starttime = new DateTime($starttime);
+                    }           
+                    $starttime = $starttime->format('H:i:s d/m/Y');                   
+                }
+                if($staffid === $_SESSION['userid']){
+                    $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
+                    $StudentArray = array(array($studentid,User::getstaticusername($studentid)));
+                    $MeetingArray = array(array($meeting,MeetingType::getmeetingnamestatic($meeting)));
+                }
+                else{
+                    $StudentArray = array(array($_SESSION['userid'],$_SESSION['username']));
+                    $StaffArray = array(array($staffid,User::getstaticusername($staffid)));
+                    $MeetingArray = array(array($meeting,MeetingType::getmeetingnamestatic($meeting)));
+                }
+                $StudentField = array("Student: ","Select","student",30,$studentid,"Staff Member associated with the schedule",$StudentArray,"","readonly");
+                $StaffField = array("Staff: ","Select","staff",30,$staffid,"Staff Member associated with the schedule",$StaffArray,"","readonly");
+                //need a function to get starttime and dates for a few weeks if they arent already booked
+                $StartField = array("Start Time: ","Text","starttime",30,$starttime,"","","","readonly","");
+                $MeetingField = array("Meeting Type","Select","meeting",30,$meeting,"The Type of Meeting e.g. Half an Hour Meeting",$MeetingArray,"","readonly");
+                $NoteField = array("Note: ","TextArea","note",4,$note,"Enter some information about the Meeting(optional)","","","","Information about the meeting e.g. Reason for the meeting");
+                // if(User::checkuserlevel($_SESSION["userid"] >= 2)){
+                //     $recurringField = array();
+                // }
+            }
+            else{
+                $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
+                $StudentArray = Booking::studentusersarray();
+                $TimesArray = array();
+                if($starttime != NULL){
+                    if(!is_object($starttime)){
+                        $starttime = new DateTime($starttime);
+                    }           
+                    $starttime = $starttime->format('H:i:s d/m/Y');                   
+                }  
+                $staffid = $_SESSION['userid'];
+    
+    
+                $StudentField = array("Student: ","Select","student",30,$studentid,"Staff Member associated with the schedule",$StudentArray,"");
+                $StaffField = array("Staff: ","Select","staff",30,$staffid,"Staff Member associated with the schedule",$StaffArray,"","readonly");
+                //need a function to get starttime and dates for a few weeks if they arent already booked
+                $StartField = array("Start Time: ","Select","starttime",30,$starttime,"","","","");
+                $MeetingField = array("Meeting Type","Select","meeting",30,$meeting,"The Type of Meeting e.g. Half an Hour Meeting",$MeetingArray,"");
+                $NoteField = array("Note: ","TextArea","note",4,$note,"Enter some information about the Meeting(optional)","","","","Information about the meeting e.g. Reason for the meeting");
+                // if(User::checkuserlevel($_SESSION["userid"] >= 2)){
+                //     $recurringField = array();
+                // }
+            }
+            $Fields = array($StudentField,$StaffField,$StartField,$MeetingField,$NoteField);
+            if($BID > 0){
+                $Button = "Edit Booking";
+            }
+            else{
+                $Button = "Add Booking";
+            }
+            Forms::generateform("bookingform","bookings.php?edit=".$BID, "return checkbookingform(true)", $Fields, $Button);
         }
-        $StudentField = array("Student: ","Select","student",30,$studentid,"Staff Member associated with the schedule",$StudentArray,"","readonly");
-        $StaffField = array("Staff: ","Select","staff",30,$staffid,"Staff Member associated with the schedule",$StaffArray,"","readonly");
-        //need a function to get starttime and dates for a few weeks if they arent already booked
-        $StartField = array("Start Time: ","Text","starttime",30,$starttime,"","","","readonly","");
-        $MeetingField = array("Meeting Type","Select","meeting",30,$meeting,"The Type of Meeting e.g. Half an Hour Meeting",$MeetingArray,"","readonly");
-        $NoteField = array("Note: ","TextArea","note",4,$note,"Enter some information about the Meeting(optional)","","","","Information about the meeting e.g. Reason for the meeting");
-        // if(User::checkuserlevel($_SESSION["userid"] >= 2)){
-        //     $recurringField = array();
-        // }
-        $Fields = array($StudentField,$StaffField,$StartField,$MeetingField,$NoteField);
-        if($BID > 0){
-            $Button = "Edit Booking";
-        }
-        else{
-            $Button = "Add Booking";
-        }
-        Forms::generateform("bookingform","bookings.php?edit=".$BID, "return checkbookingform(true)", $Fields, $Button);
     }
 
     /**
@@ -512,6 +616,21 @@ class Booking{
     static public function validatetimedate($datetime, $format = "Y-m-d h:i:s"): bool{
         $dateObj = DateTime::createFromFormat($format, $datetime);
         return $dateObj && $dateObj->format($format) == $datetime;
+    }
+
+    /**
+     * Function creates an array of student users
+     * @return array $studentarray
+     */
+    static public function studentusersarray(){
+        $RQ = new ReadQuery("SELECT id, username FROM users WHERE users.userlevel = 1 AND users.deleted = 0",NULL);
+        $studentarray = array();
+        $i = 0;
+        while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+            $studentarray[$i] = array($row['id'],$row['username']);
+            $i++;
+        }
+        return $studentarray;
     }
 }
 ?>
