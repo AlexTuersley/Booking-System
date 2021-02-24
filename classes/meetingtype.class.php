@@ -116,38 +116,37 @@ Class MeetingType{
 
         if($Submit){
             if($name != "" && $staffid > 0 && $duration > 0 && $duration < 121){
-                if($MID > 0){
-                    $MeetingType = new MeetingType($MID);
-                    $MeetingType->setname($name);
-                    $MeetingType->setdescription($description);
-                    $MeetingType->setstaffid($staffid);
-                    $MeetingType->setduration($duration);
-                    if(MeetingType::checkmeetingname($MID,$name,$staffid)){
-                        $MeetingType->save();
-                        print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been edited</p>");
+                    if($MID > 0){
+                        $MeetingType = new MeetingType($MID);
+                        $MeetingType->setname($name);
+                        $MeetingType->setdescription($description);
+                        $MeetingType->setstaffid($staffid);
+                        $MeetingType->setduration($duration);
+                        if(MeetingType::checkmeetingname($MID,$name,$staffid)){
+                            $MeetingType->save();
+                            print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been edited</p>");
+                        }
+                    }
+                    else{
+                        $MeetingType = new MeetingType();
+                        $MeetingType->setname($name);
+                        $MeetingType->setdescription($description);
+                        $MeetingType->setstaffid($staffid);
+                        $MeetingType->setduration($duration);
+                        if(MeetingType::checkmeetingname(0,$name,$staffid)){
+                            $MeetingType->savenew();
+                            print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been added</p>");
+                        }         
                     }
                 }
+    
                 else{
-                    $MeetingType = new MeetingType();
-                    $MeetingType->setname($name);
-                    $MeetingType->setdescription($description);
-                    $MeetingType->setstaffid($staffid);
-                    $MeetingType->setduration($duration);
-                    if(MeetingType::checkmeetingname(0,$name,$staffid)){
-                        $MeetingType->savenew();
-                        print("<p class='welcome alert alert-success'>The Meeting Type ".$name." has been added</p>");
-                    }         
+                    $StaffError = array("stafferror", "Please select a valid Staff Member");
+                    $DurationError = array("durationerror","Please enter a valid Duration");
+                    $NameError = array("nameerror","Please enter a valid Name for the Meeting");
+                    $Errors = array($StaffError,$NameError,$DurationError);
+                    Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
                 }
-            }
-
-            else{
-                $StaffError = array("stafferror", "Please select a valid Staff Member");
-                $DurationError = array("durationerror","Please enter a valid Duration");
-                $NameError = array("nameerror","Please enter a valid Name for the Meeting");
-                $Errors = array($StaffError,$NameError,$DurationError);
-                Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
-            }
-           
         }
         if($MID > 0){
             $Meeting = new MeetingType($MID);
@@ -186,6 +185,17 @@ Class MeetingType{
         ));
         if($RQ->getnumberofresults() > 0){
             print("<p class='alert alert-warning'><strong>Meeting Exists </strong>A Meeting with this name already exists for your user. Please edit it if you wish to make changes</p>");       
+            return false;
+        }
+        return true;
+    }
+
+    static public function checkmeeting($MID){
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE meetingtype = :id AND deleted = 0 AND start_time > NOW()",array(
+            PDOConnection::sqlarray(":id",$MID,PDO::PARAM_INT)
+        ));
+        if($RQ->getnumberofresults() > 0){
+            print("<p class='alert alert-warning'><strong>Meeting is used for a Booking</strong>A Booking is associated with this Meeting type so it cannot be deleted</p>");       
             return false;
         }
         return true;
@@ -309,10 +319,12 @@ Class MeetingType{
      * Set a Meeting Type to Deleted - remains in the DB but can't be edited or deleted
      */
     static public function deletemeetingtype($ID){
-        $WQ = new WriteQuery("UPDATE meetingtype SET deleted = 1 WHERE id = :id",array(
-            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
-        ));
-        print("<p class='alert alert-success'>Meeting Type has successfully been deleted</p>");
+        if(MeetingType::checkmeeting($ID)){
+            $WQ = new WriteQuery("UPDATE meetingtype SET deleted = 1 WHERE id = :id",array(
+                PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
+            ));
+            print("<p class='alert alert-success'>Meeting Type has successfully been deleted</p>");
+        }
     }
 
     /**

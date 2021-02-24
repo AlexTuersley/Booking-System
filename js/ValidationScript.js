@@ -22,8 +22,8 @@ function validateEmail(email) {
     return( true );
 }
 
-function validateDateTime(dateTime){
-
+function validatetimedate(dateTime){
+    return true;
 }
 
 function validatephone(phone){
