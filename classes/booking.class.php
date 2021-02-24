@@ -535,7 +535,7 @@ class Booking{
      * @param string $note - note to go with the booking
      * @param int $recurring - variable for whether the meeting is recurring or not
      */
-    static public function bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$recurring){
+    static public function bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$recurring,$time=NULL,$date=NULL){
         Forms::generatebutton("Bookings","bookings.php","arrow-left","secondary");
         include("user.class.php");
         include("meetingtype.class.php");
@@ -572,6 +572,7 @@ class Booking{
                 // if(User::checkuserlevel($_SESSION["userid"] >= 2)){
                 //     $recurringField = array();
                 // }
+                $Fields = array($StudentField,$StaffField,$StartField,$MeetingField,$NoteField);
             }
             else{
                 $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
@@ -589,14 +590,20 @@ class Booking{
                 $StudentField = array("Student: ","Select","student",30,$studentid,"Staff Member associated with the schedule",$StudentArray,"");
                 $StaffField = array("Staff: ","Select","staff",30,$staffid,"Staff Member associated with the schedule",$StaffArray,"","readonly");
                 //need a function to get starttime and dates for a few weeks if they arent already booked
-                $StartField = array("Start Time: ","Select","starttime",30,$starttime,"","","","");
+                $StartTimeField = array("Start Time: ","Time","time",10,$time,"","","","","Select the Start Time","",'6:00','22:00',300);
+                $StartDateField = array("Start Date: ","Date","date",10,$date,"","","","","Select the Start Date","","","14");
+                $StartField = array("Start Time: ","Text","starttime",30,$starttime,"","","","","");
                 $MeetingField = array("Meeting Type","Select","meeting",30,$meeting,"The Type of Meeting e.g. Half an Hour Meeting",$MeetingArray,"");
                 $NoteField = array("Note: ","TextArea","note",4,$note,"Enter some information about the Meeting(optional)","","","","Information about the meeting e.g. Reason for the meeting");
                 // if(User::checkuserlevel($_SESSION["userid"] >= 2)){
                 //     $recurringField = array();
                 // }
+                $Fields = array($StudentField,$StaffField,$StartTimeField,$StartDateField,$StartField,$MeetingField,$NoteField);
+              
+                 
+                
             }
-            $Fields = array($StudentField,$StaffField,$StartField,$MeetingField,$NoteField);
+            
             if($BID > 0){
                 $Button = "Edit Booking";
             }
@@ -604,6 +611,45 @@ class Booking{
                 $Button = "Add Booking";
             }
             Forms::generateform("bookingform","bookings.php?edit=".$BID, "return checkbookingform(true)", $Fields, $Button);
+            ?>   
+            <script>
+                $(document).ready(function(){
+                    $('#starttime').parent().hide();        
+                    $('#date').change(function(){
+                        var starttime = document.getElementById('starttime').value;
+                        var date = $('#date').val();
+                        if(starttime){
+                            if(starttime.includes("/")){
+                            var point = starttime.substring(0, starttime.lastIndexOf(' '));
+                            $('#starttime').attr('value',point+date);
+                            }
+                            else{
+                                $('#starttime').attr('value',starttime+date);
+                            }
+                        }
+                        else{
+                            $('#starttime').attr('value',date);
+                        }
+                    });
+                    $('#time').change(function(){
+                        var starttime = document.getElementById('starttime').value;
+                        var time = document.getElementById('time').value+":00 "; 
+                        if(starttime){
+                            if(starttime.includes(":")){
+                                var point = starttime.substring(starttime.lastIndexOf(' '),starttime.length);
+                                $('#starttime').attr('value',time+point);
+                            }
+                            else{
+                                $('#starttime').attr('value',time+starttime);
+                            }
+                        }
+                        else{
+                            $('#starttime').attr('value',time);
+                        }         
+                    });
+                  });                  
+            </script><?
+            
         }
     }
 

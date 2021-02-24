@@ -1,9 +1,11 @@
 <?php
 include("config/config.php");
 session_start();
+$CSS[0] = "/Booking-System/css/jquery-ui.min.css";
 $Script[0] = "js/BookingScript.js";
 $Script[1] = "js/ValidationScript.js";
 $Script[2] = "js/jquery.tablesorter.min.js";
+$Script[3] = "js/jquery-ui.min.js";
 $Booking = $_GET['booking'];
 $Staff = $_GET['staff'];
 $Type = $_GET['type'];
@@ -17,7 +19,7 @@ if($_SESSION["userlevel"]){
 else{
     $Level = 0;
 }
-WebPage::headerandnav("Booking",$Level,"",$Script);
+WebPage::headerandnav("Booking",$Level,$CSS,$Script);
 if($Level > 0){
     if($_GET['id'] && $_GET['confirm']){
         Booking::confirmbooking($_GET['id']);

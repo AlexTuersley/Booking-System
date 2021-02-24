@@ -135,7 +135,26 @@ Class Forms{
                   </script>');
 
         } elseif($Type === "Date") {
-            print("
+            if($Max){
+                print("
+               
+                <input type='text' id='datepicker-".$Name."' value='".$Value."' />
+                <input type='hidden' id='".$Name."' name='".$Name."' value='".$Value."'>
+                <script>
+                $('#datepicker-".$Name."').datepicker({
+                    format:'DD/MM/YYYY',
+                    altFormat: 'YYYY-MM-DD',
+                    minDate:1,
+                    maxDate:".$Max.",
+                    onSelect: function(dateText, inst) {
+                        $('#".$Name."').val(dateText).change();
+                    }
+                });
+                </script>
+            ");
+            }
+            else{
+                print("
                
                 <input type='text' id='datepicker-".$Name."' value='".$Value."' />
                 <input type='hidden' id='".$Name."' name='".$Name."' value='".$Value."'>
@@ -150,6 +169,8 @@ Class Forms{
                 });
                 </script>
             ");
+            }
+            
     
         } elseif($Type === "DateRestricted") {
             print("
