@@ -9,9 +9,7 @@ $Script[3] = "js/jquery-ui.min.js";
 $Booking = $_GET['booking'];
 $Staff = $_GET['staff'];
 $Type = $_GET['type'];
-if($Level > 2){
-    $UID = $_GET['uid'];
-}
+$UID = $_GET['uid'];
 
 if($_SESSION["userlevel"]){
     $Level = $_SESSION["userlevel"];
@@ -20,7 +18,7 @@ else{
     $Level = 0;
 }
 WebPage::headerandnav("Booking",$Level,$CSS,$Script);
-if($Level > 0){
+if($Level > 0){ 
     if($_GET['id'] && $_GET['confirm']){
         Booking::confirmbooking($_GET['id']);
     }
@@ -35,27 +33,28 @@ if($Level > 0){
             else{
                 Booking::showbookings($UID);
             }
-        }
+        }    
         else{
             Booking::listbookingusers();
         }
     }
-        
-        
-    if($_GET["edit"]){
-        if($Staff && $Booking && $Type){
-            Booking::makebooking($Staff,$Type,$Booking);
+    else{
+        Booking::clearbookings($_SESSION['userid']);
+        if($_GET["edit"]){
+            if($Staff && $Booking && $Type){
+                Booking::makebooking($Staff,$Type,$Booking);
+            }
+            else{
+                Booking::addedit($_GET["edit"]);
+            }
+           
+        }
+        elseif($_GET['remove']){
+            Booking::cancelbooking($_GET['remove']);
         }
         else{
-            Booking::addedit($_GET["edit"]);
+            Booking::showbookings($_SESSION["userid"]);
         }
-       
-    }
-    elseif($_GET['remove']){
-        Booking::cancelbooking($_GET['remove']);
-    }
-    else{
-        Booking::showbookings($_SESSION["userid"]);
     }
 }
 else{

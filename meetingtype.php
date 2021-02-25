@@ -7,7 +7,9 @@ if($_SESSION["userlevel"]){
 else{
     $Level = 0;
 }
-
+if($Level > 2){
+    $UID = $_GET['uid'];
+}
 $Script[0] = "js/MeetingScript.js";
 $Script[1] = "js/jquery.tablesorter.min.js";
 $Script[2] = "js/ValidationScript.js";
@@ -19,21 +21,36 @@ if($_GET["signout"] && $Level > 0){
 }
 elseif($_SESSION["userlevel"] > 0){
 
-    // if($Level > 2){
-    //     //showusers with meeting type link
-    //     //then showusers meeting types
-    //     //or addedit
-    // }
-    if($_GET["edit"]){
-        MeetingType::addedit($_GET['edit']);
-    }
-    elseif($_GET["remove"]){
-        MeetingType::delete($_GET["remove"]);
-        MeetingType::listmeetingtypes($_SESSION['userid']);
+    if($_SESSION["userlevel"] > 2){
+        if($UID){
+            if($_GET["edit"]){
+                MeetingType::addedit($_GET['edit']);
+            }
+            elseif($_GET["remove"]){
+                MeetingType::delete($_GET["remove"]);
+                MeetingType::listmeetingtypes($UID);
+            }
+            else{
+                MeetingType::listmeetingtypes($UID);
+            }
+        }
+        else{
+            header("url=http://".BASEPATH."/schedule.php");
+        }
     }
     else{
-        MeetingType::listmeetingtypes($_SESSION['userid']);
+        if($_GET["edit"]){
+            MeetingType::addedit($_GET['edit']);
+        }
+        elseif($_GET["remove"]){
+            MeetingType::delete($_GET["remove"]);
+            MeetingType::listmeetingtypes($_SESSION['userid']);
+        }
+        else{
+            MeetingType::listmeetingtypes($_SESSION['userid']);
+        }
     }
+   
 
       
 }

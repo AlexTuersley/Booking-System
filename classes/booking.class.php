@@ -484,11 +484,11 @@ class Booking{
     static public function listbookingusers(){
         if($_SESSION["userlevel"] == 3){
             print("<p class='welcome'>The list below shows all Student and Staff users. Click on a User to edit their Bookings.</p>");
-            $RQ = new ReadQuery("SELECT users.id, users.username, users.userlevel, userinformation.fullname FROM users JOIN userinformation ON users.id = userinformation.userid WHERE users.deleted = 0 AND users.userlevel < 3 ORDER BY users.userlevel");
+            $RQ = new ReadQuery("SELECT users.id, users.username, users.userlevel, userinformation.fullname FROM users JOIN userinformation ON users.id = userinformation.userid WHERE users.deleted = 0 AND users.userlevel < 3 ORDER BY users.userlevel",NULL);
             $Rows = array();
             $RowCounter = 0;
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
-                $Row1 = array("<a href=?uid=".$row["id"].">".$row["username"]."</a>","button");
+                $Row1 = array("<a href='bookings.php?uid=".$row["id"]."'>".$row["username"]."</a>","button");
                 $Row3 = array($row["fullname"]);
                 $Row3 = array(User::getuserleveltype($row["userlevel"]));
                 $Rows[$RowCounter] = array($Row1,$Row2,$Row3);
@@ -500,7 +500,7 @@ class Booking{
                 
         }
         else{
-            print("<p class='banner-warning'>You are an administrator. As such you do not have permission for this page, you will be redirected shortly.</p>");
+            print("<p class='banner-warning'>You are not an administrator. As such you do not have permission for this page, you will be redirected shortly.</p>");
             header("refresh:5;url=http://".BASEPATH."/index.php");
         }
     }
@@ -515,8 +515,13 @@ class Booking{
         if($_SESSION['userlevel'] == 2){
             Forms::generatebutton("Add Bookings","bookings.php?edit=-1","plus","primary");
         }
-        if($_SESSION['userlevel' == 3]){
+        if($_SESSION['userlevel'] == 3){
             Forms::generatebutton("Users","bookings.php","arrow-left","secondary");
+            Forms::generatebutton("Add Bookings","bookings.php?uid=".$ID."&edit=-1","plus","primary");
+            print("<p class='welcome'>List of Bookings for ".User::getstaticusername($ID)."</p>");
+        }
+        else{
+            print("<p class='welcome'>List of Bookings for ".$_SESSION['username']."</p>");
         }
         $RQ = new ReadQuery("SELECT * FROM bookings WHERE deleted = 0 AND (staffuserid = :id OR studentuserid = :id) AND (end_time > NOW() OR recurring = 1) ORDER BY id",
             array(
@@ -540,12 +545,18 @@ class Booking{
             $Row4 = array($starttime->format("H:i:s d/m/Y"));
             $Row5 = array($endtime->format("H:i:s d/m/Y"));
             $Row6 = array(MeetingType::getmeetingnamestatic($row["meetingtype"]));
-            $Row7 = array("<a href='?edit=". $row["id"] ."' alt='Edit Booking'><i class='fas fa-edit' aria-hidden='true' title='Edit Booking' alt='Edit'></i></a>","button");
-            $Row8 = array("<a href='?remove=". $row["id"] ."' alt='Delete Booking'><i class='fas fa-trash-alt' title='Delete Booking' alt='Delete'></i></a>","button");
+            if($_SESSION['userlevel'] > 2){
+                $Row7 = array("<a href='?uid=".$ID."&edit=". $row["id"] ."' alt='Edit Booking'><i class='fas fa-edit' aria-hidden='true' title='Edit Booking' alt='Edit'></i></a>","button");
+                $Row8 = array("<a href='?uid=".$ID."&remove=". $row["id"] ."' alt='Delete Booking'><i class='fas fa-trash-alt' title='Delete Booking' alt='Delete'></i></a>","button");    
+            }
+            else{
+                $Row7 = array("<a href='?edit=". $row["id"] ."' alt='Edit Booking'><i class='fas fa-edit' aria-hidden='true' title='Edit Booking' alt='Edit'></i></a>","button");
+                $Row8 = array("<a href='?remove=". $row["id"] ."' alt='Delete Booking'><i class='fas fa-trash-alt' title='Delete Booking' alt='Delete'></i></a>","button");    
+            }
             $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5,$Row6,$Row7,$Row8);
             $RowCounter++;
         }
-        print("<p class='welcome'>List of Bookings for ".$_SESSION['username']."</p>");
+        
         Display::generatedynamiclistdisplay("userbookings",$Cols,$Rows,"Start");
     }
    
@@ -560,7 +571,13 @@ class Booking{
      * @param int $recurring - variable for whether the meeting is recurring or not
      */
     static public function bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$recurring,$time=NULL,$date=NULL){
-        Forms::generatebutton("Bookings","bookings.php","arrow-left","secondary");
+        if($_SESSION['userlevel'] > 2){
+            Forms::generatebutton("Bookings",$_SERVER['HTTP_REFERER'],"arrow-left","secondary");
+        }
+        else{
+            Forms::generatebutton("Bookings","bookings.php","arrow-left","secondary");
+        }
+        
         include("user.class.php");
         include("meetingtype.class.php");
 
@@ -580,6 +597,11 @@ class Booking{
                 if($staffid === $_SESSION['userid']){
                     $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
                     $StudentArray = array(array($studentid,User::getstaticusername($studentid)));
+                    $MeetingArray = array(array($meeting,MeetingType::getmeetingnamestatic($meeting)));
+                }
+                elseif($_SESSION['userlevel'] > 2){
+                    $StudentArray = array(array($studentid,User::getstaticusername($studentid)));
+                    $StaffArray = array(array($staffid,User::getstaticusername($staffid)));
                     $MeetingArray = array(array($meeting,MeetingType::getmeetingnamestatic($meeting)));
                 }
                 else{
@@ -638,39 +660,42 @@ class Booking{
             ?>   
             <script>
                 $(document).ready(function(){
-                    $('#starttime').parent().hide();        
-                    $('#date').change(function(){
-                        var starttime = document.getElementById('starttime').value;
-                        var date = $('#date').val();
-                        if(starttime){
-                            if(starttime.includes("/")){
-                            var point = starttime.substring(0, starttime.lastIndexOf(' '));
-                            $('#starttime').attr('value',point+date);
+                    var bid = <?echo $BID;?>;
+                    if(bid < 1){
+                        $('#starttime').parent().hide();        
+                        $('#date').change(function(){
+                            var starttime = document.getElementById('starttime').value;
+                            var date = $('#date').val();
+                            if(starttime){
+                                if(starttime.includes("/")){
+                                var point = starttime.substring(0, starttime.lastIndexOf(' '));
+                                $('#starttime').attr('value',point+date);
+                                }
+                                else{
+                                    $('#starttime').attr('value',starttime+date);
+                                }
                             }
                             else{
-                                $('#starttime').attr('value',starttime+date);
+                                $('#starttime').attr('value',date);
                             }
-                        }
-                        else{
-                            $('#starttime').attr('value',date);
-                        }
-                    });
-                    $('#time').change(function(){
-                        var starttime = document.getElementById('starttime').value;
-                        var time = document.getElementById('time').value+":00 "; 
-                        if(starttime){
-                            if(starttime.includes(":")){
-                                var point = starttime.substring(starttime.lastIndexOf(' '),starttime.length);
-                                $('#starttime').attr('value',time+point);
+                        });
+                        $('#time').change(function(){
+                            var starttime = document.getElementById('starttime').value;
+                            var time = document.getElementById('time').value+":00 "; 
+                            if(starttime){
+                                if(starttime.includes(":")){
+                                    var point = starttime.substring(starttime.lastIndexOf(' '),starttime.length);
+                                    $('#starttime').attr('value',time+point);
+                                }
+                                else{
+                                    $('#starttime').attr('value',time+starttime);
+                                }
                             }
                             else{
-                                $('#starttime').attr('value',time+starttime);
-                            }
-                        }
-                        else{
-                            $('#starttime').attr('value',time);
-                        }         
-                    });
+                                $('#starttime').attr('value',time);
+                            }         
+                        });
+                    }       
                   });                  
             </script><?
             

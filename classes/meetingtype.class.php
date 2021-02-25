@@ -292,10 +292,19 @@ Class MeetingType{
      */
     static public function listmeetingtypes($STID){
         if($STID){
+            if($_SESSION['userlevel'] > 2){
+                Forms::generatebutton("Add Meeting Type","meetingtype.php?uid=".$STID."&edit=-1","plus","primary","","","Click this button to add a new Meeting Type");
+                Forms::generatebutton("Show Schedule","schedule.php?uid=".$STID,"calendar-alt","primary","","","Click this button to show the time slots in your schedule");
+                Forms::generatebutton("Show Holidays","schedule.php?uid=".$STID."&away=1","plane","primary","","","Click this button to show your holidays");
+             
+            }
+            else{
                 Forms::generatebutton("Add Meeting Type","meetingtype.php?edit=-1","plus","primary","","","Click this button to add a new Meeting Type");
                 Forms::generatebutton("Show Schedule","schedule.php","calendar-alt","primary","","","Click this button to show the time slots in your schedule");
                 Forms::generatebutton("Show Holidays","schedule.php?away=1","plane","primary","","","Click this button to show your holidays");
              
+            }
+               
                 $RQ = new ReadQuery("SELECT id, meetingname, duration FROM meetingtype WHERE staffid = :stid AND deleted = 0 ORDER BY meetingname",
                     array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                 ));
@@ -305,9 +314,17 @@ Class MeetingType{
                 while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                     $Row1 = array($row['meetingname']);
                     $Row2 = array($row['duration']);
-                    $Row3 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Meeting Type'></i></a>","button");
-                    $Row4 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Meeting Type'></i></a>","button");
-                    $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4);
+                    if($_SESSION['userlevel'] > 2){
+                        $Row3 = array("<a href='?uid=".$STID."&edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Meeting Type'></i></a>","button");
+                        $Row4 = array("<a href='?uid=".$STID."&remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Meeting Type'></i></a>","button");
+                       
+                    }
+                    else{
+                        $Row3 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Meeting Type'></i></a>","button");
+                        $Row4 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Meeting Type'></i></a>","button");
+                       
+                    }
+                   $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4);
                     $RowCounter++;
                 }
                 print("<p class='welcome'>List of Meeting Types for ". $_SESSION["username"]."</p>");
@@ -336,7 +353,13 @@ Class MeetingType{
      * @param int - $duration - how long the Meeting will be
      */
     static public function meetingform($MID,$name,$staffid,$description,$duration){
-        Forms::generatebutton("Meeting Types","meetingtype.php","arrow-left","secondary");
+        if($_SESSION['userlevel'] > 2){
+            Forms::generatebutton("Meeting Types","meetingtype.php?uid=".$_GET['uid'],"arrow-left","secondary");
+        }
+        else{
+            Forms::generatebutton("Meeting Types","meetingtype.php","arrow-left","secondary");
+        }
+
         $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
         $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray);
         $NameField = array("Meeting Name: ","Text","name",30,$name,"Name of the Meeting Type","","","","Enter a Name for the Meeting Type");
@@ -349,7 +372,13 @@ Class MeetingType{
         else{
             $Button = "Add Meeting Type";
         }
-        Forms::generateform("Meeting Type","meetingtype.php?edit=".$MID,"return checkmeetingform(this)",$Fields,$Button);
+        if($_SESSION['userlevel'] > 2){
+            $Path = "meetingtype.php?uid=".$_GET['uid']."&edit=".$MID;
+        }
+        else{
+            $Path = "meetingtype.php?edit=".$MID;
+        }
+        Forms::generateform("Meeting Type",$Path,"return checkmeetingform(this)",$Fields,$Button);
        
     }
 }

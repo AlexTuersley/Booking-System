@@ -414,28 +414,35 @@ class User{
         $BadPWError = array("badpwerror","You cannot use this password! Choose a more secure one.");
         $DefaultError = array("defaulterror","Your current password does not match the system.");
 
-        if($Submit && $CurrentPassword && $NewPassword && $ConfirmPassword){
-            $User = new User($_SESSION["userid"]);
-            if($ConfirmPassword == $NewPassword){
-                if(password_verify(md5(SALT.$CurrentPassword), $User->getpassword())){
-                    $User->setpassword($NewPassword);
-                    $User->savepassword();
-                    print("<p class='welcome alert alert-success'>Your password has been changed. Use the new password next time you login.</p>");
+        if($Submit){
+            if($CurrentPassword && $NewPassword && $ConfirmPassword){
+                $User = new User($_SESSION["userid"]);
+                if($ConfirmPassword == $NewPassword){
+                    if(password_verify(md5(SALT.$CurrentPassword), $User->getpassword())){
+                        $User->setpassword($NewPassword);
+                        $User->savepassword();
+                        print("<p class='welcome alert alert-success'>Your password has been changed. Use the new password next time you login.</p>");
+                    }
+                    else{
+                        print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
+                        $Errors = array($DefaultError);
+                        Forms::generateerrors("Correct the following errors before you can continue.",$Errors,false);
+                        User::changepasswordform();
+                    }
                 }
                 else{
                     print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
-                    $Errors = array($DefaultError);
+                    $Errors = array($MatchError);
                     Forms::generateerrors("Correct the following errors before you can continue.",$Errors,false);
                     User::changepasswordform();
                 }
             }
             else{
                 print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
-                $Errors = array($MatchError);
+                $Errors = array($DefaultError,$NewError,$New1Error,$MatchError,$BadPWError);
                 Forms::generateerrors("Correct the following errors before you can continue.",$Errors,false);
                 User::changepasswordform();
             }
-           
         }
         else{
             print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");

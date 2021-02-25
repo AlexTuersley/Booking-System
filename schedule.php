@@ -8,7 +8,9 @@ $Staff = $_GET["staff"];
 $Holiday = $_GET['away'];
 $MeetingType = $_GET['type'];
 $Booking = $_GET['booking'];
-$User = $_GET['user'];
+if($Level > 2){
+    $UID = $_GET['uid'];
+}
 $CSS[0] = "/Booking-System/css/jquery-ui.min.css";
 $CSS[1] = "/Booking-System/css/calendar.css";
 $Script[0] = "js/jquery.tablesorter.min.js";
@@ -20,12 +22,7 @@ $Script[5] = "js/ScheduleScript.js";
 WebPage::headerandnav("Schedule",$Level,$CSS,$Script);
 
 if($Level > 0){
-    // if($Level > 2){
-    //     //showusers with schedule link
-    //     //then showusers schedule with holiday link and meeting type
-    //     //or addedit
-    // }
-    if($Level >= 2){
+    if($Level == 2){
         if($_GET["edit"]){
             Schedule::addedit($_GET["edit"]);
         }
@@ -46,6 +43,34 @@ if($Level > 0){
                 Schedule::liststaffschedule($_SESSION["userid"]);
             }
            
+        }
+    }
+    elseif($Level > 2){
+        if($UID){
+            if($_GET["edit"]){
+                Schedule::addedit($_GET["edit"]);
+            }
+            elseif($_GET["remove"]){
+                Schedule::deleteschedule($_GET["remove"]);
+                if($Holiday){
+                    Schedule::liststaffschedule($UID,$Holiday);
+                }
+                else{
+                    Schedule::liststaffschedule($UID);
+                }
+            }
+            else{
+                if($Holiday){
+                    Schedule::liststaffschedule($UID,$Holiday);
+                }
+                else{
+                    Schedule::liststaffschedule($UID);
+                }
+               
+            }
+        }
+        else{
+            Schedule::liststaffusers();
         }
     }
     else{

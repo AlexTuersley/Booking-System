@@ -683,17 +683,57 @@ class Schedule {
     }
 
     /**
+     * Displays a table of staff users with clickable links to their schedules
+     */
+    static public function liststaffusers(){
+        if($_SESSION["userlevel"] == 3){
+            print("<p class='welcome'>The list below shows all Staff users. Click on a User to edit their Schedule.</p>");
+            $RQ = new ReadQuery("SELECT users.id, users.username, users.email, userinformation.fullname FROM users JOIN userinformation ON users.id = userinformation.userid WHERE users.deleted = 0 AND users.userlevel = 2 ORDER BY users.userlevel",NULL);
+            $Rows = array();
+            $RowCounter = 0;
+            while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
+                $Row1 = array("<a href='schedule.php?uid=".$row["id"]."'>".$row["username"]."</a>","button");
+                $Row3 = array($row["fullname"]);
+                $Row3 = array($row["email"]);
+                $Rows[$RowCounter] = array($Row1,$Row2,$Row3);
+                $RowCounter++;
+            }
+            $Cols = array(array("Username","user",1),array("Full name","fullname",1),array("Email","email",1));
+
+            Display::generatedynamiclistdisplay("userbookingstable",$Cols,$Rows,"Username",0);
+                
+        }
+        else{
+            print("<p class='banner-warning'>You are not an administrator. As such you do not have permission for this page, you will be redirected shortly.</p>");
+            header("refresh:5;url=http://".BASEPATH."/index.php");
+        }
+    }
+
+    /**
      * Lists the Slots or Holidays a Staff Member currently has with the ability to add, edit and delete them
      * @param int $STID - Id of the Staff member
      * @param int $holiday - defines whether holidays of slots are displayed
      */
     static public function liststaffschedule($STID, $holiday = 0){
         if($STID){
+            if($_SESSION['userlevel'] == 3){
+                Forms::generatebutton("Users","schedule.php","arrow-left","secondary");
+            }
+            
             if($holiday){
-                Forms::generatebutton("Add Holiday","schedule.php?edit=-1&away=1","plus","primary","","","Click this button to add a new Holiday");
-                Forms::generatebutton("Show Schedule","schedule.php","calendar-alt","primary","","","Click this button to show the time slots in your schedule");
-                Forms::generatebutton("Show Meeting Types","meetingtype.php","handshake","primary","","","Click this button to show your meeting types");
+                if($_SESSION['userlevel'] == 3){
+                    Forms::generatebutton("Add Holiday","schedule.php?uid=".$STID."&edit=-1&away=1","plus","primary","","","Click this button to add a new Holiday");
+                    Forms::generatebutton("Show Schedule","schedule.php?uid=".$STID."","calendar-alt","primary","","","Click this button to show the time slots in your schedule");
+                    Forms::generatebutton("Show Meeting Types","meetingtype.php?uid=".$STID,"handshake","primary","","","Click this button to show your meeting types");
                
+                }
+                else{
+                    Forms::generatebutton("Add Holiday","schedule.php?edit=-1&away=1","plus","primary","","","Click this button to add a new Holiday");
+                    Forms::generatebutton("Show Schedule","schedule.php","calendar-alt","primary","","","Click this button to show the time slots in your schedule");
+                    Forms::generatebutton("Show Meeting Types","meetingtype.php","handshake","primary","","","Click this button to show your meeting types");
+               
+                }
+                
                 $RQ = new ReadQuery("SELECT id, starttime, endtime, startdate, enddate FROM staffschedule WHERE staffid = :stid AND away = 1 AND deleted = 0 AND (startdate > NOW() OR startdate IS NULL)",
                                 array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
                 ));
@@ -706,8 +746,14 @@ class Schedule {
                     $enddate = new DateTime($row['enddate']);
                     $Row1 = array($startdate->format('d/m/Y'));
                     $Row2 = array($enddate->format('d/m/Y'));
-                    $Row3 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
-                    $Row4 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");
+                    if($_SESSION['userlevel'] > 2){
+                        $Row3 = array("<a href='?uid=".$STID."&edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
+                        $Row4 = array("<a href='?uid=".$STID."&remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");  
+                    }
+                    else{
+                        $Row3 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
+                        $Row4 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");  
+                    }
                     $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4);
                     $RowCounter++;
                 }
@@ -716,9 +762,16 @@ class Schedule {
 
             }
             else{
-                Forms::generatebutton("Add Schedule","schedule.php?edit=-1&active=1","plus","primary","","","Click this button to add a new Slot in your Schedule");
-                Forms::generatebutton("Show Holidays","schedule.php?away=1","plane","primary","","","Click this button to show your holidays");
-                Forms::generatebutton("Show Meeting Types","meetingtype.php","handshake","primary","","","Click this button to show your meeting types");
+                if($_SESSION['userlevel'] == 3){
+                    Forms::generatebutton("Add Schedule","schedule.php?uid=".$STID."&edit=-1&active=1","plus","primary","","","Click this button to add a new Slot in your Schedule");
+                    Forms::generatebutton("Show Holidays","schedule.php?uid=".$STID."&away=1","plane","primary","","","Click this button to show your holidays");
+                    Forms::generatebutton("Show Meeting Types","meetingtype.php?uid=".$STID,"handshake","primary","","","Click this button to show your meeting types");
+                }
+                else{
+                    Forms::generatebutton("Add Schedule","schedule.php?edit=-1&active=1","plus","primary","","","Click this button to add a new Slot in your Schedule");
+                    Forms::generatebutton("Show Holidays","schedule.php?away=1","plane","primary","","","Click this button to show your holidays");
+                    Forms::generatebutton("Show Meeting Types","meetingtype.php","handshake","primary","","","Click this button to show your meeting types");   
+                }
                
                 $RQ = new ReadQuery("SELECT id, staffday, starttime, endtime FROM staffschedule WHERE staffid = :stid AND active = 1 AND deleted = 0 ORDER BY staffday",
                     array(PDOConnection::sqlarray(":stid",$STID,PDO::PARAM_INT)
@@ -730,9 +783,15 @@ class Schedule {
                     $Row1 = array(Schedule::getstaffday($row['staffday']));
                     $Row2 = array($row['starttime']);
                     $Row3 = array($row['endtime']);
-                    $Row4 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
-                    $Row5 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");
-                    $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5);
+                    if($_SESSION['userlevel'] > 2){
+                        $Row4 = array("<a href='?uid=".$STID."&edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
+                        $Row5 = array("<a href='?uid=".$STID."&remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");
+                     }
+                    else{
+                        $Row4 = array("<a href='?edit=". $row["id"] ."'><i class='fas fa-edit' aria-hidden='true' title='Edit Holiday'></i></a>","button");
+                        $Row5 = array("<a href='?remove=". $row["id"] ."'><i class='fas fa-trash-alt' title='Delete Holiday'></i></a>","button");    
+                    }
+                   $Rows[$RowCounter] = array($Row1,$Row2,$Row3,$Row4,$Row5);
                     $RowCounter++;
                 }
                 print("<p class='welcome'>List of slots available for ". $_SESSION["username"]."</p>");
@@ -812,15 +871,30 @@ class Schedule {
      * @param string $enddate - end date of the holiday
      */
     static public function scheduleform($SID,$staff,$day,$starttime,$endtime,$active,$away,$startdate,$enddate){
-        if($active == 1){
-            Forms::generatebutton("Schedule","schedule.php","arrow-left","secondary");
+        if($_SESSION['userlevel'] > 2){
+            include('user.class.php');
+            if($active == 1){
+                Forms::generatebutton("Schedule","schedule.php?uid=".$_GET['uid'],"arrow-left","secondary");
+            }
+            else{
+                Forms::generatebutton("Holidays","schedule.php?uid=".$_GET['uid']."&away=1","arrow-left","secondary");
+            }
+            $StaffArray = array(array($_GET['uid'],User::getstaticusername($_GET['uid'])));
+            $staff = $_GET['uid'];
         }
         else{
-            Forms::generatebutton("Holidays","schedule.php?away=1","arrow-left","secondary");
+            if($active == 1){
+                Forms::generatebutton("Schedule","schedule.php","arrow-left","secondary");
+            }
+            else{
+                Forms::generatebutton("Holidays","schedule.php?away=1","arrow-left","secondary");
+            }
+            $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
+            $staff = $_SESSION['userid'];
         }
+        
        
-       $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
-       $staff = $_SESSION['userid'];
+      
        if($away > 0){          
             if($SID > 0){
                 if($startdate != NULL){
@@ -859,7 +933,14 @@ class Schedule {
             $StartDateField = array("Start Date: ","Date","startdate",10,$startdate,"","","","","Select the Start Date");
             $EndDateField = array("End Date: ","Date","enddate",10,$enddate,"","","","","Select the End Date");
             $Fields = array($StaffField,$StartField,$EndField,$DayField,$StartDateField,$EndDateField);
-            $Path = "schedule.php?edit=".$SID."&away=1";
+
+            if($_SESSION['userlevel'] > 2){
+                $Path = "schedule.php?uid=".$_GET['uid']."&edit=".$SID."&away=1";
+            }
+            else{
+                $Path = "schedule.php?edit=".$SID."&away=1";
+            }
+           
             $Script = "return checkholidayform(this)";
         }
         else{
@@ -875,7 +956,12 @@ class Schedule {
             else{
                 $Button = "Add Schedule";
             }
-            $Path = "schedule.php?edit=".$SID."&active=1";
+            if($_SESSION['userlevel'] > 2){
+                $Path = "schedule.php?uid=".$_GET['uid']."&edit=".$SID."&active=1";
+            }
+            else{
+                $Path = "schedule.php?edit=".$SID."&active=1";
+            }
             $Script = "return checkscheduleform(this)";
         }
       
