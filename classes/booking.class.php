@@ -489,7 +489,7 @@ class Booking{
             $RowCounter = 0;
             while($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                 $Row1 = array("<a href='bookings.php?uid=".$row["id"]."'>".$row["username"]."</a>","button");
-                $Row3 = array($row["fullname"]);
+                $Row2 = array($row["fullname"]);
                 $Row3 = array(User::getuserleveltype($row["userlevel"]));
                 $Rows[$RowCounter] = array($Row1,$Row2,$Row3);
                 $RowCounter++;
