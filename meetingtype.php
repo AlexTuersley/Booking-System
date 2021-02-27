@@ -27,7 +27,7 @@ elseif($_SESSION["userlevel"] > 0){
                 MeetingType::addedit($_GET['edit']);
             }
             elseif($_GET["remove"]){
-                MeetingType::delete($_GET["remove"]);
+                MeetingType::deletemeetingtype($_GET["remove"]);
                 MeetingType::listmeetingtypes($UID);
             }
             else{
@@ -43,7 +43,7 @@ elseif($_SESSION["userlevel"] > 0){
             MeetingType::addedit($_GET['edit']);
         }
         elseif($_GET["remove"]){
-            MeetingType::delete($_GET["remove"]);
+            MeetingType::deletemeetingtype($_GET["remove"]);
             MeetingType::listmeetingtypes($_SESSION['userid']);
         }
         else{

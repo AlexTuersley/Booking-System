@@ -293,6 +293,7 @@ Class MeetingType{
     static public function listmeetingtypes($STID){
         if($STID){
             if($_SESSION['userlevel'] > 2){
+                Forms::generatebutton("Users","schedule.php","arrow-left","secondary");
                 Forms::generatebutton("Add Meeting Type","meetingtype.php?uid=".$STID."&edit=-1","plus","primary","","","Click this button to add a new Meeting Type");
                 Forms::generatebutton("Show Schedule","schedule.php?uid=".$STID,"calendar-alt","primary","","","Click this button to show the time slots in your schedule");
                 Forms::generatebutton("Show Holidays","schedule.php?uid=".$STID."&away=1","plane","primary","","","Click this button to show your holidays");
@@ -353,14 +354,17 @@ Class MeetingType{
      * @param int - $duration - how long the Meeting will be
      */
     static public function meetingform($MID,$name,$staffid,$description,$duration){
+        include('user.class.php');
         if($_SESSION['userlevel'] > 2){
             Forms::generatebutton("Meeting Types","meetingtype.php?uid=".$_GET['uid'],"arrow-left","secondary");
+            $StaffArray = array(array($_GET['uid'],User::getstaticusername($_GET['uid'])));
         }
         else{
             Forms::generatebutton("Meeting Types","meetingtype.php","arrow-left","secondary");
+            $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
         }
 
-        $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
+       
         $StaffField = array("Staff: ","Select","staff",30,$staff,"Staff Member associated with the schedule",$StaffArray);
         $NameField = array("Meeting Name: ","Text","name",30,$name,"Name of the Meeting Type","","","","Enter a Name for the Meeting Type");
         $DescriptionField = array("Description: ","TextArea","description",4,$description,"Enter a Description for the Meeting Type","","","","Details about the type of meeting e.g. Project Tutorial");
