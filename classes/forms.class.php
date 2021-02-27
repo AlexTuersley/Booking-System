@@ -172,7 +172,43 @@ Class Forms{
             }
             
     
-        } elseif($Type === "DateRestricted") {
+        } elseif($Type === "EngDate") {
+            if($Max){
+                print("
+               
+                <input type='text' id='datepicker-".$Name."' value='".$Value."' />
+                <input type='hidden' id='".$Name."' name='".$Name."' value='".$Value."'>
+                <script>
+                $('#datepicker-".$Name."').datepicker({
+                    dateFormat:'dd/mm/yy',
+                    minDate:1,
+                    maxDate:".$Max.",
+                    onSelect: function(dateText, inst) {
+                        $('#".$Name."').val(dateText).change();
+                    }
+                });
+                </script>
+            ");
+            }
+            else{
+                print("
+               
+                <input type='text' id='datepicker-".$Name."' value='".$Value."' />
+                <input type='hidden' id='".$Name."' name='".$Name."' value='".$Value."'>
+                <script>
+                $('#datepicker-".$Name."').datepicker({
+                    dateFormat:'dd/mm/yy',
+                    minDate:0,
+                    onSelect: function(dateText, inst) {
+                        $('#".$Name."').val(dateText);
+                    }
+                });
+                </script>
+            ");
+            }
+            
+    
+        }elseif($Type === "DateRestricted") {
             print("
               
                 <input type='text' placeholder = '" .$Placeholder."' id='".$Name."' name='" . $Name . "' value='".$Value."'  />

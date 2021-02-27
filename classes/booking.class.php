@@ -193,10 +193,11 @@ class Booking{
      * @param string $starttime - the time of a potential booking
      * @param int $STID - Staff Id
      */
-    static public function checkbooking($starttime,$STID){
-        $RQ = new ReadQuery("SELECT * FROM bookings WHERE start_time = :starttime AND staffuserid = :staff AND deleted = 0",array(
+    static public function checkbooking($starttime,$STID,$ID=0){
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE start_time = :starttime AND staffuserid = :staff AND deleted = 0 AND id != :id",array(
             PDOConnection::sqlarray(":starttime",$starttime,PDO::PARAM_STR),
-            PDOConnection::sqlarray(":staff",$STID,PDO::PARAM_INT)
+            PDOConnection::sqlarray(":staff",$STID,PDO::PARAM_INT),
+            PDOConnection::sqlarray(":id",$ID,PDO::PARAM_INT)
         ));
         if($row = $RQ->getnumberofresults() > 0){
             return false;
@@ -224,38 +225,93 @@ class Booking{
     
         if($Submit){
             $starttime = str_replace("/","-",$starttime);
-            if(validatetimedate($starttime,"H:i:s d-m-Y") && $meeting > 0 && $staffid > 0 && $studentid > 0){
-                if($starttime != NULL){
-                    if(!is_object($starttime)){
-                        $starttime = str_replace("/","-",$starttime);
-                        $starttime = date("y-m-d H:i:s",strtotime($starttime));
-                        $starttime = new DateTime($starttime);
-                    }           
-                    $starttime = $starttime->format('y-m-d H:i:s');                   
-                }
-                if($starttime != NULL){
-                    $Duration = Schedule::getstaticduration($meeting);
-                    $Duration = strval($Duration * 60);
-                    $endtime = strtotime($starttime) + $Duration;
-                    $endtime = date("y-m-d H:i:s",$endtime);
-                    $endtime = new DateTime($endtime);
-                    $endtime = $endtime->format('y-m-d H:i:s');
-                }
-                if(Booking::checkbooking($starttime,$staffid)){
-                    if($BID > 0){
-                        $Booking = new Booking($BID);
-                        if($starttime != $Booking->getstarttime()->format('y-m-d H:i:s')){
-                            $Update = 1;
+            if($starttime != NULL){
+                if(!is_object($starttime)){
+                    $starttime = str_replace("/","-",$starttime);
+                    $starttime = date("y-m-d H:i:s",strtotime($starttime));
+                    $starttime = new DateTime($starttime);
+                } 
+            }
+            if($meeting > 0 && $staffid > 0 && $studentid > 0){
+                if(Booking::validatetimedate($starttime->format('y-m-d H:i:s'),"y-m-d H:i:s")){
+                    if($starttime != NULL){
+                        $Duration = Schedule::getstaticduration($meeting);
+                        $Duration = strval($Duration * 60);
+                        $endtime = strtotime($starttime->format('y-m-d H:i:s')) + $Duration;
+                        $endtime = date("y-m-d H:i:s",$endtime);
+                        $endtime = new DateTime($endtime);
+                    }
+                    if(Booking::checkbooking($starttime->format('y-m-d H:i:s'),$staffid,$BID)){
+                        if($BID > 0){
+                            $Booking = new Booking($BID);
+                            if(!$starttime->format('Y-m-d H:i:s') == $Booking->getstarttime()){
+                                $Update = 1;
+                            }
+                            $Booking->setstudentid($studentid);
+                            $Booking->setstaffid($staffid);
+                            $Booking->setstarttime($starttime->format('y-m-d H:i:s'));
+                            $Booking->setendtime($endtime->format('y-m-d H:i:s'));
+                            $Booking->setmeetingtype($meeting);
+                            $Booking->setnote($note);
+                            $Booking->save();
+                            print("<p class='welcome alert alert-success'>The Booking has been edited.</p>");
+                            if($Update){
+                                if(function_exists("mail")){
+                                    include('user.class.php');
+                                    include('meetingtype.class.php');
+                                    include("ics.class.php");
+                                    require_once("phpmailer.class.php");
+                                    require_once("smtp.class.php");
+                                    require_once("phpmaileroauth.class.php");
+                                    require_once("phpmaileroauthgoogle.class.php");
+                                    $ID = $Booking->getid();
+                                    $StudentUser = new User($studentid);
+                                    $StudentEmail = $StudentUser->getemail();
+                                    $StudentName = $StudentUser->getusername();
+                                    $Description = "Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $_SESSION['username'] ." by ".$StudentName."";
+                                    $email_message = "<html>
+                                                    <head><title>Booking Change</title></head>
+                                                    <body>
+                                                    <p>Booking at time with ".$_SESSION['username']." has changed to ".$starttime->format('H:i:s d/m/Y')."</p>
+                                                    </body>
+                                                    </html>";
+                                    $ics = new ICS($starttime->format('Ymd\THis\Z'),$endtime->format('Ymd\THis\Z'),"Booking".$ID,$Description,$_SESSION['location'],MeetingType::getmeetingnamestatic($meeting));
+                                    $ics->save();
+                                    $mail = new PHPMailer();
+                                    $mail->IsSMTP();
+                                    $mail->isHTML(true);
+                                    $mail->SMTPAuth = true;
+                                    $mail->SMTPSecure = 'tls';
+                                    $mail->Host = "smtp.gmail.com";
+                                    $mail->Port = 587;
+                                    $mail->Username = MAILUSERNAME;
+                                    $mail->Password = MAILPASS;
+                                    $mail->setFrom("noreply@bookingsystem.com","Booking System");
+                                    $mail->addAddress($StudentEmail,$StudentName);
+                                    $mail->addCC($_SESSION['email'],$_SESSION['username']);
+                                    $mail->Subject = "Booking Change";
+                                    $mail->Body = $email_message;
+                                    $mail->AddAttachment($ics->getICS(),$ics->getICS());
+                                    if($mail->send()){
+                                        print("<p class='welcome alert alert-success welcome'>An email has been sent to you to show the changes</p>");
+                                        print("</div>");
+                                    }
+                                    $ics->delete();
+                                }
+                            }
                         }
-                        $Booking->setstudentid($studentid);
-                        $Booking->setstaffid($staffid);
-                        $Booking->setstarttime($starttime);
-                        $Booking->setendtime($endtime);
-                        $Booking->setmeetingtype($meeting);
-                        $Booking->setnote($note);
-                        $Booking->save();
-                        print("<p class='welcome alert alert-success'>The Booking has been edited.</p>");
-                        if($Update){
+                        else{
+                            $Booking = new Booking();
+                            $Booking->setstudentid($studentid);
+                            $Booking->setstaffid($staffid);
+                            $Booking->setstarttime($starttime->format('y-m-d H:i:s'));
+                            $Booking->setendtime($endtime->format('y-m-d H:i:s'));
+                            $Booking->setmeetingtype($meeting);
+                            $Booking->setnote($note);
+                            $Booking->setrecurring(0);
+                            $Booking->savenew();
+                            $Added = 1;
+                            print("<p class='welcome alert alert-success'>The Booking has been added. </p>");
                             if(function_exists("mail")){
                                 include('user.class.php');
                                 include('meetingtype.class.php');
@@ -268,11 +324,11 @@ class Booking{
                                 $StudentUser = new User($studentid);
                                 $StudentEmail = $StudentUser->getemail();
                                 $StudentName = $StudentUser->getusername();
-                                $Description = "Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $_SESSION['username'] ." by ".$StudentName."";
+                                $Description = "Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $StudentName ." by ".$_SESSION['username']."";
                                 $email_message = "<html>
-                                                <head><title>Booking Change</title></head>
+                                                <head><title>New Booking</title></head>
                                                 <body>
-                                                <p>Booking at time with ".$_SESSION['username']." has changed to ".$starttime->format('H:i:s d/m/Y')."</p>
+                                                <p>Booking at time with ". $StudentName ." by ".$_SESSION['username']." at ".$starttime->format('H:i:s d/m/Y')."</p>
                                                 </body>
                                                 </html>";
                                 $ics = new ICS($starttime->format('Ymd\THis\Z'),$endtime->format('Ymd\THis\Z'),"Booking".$ID,$Description,$_SESSION['location'],MeetingType::getmeetingnamestatic($meeting));
@@ -289,88 +345,52 @@ class Booking{
                                 $mail->setFrom("noreply@bookingsystem.com","Booking System");
                                 $mail->addAddress($StudentEmail,$StudentName);
                                 $mail->addCC($_SESSION['email'],$_SESSION['username']);
-                                $mail->Subject = "Booking Change";
+                                $mail->Subject = "New Booking";
                                 $mail->Body = $email_message;
                                 $mail->AddAttachment($ics->getICS(),$ics->getICS());
                                 if($mail->send()){
-                                    print("<p class='welcome alert alert-success welcome'>An email has been sent to you to show the changes</p>");
+                                    print("<p class='welcome alert alert-success welcome'>An email has been sent to you and the student with details</p>");
                                     print("</div>");
                                 }
                                 $ics->delete();
                             }
                         }
-                    
                     }
                     else{
-                        $Booking = new Booking();
-                        $Booking->setstudentid($studentid);
-                        $Booking->setstaffid($staffid);
-                        $Booking->setstarttime($starttime);
-                        $Booking->setendtime($endtime);
-                        $Booking->setmeetingtype($meeting);
-                        $Booking->setnote($note);
-                        $Booking->setrecurring(0);
-                        $Booking->savenew();
-                        print("<p class='welcome alert alert-success'>The Booking has been added. </p>");
-                        if(function_exists("mail")){
-                            include('user.class.php');
-                            include('meetingtype.class.php');
-                            include("ics.class.php");
-                            require_once("phpmailer.class.php");
-                            require_once("smtp.class.php");
-                            require_once("phpmaileroauth.class.php");
-                            require_once("phpmaileroauthgoogle.class.php");
-                            $ID = $Booking->getid();
-                            $StudentUser = new User($studentid);
-                            $StudentEmail = $StudentUser->getemail();
-                            $StudentName = $StudentUser->getusername();
-                            $Description = "Booking at ".$starttime->format('H:i:s d/m/Y')." with ". $_SESSION['username'] ." by ".$StudentName."";
-                            $email_message = "<html>
-                                            <head><title>Booking Change</title></head>
-                                            <body>
-                                            <p>Booking at time with ".$_SESSION['username']." has changed to ".$starttime->format('H:i:s d/m/Y')."</p>
-                                            </body>
-                                            </html>";
-                            $ics = new ICS($starttime->format('Ymd\THis\Z'),$endtime->format('Ymd\THis\Z'),"Booking".$ID,$Description,$_SESSION['location'],MeetingType::getmeetingnamestatic($meeting));
-                            $ics->save();
-                            $mail = new PHPMailer();
-                            $mail->IsSMTP();
-                            $mail->isHTML(true);
-                            $mail->SMTPAuth = true;
-                            $mail->SMTPSecure = 'tls';
-                            $mail->Host = "smtp.gmail.com";
-                            $mail->Port = 587;
-                            $mail->Username = MAILUSERNAME;
-                            $mail->Password = MAILPASS;
-                            $mail->setFrom("noreply@bookingsystem.com","Booking System");
-                            $mail->addAddress($StudentEmail,$StudentName);
-                            $mail->addCC($_SESSION['email'],$_SESSION['username']);
-                            $mail->Subject = "New Booking";
-                            $mail->Body = $email_message;
-                            $mail->AddAttachment($ics->getICS(),$ics->getICS());
-                            if($mail->send()){
-                                print("<p class='welcome alert alert-success welcome'>An email has been sent to you and the student with details</p>");
-                                print("</div>");
-                            }
-                            $ics->delete();
-                        }
+                        print("<p class='welcome alert alert-warning><strong>Booking Exists</strong>A Booking within this time frame exists please select another</p>");
                     }
+                }
+                else{
+                    $Errors = array($DefaultError);
+                    Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
                 }
             }
             else{
-                $Errors = array($DefaultError,$StudentError,$StaffError,$MeetingError);
+                $Errors = array($StudentError,$StaffError,$MeetingError);
                 Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
-         
             }
         }
+
         if($BID > 0){
             $Booking = new Booking($BID);
             Booking::bookingsform($BID,$Booking->getstudentid(),$Booking->getstaffid(),$Booking->getstarttime(),$Booking->getmeetingtype(),$Booking->getnote(),$Booking->getrecurring());
         }
         else{
-            Booking::bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$recurring);
+            if($Added == 1){
+                print("<div class='welcome'>");
+                if($_SESSION['userlevel'] > 2){
+                    Forms::generatebutton("Bookings",$_SERVER['HTTP_REFERER'],"arrow-left","secondary");
+                }
+                else{
+                    Forms::generatebutton("Bookings","bookings.php","arrow-left","secondary");
+                }
+                print("</div>");
+            }
+            else{
+                Booking::bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$recurring);
+            }
+
         }
-        
     }
 
     /**
@@ -454,6 +474,7 @@ class Booking{
                         $mail->ErrorInfo;
                         print("<p class='alert alert-danger welcome'>The Booking has been added. But we are unable to send a confirmation email please contact an administrator.</p>");
                         header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
+                       
                     }else{
                         print("<p class='alert alert-success welcome'><strong>Booking Added</strong> An email has been sent to you to you and the staff member with details.</p><div class='welcome'>");
                         Forms::generatebutton("Bookings","bookings.php","book","primary"); 
@@ -513,7 +534,7 @@ class Booking{
         include('meetingtype.class.php');
         include('user.class.php');
         if($_SESSION['userlevel'] == 2){
-            Forms::generatebutton("Add Bookings","bookings.php?edit=-1","plus","primary");
+            Forms::generatebutton("Add Booking","bookings.php?edit=-1","plus","primary");
         }
         if($_SESSION['userlevel'] == 3){
             Forms::generatebutton("Users","bookings.php","arrow-left","secondary");
@@ -637,7 +658,7 @@ class Booking{
                 $StaffField = array("Staff: ","Select","staff",30,$staffid,"Staff Member associated with the schedule",$StaffArray,"","readonly");
                 //need a function to get starttime and dates for a few weeks if they arent already booked
                 $StartTimeField = array("Start Time: ","Time","time",10,$time,"","","","","Select the Start Time","",'6:00','22:00',300);
-                $StartDateField = array("Start Date: ","Date","date",10,$date,"","","","","Select the Start Date","","","14");
+                $StartDateField = array("Start Date: ","EngDate","date",10,$date,"","","","","Select the Start Date","","","14");
                 $StartField = array("Start Time: ","Text","starttime",30,$starttime,"","","","","");
                 $MeetingField = array("Meeting Type","Select","meeting",30,$meeting,"The Type of Meeting e.g. Half an Hour Meeting",$MeetingArray,"");
                 $NoteField = array("Note: ","TextArea","note",4,$note,"Enter some information about the Meeting(optional)","","","","Information about the meeting e.g. Reason for the meeting");
