@@ -216,7 +216,7 @@ class User{
      * @param int $UID - the ID of the User to be deleteds
      */
     static public function deleteuser($UID){
-        $RQ = new ReadQuery("SELECT * FROM bookings WHERE studentuserid = :id OR staffuserid = :id",array(
+        $RQ = new ReadQuery("SELECT * FROM bookings WHERE (studentuserid = :id OR staffuserid = :id) AND deleted = 0",array(
             PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
         ));
         if($row = $RQ->getnumberofresults() > 0){
@@ -389,9 +389,9 @@ class User{
 
     //Function creates a password form for too be displayed using the Forms class
     static public function changepasswordform(){
-        $CurrentPasswordField = array("Current Password: ","Password","currentpassword",30,"","Enter your current Password","","","","");
-        $NewPasswordField = array("New Password: ","Password","newpassword",30,"","Enter your new Password","","","","Password you will use to login to the System, must be at least 8 characters long");
-        $ConfirmPasswordField = array("Repeat New Password: ","Password","confirmpassword",30,"","Enter your new Password again","","","","Enter the Password you want again");
+        $CurrentPasswordField = array("Current Password: ","Password","currentpassword",30,"","Enter your Current Password","","","","");
+        $NewPasswordField = array("New Password: ","Password","newpassword",30,"","Enter your New Password","","","","Password you will use to login to the System, must be at least 8 characters long");
+        $ConfirmPasswordField = array("Repeat New Password: ","Password","confirmpassword",30,"","Enter your New Password again","","","","Enter the Password you want again");
        
        
        $Fields = array($CurrentPasswordField,$NewPasswordField,$ConfirmPasswordField);
@@ -407,12 +407,12 @@ class User{
 
         $Submit = $_POST["submit"];
 
-        $OldError = array("currentpassworderror","Please enter your current password.");
+        $PassError = array("currentpassworderror","Your current password doesn't match the system.");
         $NewError = array("newpassworderror","Please enter your new password. Passwords must be at least 10 Characters! Search online for best password practices for help on creating a secure password.");
         $New1Error = array("new1passworderror","Please re-enter your new password.");
         $MatchError = array("passwordmatcherror","Your new passwords do not match.");
         $BadPWError = array("badpwerror","You cannot use this password! Choose a more secure one.");
-        $DefaultError = array("defaulterror","Your current password does not match the system.");
+        $DefaultError = array("defaulterror","Please fill out all the fields.");
 
         if($Submit){
             if($CurrentPassword && $NewPassword && $ConfirmPassword){
@@ -425,7 +425,7 @@ class User{
                     }
                     else{
                         print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
-                        $Errors = array($DefaultError);
+                        $Errors = array($PassError);
                         Forms::generateerrors("Correct the following errors before you can continue.",$Errors,false);
                         User::changepasswordform();
                     }
@@ -439,7 +439,7 @@ class User{
             }
             else{
                 print("<p class='welcome'>To change your password complete the form below and click the change password button.</p>");
-                $Errors = array($DefaultError,$NewError,$New1Error,$MatchError,$BadPWError);
+                $Errors = array($DefaultError);
                 Forms::generateerrors("Correct the following errors before you can continue.",$Errors,false);
                 User::changepasswordform();
             }
@@ -511,7 +511,6 @@ class User{
                 if($row = $RQ->getresults()->fetch(PDO::FETCH_BOTH)){
                     $User = new User($row['id']);
                     $NewPassword = User::generatepassword();
-                    //echo $NewPassword;
                     $User->setpassword($NewPassword);
                     $User->savepassword();
                     if(function_exists("mail")){

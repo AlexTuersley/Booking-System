@@ -24,7 +24,7 @@ elseif($_SESSION["userlevel"] > 0){
             Departments::addedit($_GET["edit"]);
         }
         elseif($_GET["remove"]){
-            Departments::delete($_GET["remove"]);
+            Departments::deletedepartment($_GET["remove"]);
             Departments::listdepartmentsadmin();
         }
         else{

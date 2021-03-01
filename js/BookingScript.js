@@ -1,11 +1,13 @@
-function checkbooking(form){
+function checkbookingform(form){
     var studenterr = document.getElementById("studenterror");
     var stafferr = document.getElementById("stafferror");
     var typeerr = document.getElementById("meetingerror");
-    var starterr = document.getElementById("starterror");
+    var starterr = document.getElementById("starttimeerror");
+
+    console.log(form.starttime.value);
 
 
-    if(form.student.value > 0 && form.staff.value > 0 && form.type.value > 0 && validatetimedate(form.starttime.value)){
+    if(form.student.value > 0 && form.staff.value > 0 && form.meeting.value > 0 && validatetimedate(form.starttime.value)){
         return true;
     }
     else{

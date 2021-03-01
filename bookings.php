@@ -22,7 +22,7 @@ if($Level > 0){
     if($_GET['id'] && $_GET['confirm']){
         Booking::confirmbooking($_GET['id']);
     }
-     if($Level > 2){
+    if($Level > 2){
         if($UID){
             if($_GET['edit']){
                 Booking::addedit($_GET['edit']);

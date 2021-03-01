@@ -62,7 +62,7 @@ Class Departments{
      * Function sets the Department to Deleted - can be recovered by an Admin in the DB
      * @param int $DID - Id of the Department
      */
-    static public function delete($DID){
+    static public function deletedepartment($DID){
         $RQ = new ReadQuery("SELECT * FROM userinformation WHERE department = :department",array(
             PDOConnection::sqlarray(":department",$DID,PDO::PARAM_INT)
         ));

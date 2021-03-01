@@ -146,10 +146,15 @@ class Booking{
         );
         if(function_exists("mail")){
             $BookingTime = $Booking->getstarttime();
-            if($_SESSION['userid'] === $Booking->getstaffid()){
-                $StaffName = $_SESSION['username'];
+            if($_SESSION['userid'] == $Booking->getstaffid()){
+                $StaffName = User::getstaticusername($_SESSION['userid']);
                 $StudentName = User::getstaticusername($Booking->getstudentid()); 
                 $recipients = array($_SESSION['email'], User::getstaticemail($Booking->getstudentid()));
+            }
+            elseif($_SESSION['userlevel'] == 3){
+                $StaffName = User::getstaticusername($Booking->getstaffid());
+                $StudentName = User::getstaticusername($Booking->getstudentid()); 
+                $recipients = array(User::getstaticemail($Booking->getstaffid()), User::getstaticemail($Booking->getstudentid()));
             }
             else{
                 $StaffName = User::getstaticusername($Booking->getstaffid());
@@ -159,7 +164,6 @@ class Booking{
             $headers[] = 'MIME-Version: 1.0';
             $headers[] = 'Content-type: text/html; charset=iso-8859-1';
             $headers[] = "From: Booking System <noreply@bookingsystem.com>";
-            $NewPassword = $row["password"];
             $email_subject = "Booking Cancellation";
             $email_message = "<html>
                               <head><title>Booking Cancelled</title></head>
@@ -174,7 +178,7 @@ class Booking{
                 print("<p class='welcome alert alert-success'><strong>Booking Deleted</strong> An Email has been sent to your address with details</p>");
             }
             else{
-                print("<p class='welcome alert alert-warning'>The Booking has been cancelled. But an email was unable to be sent to your address</p>");
+                print("<p class='welcome alert alert-warning'>The Booking has been cancelled. But an email was unable to be sent</p>");
             }
         }
         header("refresh:5,url=".$_SERVER['HTTP_REFERER']);
@@ -538,7 +542,6 @@ class Booking{
         }
         if($_SESSION['userlevel'] == 3){
             Forms::generatebutton("Users","bookings.php","arrow-left","secondary");
-            Forms::generatebutton("Add Bookings","bookings.php?uid=".$ID."&edit=-1","plus","primary");
             print("<p class='welcome'>List of Bookings for ".User::getstaticusername($ID)."</p>");
         }
         else{
@@ -593,10 +596,12 @@ class Booking{
      */
     static public function bookingsform($BID,$studentid,$staffid,$starttime,$meeting,$note,$recurring,$time=NULL,$date=NULL){
         if($_SESSION['userlevel'] > 2){
-            Forms::generatebutton("Bookings",$_SERVER['HTTP_REFERER'],"arrow-left","secondary");
+            Forms::generatebutton("Bookings","bookings.php?uid=".$_GET['uid'],"arrow-left","secondary");
+            $Path = "bookings.php?uid=".$_GET['uid']."&edit=".$BID;
         }
         else{
             Forms::generatebutton("Bookings","bookings.php","arrow-left","secondary");
+            $Path = "bookings.php?edit=".$BID;
         }
         
         include("user.class.php");
@@ -642,7 +647,14 @@ class Booking{
                 $Fields = array($StudentField,$StaffField,$StartField,$MeetingField,$NoteField);
             }
             else{
-                $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
+                if($_SESSION['userlevel'] > 2){
+                    $StaffArray = array(array($_GET['uid'],User::getstaticusername($_GET['uid'])));
+                    $staffid = $_GET['uid'];
+                }
+                else{
+                    $StaffArray = array(array($_SESSION['userid'],$_SESSION['username']));
+                    $staffid = $_SESSION['userid'];
+                }
                 $StudentArray = Booking::studentusersarray();
                 $TimesArray = array();
                 if($starttime != NULL){
@@ -651,12 +663,11 @@ class Booking{
                     }           
                     $starttime = $starttime->format('H:i:s d/m/Y');                   
                 }  
-                $staffid = $_SESSION['userid'];
+                
     
     
                 $StudentField = array("Student: ","Select","student",30,$studentid,"Staff Member associated with the schedule",$StudentArray,"");
                 $StaffField = array("Staff: ","Select","staff",30,$staffid,"Staff Member associated with the schedule",$StaffArray,"","readonly");
-                //need a function to get starttime and dates for a few weeks if they arent already booked
                 $StartTimeField = array("Start Time: ","Time","time",10,$time,"","","","","Select the Start Time","",'6:00','22:00',300);
                 $StartDateField = array("Start Date: ","EngDate","date",10,$date,"","","","","Select the Start Date","","","14");
                 $StartField = array("Start Time: ","Text","starttime",30,$starttime,"","","","","");
@@ -677,7 +688,7 @@ class Booking{
             else{
                 $Button = "Add Booking";
             }
-            Forms::generateform("bookingform","bookings.php?edit=".$BID, "return checkbookingform(true)", $Fields, $Button);
+            Forms::generateform("bookingform",$Path, "return checkbookingform(this)", $Fields, $Button);
             ?>   
             <script>
                 $(document).ready(function(){
