@@ -200,13 +200,13 @@ class Schedule {
             if($enddate != NULL){
                 if(!is_object($enddate)){
                     $enddate = new DateTime($enddate);
-                }
+                }   
             } 
             if($SID > 0){
                 $Schedule = new Schedule($SID);               
                 if($away > 0){
                     if(Schedule::validatedate($startdate) && Schedule::validatedate($enddate)){
-                        if($staffid > 0 && $enddate != "" && $startdate != ""){
+                        if($staffid > 0){
                             $startdate = $startdate->format('Y-m-d');
                             $enddate = $enddate->format('Y-m-d');
                             $Schedule->setday(0);
@@ -229,7 +229,7 @@ class Schedule {
                         }
                     }    
                     else{
-                        print("<p class='welcome alert alert-danger><strong>Start or End Date invalid</strong>Please check that the format user is correct</p>");
+                        print("<p class='welcome alert alert-danger><strong>Start or End Date invalid</strong>Please check that the format used is correct</p>");
                     }       
                 }
                 else{
@@ -263,32 +263,39 @@ class Schedule {
                
             }
             else{
+
                 $Schedule = new Schedule();
                 $Schedule->setstaffid($staffid);      
-              
                 if($away > 0){
-                    if($staffid > 0 && $enddate != "" && $startdate != ""){
-                        $startdate = $startdate->format('Y-m-d');
-                        $enddate = $enddate->format('Y-m-d');
-                        $Schedule->setday(0);
-                        $Schedule->setaway(1);
-                        $Schedule->setactive(0);
-                        $Schedule->setstartdate($startdate);
-                        $Schedule->setenddate($enddate);
-                        $Schedule->setdeleted(0);
-                        if(Schedule::checkholidayslot(-1,$startdate,$enddate,$staffid)){
-                            $Schedule->savenew();
-                            print("<p class='alert alert-success'>Holiday has successfully been added</p>");
-                        }   
-                    }  
-                    else{
-                        $DefaultError = array("dateerror","Make sure End Date is later than Start Date");
-                        $StartdateError = array("startdateerror","Invalid Start Date");
-                        $EnddateError = array("enddateerror","Invalid End Date");
-                        $StaffError = array("stafferror","Invalid Staff Id");
-                        $Errors = array($DefaultError,$StartdateError,$EnddateError,$StaffError);
-                        Forms::generateerrors("Please correct the following errors before continuing.",$Errors,$Submit);
+ 
+                    if(Schedule::validatedate($startdate) && Schedule::validatedate($enddate)){                        
+                        if($staffid > 0){
+
+                            $startdate = $startdate->format('Y-m-d');
+                            $enddate = $enddate->format('Y-m-d');
+                            $Schedule->setday(0);
+                            $Schedule->setaway(1);
+                            $Schedule->setactive(0);
+                            $Schedule->setstartdate($startdate);
+                            $Schedule->setenddate($enddate);
+                            $Schedule->setdeleted(0);
+                            if (Schedule::checkholidayslot(-1,$startdate,$enddate, $staffid)){
+                                $Schedule->savenew();
+                                print("<p class='alert alert-success'>Holiday has successfully been added</p>");
+                            }
+                        }
+                        else {
+                            $DefaultError = array("dateerror","Make sure End Date is later than Start Date");
+                            $StartdateError = array("startdateerror","Invalid Start Date");
+                            $EnddateError = array("enddateerror","Invalid End Date");
+                            $StaffError = array("stafferror","Invalid Staff Id");
+                            $Errors = array($DefaultError,$StartdateError,$EnddateError,$StaffError);
+                            Forms::generateerrors("Please correct the following errors before continuing.", $Errors, $Submit);
+                        }
                     }
+                    else{
+                        print("<p class='welcome alert alert-danger><strong>Start or End Date invalid</strong>Please check that the format used is correct</p>");
+                    }   
                 }
                 else{
                     if($day > 0 && $day <= 7 && $staffid > 0 && $endtime != "" && $starttime != ""){
@@ -519,13 +526,14 @@ class Schedule {
      * @return bool false if a slot exists, false if not
      */
     static public function checkholidayslot($id,$startdate,$enddate,$userid){
-        $RQ = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 AND id != :id AND staffid = :staff AND (startdate BETWEEN :startdate AND :enddate OR enddate BETWEEN :startdate AND :enddate)",array(
+        $RQ2 = new ReadQuery("SELECT * FROM staffschedule WHERE deleted = 0 AND id != :id AND staffid = :staff AND away = 1 AND (startdate BETWEEN :startdate AND :enddate OR enddate BETWEEN :startdate AND :enddate)",
+        array(
             PDOConnection::sqlarray(':id',$id,PDO::PARAM_INT),
             PDOConnection::sqlarray(':staff',$userid,PDO::PARAM_INT),
             PDOConnection::sqlarray(':startdate',$startdate,PDO::PARAM_STR),
             PDOConnection::sqlarray(':enddate',$enddate,PDO::PARAM_STR)
         ));
-        if($RQ->getnumberofresults() > 0){
+        if($RQ2->getnumberofresults() > 0){
             print("<p class='alert alert-warning'><strong>Holiday Exists </strong>A holiday for your User exists between these dates. Please edit or delete the holiday before adding a new one.</p>");
             return false;
         }

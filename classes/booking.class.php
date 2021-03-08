@@ -607,7 +607,16 @@ class Booking{
         include("user.class.php");
         include("meetingtype.class.php");
 
-        $MeetingArray = MeetingType::meetingtypesarray($_SESSION['userid']);
+        if($staffid == $_SESSION['userid']){
+            $MeetingArray = MeetingType::meetingtypesarray($_SESSION['userid']);
+        }
+        elseif($_GET['uid']){
+            $MeetingArray = MeetingType::meetingtypesarray($_GET['uid']);
+        }
+        else{
+            $MeetingArray = MeetingType::meetingtypesarray($staffid);
+        }
+
 
         if(empty($MeetingArray)){
             print("<p><strong>Meeting Types are not setup</strong> Make sure a Staff Member has setup their Meeting Types before making a Booking</p>");
