@@ -50,8 +50,8 @@ function exceptionHandler($e) {
 	  logError("Fatal Error Detected: [$errno] $errstr line: $errline");
 	}
   }
-  //set_error_handler('errorHandler');
- // set_exception_handler('exceptionHandler');
+//   set_error_handler('errorHandler');
+//   set_exception_handler('exceptionHandler');
   
   /**
    * Loops through the classes folder and includes all php files in the page

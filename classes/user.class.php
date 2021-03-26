@@ -899,6 +899,19 @@ class User{
     static public function signout(){
         session_destroy();
     }
+
+    static public function getlatestbooking($UID){
+        $RQ = new ReadQuery("SELECT DISTINCT * FROM `bookings` WHERE (studentuserid = :id OR staffuserid = :id) AND deleted = 0 AND start_time > NOW() ORDER BY start_time",array(
+            PDOConnection::sqlarray(":id",$UID,PDO::PARAM_INT)
+        ));
+        if($RQ->getnumberofresults() > 0){
+            $row = $RQ->getresults()->fetch(PDO::FETCH_ASSOC);
+            $starttime = new DateTime($row['start_time']);
+            print("<div class='welcome'>
+                <p style='font-weight:bold'>Upcoming Booking: ".$starttime->format("H:i:s d/m/Y")."</p>
+            </div>");
+        }
+    }
    
     //Creates a HTML Display using the Display class to show all Users 
     static public function listusers(){
